@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  dev:
+    container_name: spotify_backend_dev
+    image: spotify-backend-dev:1.0.0
+    build:
+      context: ./backend
+      target: development
+      dockerfile: Dockerfile
+    command: npm run start:debug
+    ports:
+      - 3000:3000
+      - 9229:9229
+    networks:
+      - nesjs-network
+    volumes:
+#      - .:/usr/src/app
+#      - /usr/src/app/node_modules
+      - ./:/app
+    restart: unless-stopped
+  prod:
+    container_name: spotify_backend_prod
+    image: spotify-backend-prod:1.0.0
+    build:
+      context: ./backend
+      target: production
+      dockerfile: Dockerfile
+    command: npm run start:prod
+    ports:
+      - 3000:3000
+      - 9229:9229
+    networks:
+      - nesjs-network
+    volumes:
+#      - .:/usr/src/app
+#      - /usr/src/app/node_modules
+      - ./:/app
+
+    restart: unless-stopped
+
+networks:
+  nesjs-network:
