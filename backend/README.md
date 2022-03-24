@@ -11,9 +11,10 @@ The NestJS backend has separate controllers for each of the frontends.
 $ npm install
 ```
 
-####Copy .env file and  fill it
+####Copy .env files and fill them
 ```bash
-$ cp ./.env.example ./.env
+$ cp ./.env.dev.example ./.env.dev
+$ cp ./.env.prod.example ./.env.prod
 ```
 
 #### Run the app
