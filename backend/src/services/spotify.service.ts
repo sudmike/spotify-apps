@@ -43,7 +43,12 @@ export class SpotifyService {
 
       // request tokens from Spotify
       try {
-        return { ...(await this.spotifyApi.authorizationCodeGrant(code)).body };
+        const res = (await this.spotifyApi.authorizationCodeGrant(code)).body;
+        this.spotifyApi.setAccessToken(res.access_token);
+        return {
+          ...res,
+          username: await SpotifyService.getUsername(this.spotifyApi),
+        };
       } catch (e) {
         throw new UnauthorizedException(
           undefined,
@@ -56,6 +61,15 @@ export class SpotifyService {
         undefined,
         'Spotify callback not allowed, due to invalid state.',
       );
+    }
+  }
+
+  private static async getUsername(spotifyApi: SpotifyWebApi): Promise<string> {
+    try {
+      return (await spotifyApi.getMe()).body.id;
+    } catch (e) {
+      console.log(e);
+      throw new Error(e.body);
     }
   }
 }
