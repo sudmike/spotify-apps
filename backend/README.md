@@ -15,6 +15,8 @@ $ npm install
 ```bash
 $ cp ./.env.dev.example ./.env.dev
 $ cp ./.env.prod.example ./.env.prod
+$ cp ./src/merger/firebase-creds-dev.example.json ./src/merger/firebase-creds-dev.json
+$ cp ./src/merger/firebase-creds-prod.example.json ./src/merger/firebase-creds-prod.json
 ```
 
 #### Run the app
