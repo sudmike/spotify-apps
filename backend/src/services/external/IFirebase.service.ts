@@ -4,7 +4,7 @@ import admin, { ServiceAccount } from 'firebase-admin';
 import { Database } from 'firebase-admin/lib/database';
 
 @Injectable()
-export class FirestoreService implements IDatabaseService {
+export abstract class IFirebaseService implements IDatabaseService {
   database: Database;
 
   initialize(credentials: ServiceAccount) {
@@ -16,7 +16,7 @@ export class FirestoreService implements IDatabaseService {
     this.database = admin.database();
   }
 
-  async addEntry(collection: string, id: string, data: any) {
+  async addEntry(collection: string, id: string, data: any): Promise<void> {
     const ref = this.database.ref(`${collection}/${id}`);
     try {
       await ref.set(data);
