@@ -6,7 +6,11 @@ export class SpotifyService {
   private spotifyApi = new SpotifyWebApi();
 
   // contains state codes connected to requests that were sent out to Spotify
-  private states: { state: string; clientId: string }[] = [];
+  private states: {
+    state: string;
+    clientId: string;
+    timeoutHandler: NodeJS.Timeout;
+  }[] = [];
 
   /**
    * Starts off the OAuth flow by creating and returning URL for OAuth redirection.
@@ -17,7 +21,11 @@ export class SpotifyService {
     this.spotifyApi.setCredentials(credentials);
 
     const state = generateRandomString(32);
-    this.states.push({ state, clientId: credentials.clientId });
+    const timeoutHandler = setTimeout(
+      () => this.removeState(state),
+      5 * 60 * 1000,
+    );
+    this.states.push({ state, clientId: credentials.clientId, timeoutHandler });
 
     return this.spotifyApi.createAuthorizeURL(scopes, state);
   }
@@ -39,7 +47,7 @@ export class SpotifyService {
 
     if (index > -1) {
       // remove entry from states
-      this.states.splice(index);
+      this.removeStateAtIndex(index);
 
       // request tokens from Spotify
       try {
@@ -59,8 +67,21 @@ export class SpotifyService {
       // send an error if the state is invalid
       throw new UnauthorizedException(
         undefined,
-        'Spotify callback not allowed, due to invalid state.',
+        'Spotify callback not allowed, due to invalid state or because too much time has passed.',
       );
+    }
+  }
+
+  private removeState(state: string) {
+    const index = this.states.findIndex((tuple) => tuple.state === state);
+    if (index > -1) this.removeStateAtIndex(index);
+  }
+
+  private removeStateAtIndex(index: number) {
+    const tuple = this.states.at(index);
+    if (tuple) {
+      clearTimeout(tuple.timeoutHandler);
+      this.states.splice(index);
     }
   }
 
