@@ -13,11 +13,27 @@ export class DatabaseService extends IFirebaseService {
   /**
    * Add a user to the merger database.
    * @param id A UUID that identifies the user.
-   * @param data The data that should be saved with the user.
    */
-  async addUser(id: string, data: any): Promise<string> {
+  async addUser(id: string): Promise<string> {
     try {
-      await super.addEntry('users', id, data);
+      await super.updateEntry('users', id, {});
+      return id;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /**
+   * Update refresh token for Spotify.
+   * @param id A UUID that identifies the user.
+   * @param spotifyRefresh The refresh token.
+   */
+  async updateSpotifyToken(
+    id: string,
+    spotifyRefresh: string,
+  ): Promise<string> {
+    try {
+      await super.updateEntry('users', id, { spotifyRefresh });
       return id;
     } catch (e) {
       throw e;
