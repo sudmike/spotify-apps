@@ -25,4 +25,14 @@ export abstract class IFirebaseService implements IDatabaseService {
       throw e;
     }
   }
+
+  async updateEntry(collection: string, id: string, data: any): Promise<void> {
+    const ref = this.database.ref(`${collection}/${id}`);
+    try {
+      await ref.update(data);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
 }

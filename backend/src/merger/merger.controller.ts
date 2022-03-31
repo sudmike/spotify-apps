@@ -54,10 +54,13 @@ export class MergerController {
 
     // generate a uuid based on the username
     const uuid = UUID(spotifyData.username, UUID.URL);
-    const data = { spotifyRefresh: spotifyData.refresh_token };
 
     // add user and refresh token to database
-    await this.databaseService.addUser(uuid, data);
+    await this.databaseService.addUser(uuid);
+    await this.databaseService.updateSpotifyToken(
+      uuid,
+      spotifyData.refresh_token,
+    );
 
     return { url: `${process.env.FRONTEND_REDIRECT_URI_SPOTIFY}?id=${uuid}` };
   }
