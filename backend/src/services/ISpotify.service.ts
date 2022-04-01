@@ -32,7 +32,6 @@ export abstract class ISpotifyService {
 
   /**
    * Completes the OAuth flow by sending a post request to Spotify for the tokens.
-   * @param credentials Spotify application credentials.
    * @param state The state that was sent with the initial request. Protection from CSRF.
    * @param code The authorization code provided by Spotify.
    */
@@ -64,6 +63,27 @@ export abstract class ISpotifyService {
         undefined,
         'Spotify callback not allowed, due to invalid state or because too much time has passed.',
       );
+    }
+  }
+
+  /**
+   * Refreshes the tokens and returns them.
+   * @param refreshToken The current refresh token.
+   */
+  async getTokens(refreshToken: string): Promise<{
+    access_token: string;
+    expires_in: number;
+  }> {
+    this.spotifyApi.setRefreshToken(refreshToken);
+    try {
+      const response = (await this.spotifyApi.refreshAccessToken()).body;
+      return {
+        access_token: response.access_token,
+        expires_in: response.expires_in,
+      };
+    } catch (e) {
+      console.log(e);
+      throw e;
     }
   }
 
