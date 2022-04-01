@@ -5,17 +5,12 @@ import {
   Redirect,
   UnauthorizedException,
 } from '@nestjs/common';
-import { SpotifyService } from '../services/spotify.service';
+import { SpotifyService } from './services/spotify.service';
 import { DatabaseService } from './services/database.service';
 import { v5 as UUID } from 'uuid';
 
 @Controller('merger')
 export class MergerController {
-  private spotifyCredentials = {
-    clientId: process.env.SPOTIFY_CLIENT_ID_MERGER,
-    clientSecret: process.env.SPOTIFY_CLIENT_SECRET_MERGER,
-    redirectUri: process.env.SPOTIFY_REDIRECT_URI_MERGER,
-  };
   private spotifyScope = ['playlist-read-private', 'playlist-modify-private'];
 
   constructor(
@@ -26,10 +21,7 @@ export class MergerController {
   @Get('login')
   @Redirect('https://spotify.com')
   getLogin() {
-    const url = this.spotifyService.loginRedirect(
-      this.spotifyCredentials,
-      this.spotifyScope,
-    );
+    const url = this.spotifyService.loginRedirect(this.spotifyScope);
 
     return { url };
   }
@@ -46,11 +38,7 @@ export class MergerController {
     }
 
     // get Spotify tokens
-    const spotifyData = await this.spotifyService.callback(
-      this.spotifyCredentials,
-      state,
-      code,
-    );
+    const spotifyData = await this.spotifyService.callback(state, code);
 
     // generate a uuid based on the username
     const uuid = UUID(spotifyData.username, UUID.URL);

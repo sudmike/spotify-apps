@@ -1,11 +1,5 @@
 export abstract class IDatabaseService {
   /**
-   * Initialize the database by passing credentials.
-   * @param credentials The necessary credentials.
-   */
-  abstract initialize(credentials: any): void;
-
-  /**
    * Adds a new entry to the database.
    * @param collection The path to a node.
    * @param id The id of the entry.
@@ -20,4 +14,11 @@ export abstract class IDatabaseService {
    * @param data The data that should be updated.
    */
   abstract updateEntry(collection: string, id: string, data: any): void;
+
+  /**
+   * Fetches an entry from the database.
+   * @param collection The path to a node.
+   * @param id The id of the entry.
+   */
+  abstract getEntry(collection: string, id: string): any;
 }

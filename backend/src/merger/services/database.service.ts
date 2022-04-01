@@ -39,4 +39,22 @@ export class DatabaseService extends IFirebaseService {
       throw e;
     }
   }
+
+  /**
+   * Gets the entry for a user.
+   * @param id A UUID that identifies the user.
+   */
+  async getUserData(id: string): Promise<UserData> {
+    try {
+      const data = await super.getEntry('users', id);
+      return { refreshToken: data.spotifyRefresh, id };
+    } catch (e) {
+      throw e;
+    }
+  }
 }
+
+export type UserData = {
+  id: string;
+  refreshToken: string;
+};
