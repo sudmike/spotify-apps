@@ -35,4 +35,14 @@ export abstract class IFirebaseService implements IDatabaseService {
       throw e;
     }
   }
+
+  async getEntry(collection: string, id: string) {
+    const ref = this.database.ref(`${collection}/${id}`);
+    try {
+      return (await ref.get()).val();
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
 }

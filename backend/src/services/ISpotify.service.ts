@@ -2,30 +2,30 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import SpotifyWebApi from 'spotify-web-api-node';
 
 @Injectable()
-export class SpotifyService {
+export abstract class ISpotifyService {
   private spotifyApi = new SpotifyWebApi();
 
   // contains state codes connected to requests that were sent out to Spotify
   private states: {
     state: string;
-    clientId: string;
     timeoutHandler: NodeJS.Timeout;
   }[] = [];
 
+  protected constructor(credentials: SpotifyCredentials) {
+    this.spotifyApi.setCredentials(credentials);
+  }
+
   /**
    * Starts off the OAuth flow by creating and returning URL for OAuth redirection.
-   * @param credentials Spotify application credentials.
    * @param scopes The scopes that are requested from Spotify.
    */
-  loginRedirect(credentials: SpotifyCredentials, scopes: string[]): string {
-    this.spotifyApi.setCredentials(credentials);
-
+  loginRedirect(scopes: string[]): string {
     const state = generateRandomString(32);
     const timeoutHandler = setTimeout(
       () => this.removeState(state),
       5 * 60 * 1000,
     );
-    this.states.push({ state, clientId: credentials.clientId, timeoutHandler });
+    this.states.push({ state, timeoutHandler });
 
     return this.spotifyApi.createAuthorizeURL(scopes, state);
   }
@@ -36,14 +36,9 @@ export class SpotifyService {
    * @param state The state that was sent with the initial request. Protection from CSRF.
    * @param code The authorization code provided by Spotify.
    */
-  async callback(credentials: SpotifyCredentials, state: string, code: string) {
-    this.spotifyApi.setCredentials(credentials);
-
+  async callback(state: string, code: string) {
     // check state to prevent CSRF
-    const index = this.states.findIndex(
-      (tuple) =>
-        tuple.state === state && tuple.clientId === credentials.clientId,
-    );
+    const index = this.states.findIndex((tuple) => tuple.state === state);
 
     if (index > -1) {
       // remove entry from states
@@ -55,7 +50,7 @@ export class SpotifyService {
         this.spotifyApi.setAccessToken(res.access_token);
         return {
           ...res,
-          username: await SpotifyService.getUsername(this.spotifyApi),
+          username: await ISpotifyService.getUsername(this.spotifyApi),
         };
       } catch (e) {
         throw new UnauthorizedException(
