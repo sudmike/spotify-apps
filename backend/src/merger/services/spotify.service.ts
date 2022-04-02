@@ -23,12 +23,43 @@ export class SpotifyService extends ISpotifyService {
         await super.getSpotifyApi().searchArtists(artist, { limit: 5 })
       ).body.artists.items;
 
-      return res.map((entry) => ({
+      // filter out artists that don't have a 'This is XYZ' playlist
+      const validEntries = [];
+      for await (const entry of res) {
+        const playlistId = await this.getThisIsPlaylistId(entry.name);
+        if (playlistId) {
+          entry.href = playlistId; // abuse
+          validEntries.push(entry);
+        }
+      }
+
+      return validEntries.map((entry) => ({
         id: entry.id,
         name: entry.name,
         images: entry.images.map((image) => image.url),
         popularity: entry.popularity,
+        playlist: entry.href,
       }));
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
+   * Returns the id of an artists 'This is XYZ' playlist or undefined if there is none.
+   * @param artist The name of the artist.
+   * @private
+   */
+  private async getThisIsPlaylistId(artist: string) {
+    try {
+      const res = (
+        await super
+          .getSpotifyApi()
+          .searchPlaylists('This is ' + artist, { limit: 1 })
+      ).body.playlists.items?.at(0);
+
+      if (res?.owner.id === 'spotify') return res.id || undefined;
     } catch (e) {
       console.log(e);
       throw e;
