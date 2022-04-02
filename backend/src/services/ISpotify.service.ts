@@ -3,7 +3,7 @@ import SpotifyWebApi from 'spotify-web-api-node';
 
 @Injectable()
 export abstract class ISpotifyService {
-  private spotifyApi = new SpotifyWebApi();
+  private readonly spotifyApi: SpotifyWebApi;
 
   // contains state codes connected to requests that were sent out to Spotify
   private states: {
@@ -12,7 +12,15 @@ export abstract class ISpotifyService {
   }[] = [];
 
   protected constructor(credentials: SpotifyCredentials) {
-    this.spotifyApi.setCredentials(credentials);
+    this.spotifyApi = new SpotifyWebApi(credentials);
+  }
+
+  /**
+   * Returns Spotify API instance to extending classes.
+   * @protected
+   */
+  protected getSpotifyApi(): SpotifyWebApi {
+    return this.spotifyApi;
   }
 
   /**
@@ -64,6 +72,14 @@ export abstract class ISpotifyService {
         'Spotify callback not allowed, due to invalid state or because too much time has passed.',
       );
     }
+  }
+
+  /**
+   * Sets the access token of the spotify API instance.
+   * @param accessToken The current refresh token.
+   */
+  setAccessToken(accessToken: string): void {
+    this.spotifyApi.setAccessToken(accessToken);
   }
 
   /**

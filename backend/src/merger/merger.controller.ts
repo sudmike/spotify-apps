@@ -1,13 +1,24 @@
 import {
+  Body,
   Controller,
   Get,
   Query,
   Redirect,
   UnauthorizedException,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { SpotifyService } from './services/spotify.service';
 import { DatabaseService } from './services/database.service';
 import { v5 as UUID } from 'uuid';
+import { AuthGuard } from '../guards/auth.guard';
+import { SpotifyTokenInterceptor } from './interceptors/spotify-token.interceptor';
+import { IsNotEmpty } from 'class-validator';
+
+class SearchArtistSchema {
+  @IsNotEmpty()
+  artist: string;
+}
 
 @Controller('merger')
 export class MergerController {
@@ -56,5 +67,12 @@ export class MergerController {
   @Get('frontend')
   getFrontend() {
     return 'WOW look at this temporary frontend!';
+  }
+
+  @Get('artist')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async searchArtist(@Body() body: SearchArtistSchema) {
+    return await this.spotifyService.searchArtist(body.artist);
   }
 }
