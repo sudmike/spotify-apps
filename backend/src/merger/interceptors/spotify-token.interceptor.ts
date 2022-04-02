@@ -4,7 +4,6 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { map } from 'rxjs';
 import { Request } from 'express';
 import { SpotifyService } from '../services/spotify.service';
 import { DatabaseService } from '../services/database.service';
@@ -30,14 +29,11 @@ export class SpotifyTokenInterceptor implements NestInterceptor {
     // should be available due to auth guard
     const uuid = request.headers.authorization.split('Bearer ').pop();
 
+    // get Spotify access token and set it
     const accessToken = await this.getAccessToken(uuid);
+    this.spotifyService.setAccessToken(accessToken);
 
-    return next.handle().pipe(
-      map((data) => ({
-        ...data,
-        accessToken,
-      })),
-    );
+    return next.handle();
   }
 
   private async getAccessToken(id: string) {

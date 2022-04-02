@@ -12,4 +12,26 @@ export class SpotifyService extends ISpotifyService {
 
     super(spotifyCredentials);
   }
+
+  /**
+   * Returns up to 5 artists that fit the requested artist name.
+   * @param artist The name of the artist to return results for.
+   */
+  async searchArtist(artist: string) {
+    try {
+      const res = (
+        await super.getSpotifyApi().searchArtists(artist, { limit: 5 })
+      ).body.artists.items;
+
+      return res.map((entry) => ({
+        id: entry.id,
+        name: entry.name,
+        images: entry.images.map((image) => image.url),
+        popularity: entry.popularity,
+      }));
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
 }
