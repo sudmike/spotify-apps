@@ -14,32 +14,79 @@ export class SpotifyService extends ISpotifyService {
   }
 
   /**
-   * Returns up to 5 artists that fit the requested artist name.
-   * @param artist The name of the artist to return results for.
+   * Returns the artist that matches the requested artist name.
+   * @param artist THe name of the artist to return results for.
    */
   async searchArtist(artist: string) {
     try {
       const res = (
-        await super.getSpotifyApi().searchArtists(artist, { limit: 5 })
-      ).body.artists.items;
+        await super.getSpotifyApi().searchArtists(artist, { limit: 1 })
+      ).body.artists;
+      const entry = res.items.at(0);
+      const more: null | number = res.next ? 1 : null;
+
+      // check for 'This is XYZ' playlist
+      const playlist = await this.getThisIsPlaylistId(entry?.name); //abuse
+      if (!entry || !playlist)
+        return { query: artist, alternatives: more, artist: null };
+
+      entry.href = playlist;
+
+      return {
+        query: artist,
+        next: more,
+        artist: {
+          id: entry.id,
+          name: entry.name,
+          images: entry.images.map((image) => image.url),
+          popularity: entry.popularity,
+          playlist: entry.href,
+        },
+      };
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
+   * Returns up to 5 artists that fit the requested artist name.
+   * @param artist The name of the artist to return results for.
+   * @param offset The offset to the last request to get new results.
+   */
+  async searchArtistAlternatives(artist: string, offset = 0) {
+    try {
+      const limit = 10;
+      const res = (
+        await super.getSpotifyApi().searchArtists(artist, { limit, offset })
+      ).body.artists;
+      const entries = res.items;
+      let more: null | number = res.next ? offset : null;
 
       // filter out artists that don't have a 'This is XYZ' playlist
       const validEntries = [];
-      for await (const entry of res) {
+      for await (const [index, entry] of entries.entries()) {
+        if (more !== null) more = offset + index + 1;
+
         const playlistId = await this.getThisIsPlaylistId(entry.name);
         if (playlistId) {
           entry.href = playlistId; // abuse
           validEntries.push(entry);
+          if (validEntries.length >= 5) break;
         }
       }
 
-      return validEntries.map((entry) => ({
-        id: entry.id,
-        name: entry.name,
-        images: entry.images.map((image) => image.url),
-        popularity: entry.popularity,
-        playlist: entry.href,
-      }));
+      return {
+        query: artist,
+        next: more,
+        artists: validEntries.map((entry) => ({
+          id: entry.id,
+          name: entry.name,
+          images: entry.images.map((image) => image.url),
+          popularity: entry.popularity,
+          playlist: entry.href,
+        })),
+      };
     } catch (e) {
       console.log(e);
       throw e;
@@ -52,6 +99,8 @@ export class SpotifyService extends ISpotifyService {
    * @private
    */
   private async getThisIsPlaylistId(artist: string) {
+    if (!artist) return undefined;
+
     try {
       const res = (
         await super
