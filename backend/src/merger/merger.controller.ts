@@ -13,11 +13,19 @@ import { DatabaseService } from './services/database.service';
 import { v5 as UUID } from 'uuid';
 import { AuthGuard } from '../guards/auth.guard';
 import { SpotifyTokenInterceptor } from './interceptors/spotify-token.interceptor';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 class SearchArtistSchema {
   @IsNotEmpty()
   artist: string;
+}
+
+class SearchArtistAlternativesSchema {
+  @IsNotEmpty()
+  artist: string;
+
+  @IsNumber()
+  offset: number;
 }
 
 @Controller('merger')
@@ -74,5 +82,15 @@ export class MergerController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async searchArtist(@Body() body: SearchArtistSchema) {
     return await this.spotifyService.searchArtist(body.artist);
+  }
+
+  @Get('artist/alternatives')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async searchArtistAlternatives(@Body() body: SearchArtistAlternativesSchema) {
+    return await this.spotifyService.searchArtistAlternatives(
+      body.artist,
+      body.offset,
+    );
   }
 }
