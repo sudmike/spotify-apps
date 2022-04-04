@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  NotImplementedException,
+  Param,
   Post,
   Query,
   Redirect,
@@ -47,6 +49,16 @@ class GeneratePlaylistSchema {
 }
 
 class GetPlaylistsSchema {
+  @IsUUID()
+  uuid: string;
+}
+
+class SetPlaylistActiveSchema {
+  @IsUUID()
+  uuid: string;
+}
+
+class SetPlaylistInactiveSchema {
   @IsUUID()
   uuid: string;
 }
@@ -125,12 +137,7 @@ export class MergerController {
     // ...
 
     // save information in database
-    await this.databaseService.addUserPlaylist(
-      'id',
-      body.uuid,
-      'description',
-      body.artists,
-    );
+    await this.databaseService.addUserPlaylist('id', body.uuid, body.artists);
     return 'id';
   }
 
@@ -139,5 +146,27 @@ export class MergerController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async getPlaylists(@Body() body: GetPlaylistsSchema) {
     return this.databaseService.getUserPlaylists(body.uuid);
+  }
+
+  @Post('playlists/:playlist/active')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async setPlaylistActive(
+    @Param('playlist') playlist: string,
+    @Body() body: SetPlaylistActiveSchema,
+  ) {
+    // await this.databaseService.setPlaylistActiveness(body.uuid, playlist, true);
+    throw new NotImplementedException();
+  }
+
+  @Post('playlists/:playlist/inactive')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async setPlaylistInactive(
+    @Param('playlist') playlist: string,
+    @Body() body: SetPlaylistInactiveSchema,
+  ) {
+    // await this.databaseService.setPlaylistActiveness(body.uuid, playlist, false);
+    throw new NotImplementedException();
   }
 }

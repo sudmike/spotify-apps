@@ -42,8 +42,15 @@ export abstract class IFirebaseService implements IDatabaseService {
     }
   }
 
-  async getEntryField(collection: string, id: string, field: string) {
-    const ref = this.database.ref(`${collection}/${id}/${field}`);
+  async getEntryField(
+    collection: string,
+    id: string,
+    field: string,
+    subId?: string,
+  ) {
+    const ref = this.database.ref(
+      `${collection}/${id}/${field}${subId ? `/${subId}` : ''}`,
+    );
     try {
       return (await ref.get()).val();
     } catch (e) {
@@ -66,6 +73,21 @@ export abstract class IFirebaseService implements IDatabaseService {
     const ref = this.database.ref(`${collection}/${id}`);
     try {
       await ref.update(data);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  async removeEntryField(
+    collection: string,
+    id: string,
+    field: string,
+    subId: string,
+  ): Promise<void> {
+    const ref = this.database.ref(`${collection}/${id}/${field}/${subId}`);
+    try {
+      await ref.remove();
     } catch (e) {
       console.log(e);
       throw e;
