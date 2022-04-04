@@ -45,4 +45,18 @@ export abstract class IDatabaseService {
    * @param data The data that should be updated.
    */
   abstract updateEntry(collection: string, id: string, data: any): void;
+
+  /**
+   * Removes a field from an entry in the database.
+   * @param collection The path to a node.
+   * @param id The id of the entry.
+   * @param field The field of the entry that something should be removed from.
+   * @param subId The ID of the entry that should be removed from the field.
+   */
+  abstract removeEntryField(
+    collection: string,
+    id: string,
+    field: string,
+    subId: string,
+  ): void;
 }

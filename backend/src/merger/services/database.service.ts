@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { IFirebaseService } from '../../services/external/IFirebase.service';
 
 @Injectable()
@@ -57,20 +57,17 @@ export class DatabaseService extends IFirebaseService {
    * Adds information about a generated playlist.
    * @param id The playlists ID.
    * @param user A UUID that identifies the user.
-   * @param description The playlists generated description.
    * @param artists The IDs of artists that are part of the playlist.
    */
   async addUserPlaylist(
     id: string,
     user: string,
-    description: string,
     artists: string[],
   ): Promise<void> {
     try {
       // create playlist entry
       await super.addEntry('playlists', id, {
         user,
-        description,
         artists,
       });
 
@@ -87,21 +84,71 @@ export class DatabaseService extends IFirebaseService {
    * @param id A UUID that identifies the user.
    */
   async getUserPlaylists(id: string): Promise<{
-    active: ActivePlaylistsData;
-    inactive: InactivePlaylistsData;
+    active: ActivePlaylistsData[];
+    inactive: InactivePlaylistsData[];
   }> {
     try {
       const resA = await super.getEntryField('users', id, 'active-playlists');
       const resI = await super.getEntryField('users', id, 'inactive-playlists');
 
-      // return mapped responses
-      return {
-        active: resA ? Object.keys(resA) : [],
-        inactive: resI ? Object.keys(resI) : [],
-      };
+      // map responses to arrays of playlist ids
+      const activeIds = resA ? Object.keys(resA) : [];
+      const inactiveIds = resI ? Object.keys(resI) : [];
+
+      // populate data with artist ids
+      const active: ActivePlaylistsData[] = [];
+      const inactive: InactivePlaylistsData[] = [];
+      for await (const playlistId of activeIds) {
+        const artists = await this.getPlaylistArtists(playlistId, id);
+        active.push({ id: playlistId, artists });
+      }
+      for await (const playlistId of inactiveIds) {
+        const artists = await this.getPlaylistArtists(playlistId, id);
+        inactive.push({ id: playlistId, artists });
+      }
+
+      return { active, inactive };
     } catch (e) {
       console.log(e);
       throw e;
+    }
+  }
+
+  /**
+   * Changes a playlist to active or inactive.
+   * @param id A UUID that identifies the user.
+   * @param playlist The ID of the playlist.
+   * @param active Defines if the playlist should be set to active or to inactive.
+   */
+  async setPlaylistActiveness(id: string, playlist: string, active: boolean) {
+    try {
+      // ... check playlist (active, inactive, does not exist)
+      // ... add to XYZ
+      // ... remove from XYZ
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
+   * Return an array of artist IDs.
+   * @param id The ID of the playlist.
+   * @param user A UUID that identifies the user.
+   */
+  private async getPlaylistArtists(
+    id: string,
+    user: string,
+  ): Promise<PlaylistArtistsData> {
+    const res = await super.getEntry('playlists', id);
+
+    if (res.user === user) {
+      return res.artists;
+    } else {
+      throw new UnauthorizedException(
+        undefined,
+        'Requested playlist does not belong to user',
+      );
     }
   }
 }
@@ -111,7 +158,8 @@ export type UserData = {
   refreshToken: string;
 };
 
-export type PlaylistsData = string[];
+export type PlaylistArtistsData = string[];
+export type PlaylistData = { id: string; artists: PlaylistArtistsData };
 
-export type ActivePlaylistsData = PlaylistsData;
-export type InactivePlaylistsData = PlaylistsData;
+export type ActivePlaylistsData = PlaylistData;
+export type InactivePlaylistsData = PlaylistData;
