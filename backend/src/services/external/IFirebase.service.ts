@@ -26,10 +26,26 @@ export abstract class IFirebaseService implements IDatabaseService {
     }
   }
 
-  async updateEntry(collection: string, id: string, data: any): Promise<void> {
-    const ref = this.database.ref(`${collection}/${id}`);
+  async addEntryField(
+    collection: string,
+    id: string,
+    field: string,
+    subId: string,
+    data: any,
+  ): Promise<void> {
+    const ref = this.database.ref(`${collection}/${id}/${field}/${subId}`);
     try {
-      await ref.update(data);
+      await ref.set(data);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  async getEntryField(collection: string, id: string, field: string) {
+    const ref = this.database.ref(`${collection}/${id}/${field}`);
+    try {
+      return (await ref.get()).val();
     } catch (e) {
       console.log(e);
       throw e;
@@ -40,6 +56,16 @@ export abstract class IFirebaseService implements IDatabaseService {
     const ref = this.database.ref(`${collection}/${id}`);
     try {
       return (await ref.get()).val();
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  async updateEntry(collection: string, id: string, data: any): Promise<void> {
+    const ref = this.database.ref(`${collection}/${id}`);
+    try {
+      await ref.update(data);
     } catch (e) {
       console.log(e);
       throw e;

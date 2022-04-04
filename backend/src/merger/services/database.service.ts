@@ -52,9 +52,66 @@ export class DatabaseService extends IFirebaseService {
       throw e;
     }
   }
+
+  /**
+   * Adds information about a generated playlist.
+   * @param id The playlists ID.
+   * @param user A UUID that identifies the user.
+   * @param description The playlists generated description.
+   * @param artists The IDs of artists that are part of the playlist.
+   */
+  async addUserPlaylist(
+    id: string,
+    user: string,
+    description: string,
+    artists: string[],
+  ): Promise<void> {
+    try {
+      // create playlist entry
+      await super.addEntry('playlists', id, {
+        user,
+        description,
+        artists,
+      });
+
+      // modify user entry
+      await super.addEntryField('users', user, 'active-playlists', id, true);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
+   * Gets the playlist IDs of a user.
+   * @param id A UUID that identifies the user.
+   */
+  async getUserPlaylists(id: string): Promise<{
+    active: ActivePlaylistsData;
+    inactive: InactivePlaylistsData;
+  }> {
+    try {
+      const resA = await super.getEntryField('users', id, 'active-playlists');
+      const resI = await super.getEntryField('users', id, 'inactive-playlists');
+
+      // return mapped responses
+      return {
+        active: resA ? Object.keys(resA) : [],
+        inactive: resI ? Object.keys(resI) : [],
+      };
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
 }
 
 export type UserData = {
   id: string;
   refreshToken: string;
 };
+
+export type PlaylistsData = string[];
+
+export type ActivePlaylistsData = PlaylistsData;
+export type InactivePlaylistsData = PlaylistsData;

@@ -28,6 +28,7 @@ export class SpotifyTokenInterceptor implements NestInterceptor {
 
     // should be available due to auth guard
     const uuid = request.headers.authorization.split('Bearer ').pop();
+    request.body = { ...request.body, uuid };
 
     // get Spotify access token and set it
     const accessToken = await this.getAccessToken(uuid);
