@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Post,
   Query,
   Redirect,
   UnauthorizedException,
@@ -13,19 +14,41 @@ import { DatabaseService } from './services/database.service';
 import { v5 as UUID } from 'uuid';
 import { AuthGuard } from '../guards/auth.guard';
 import { SpotifyTokenInterceptor } from './interceptors/spotify-token.interceptor';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 
 class SearchArtistSchema {
+  @IsUUID()
+  uuid: string;
+
   @IsNotEmpty()
   artist: string;
 }
 
 class SearchArtistAlternativesSchema {
+  @IsUUID()
+  uuid: string;
+
   @IsNotEmpty()
   artist: string;
 
   @IsNumber()
   offset: number;
+}
+
+class GeneratePlaylistSchema {
+  @IsUUID()
+  uuid: string;
+
+  @IsArray()
+  artists: string[];
+
+  @IsArray()
+  playlists: string;
+}
+
+class GetPlaylistsSchema {
+  @IsUUID()
+  uuid: string;
 }
 
 @Controller('merger')
@@ -92,5 +115,29 @@ export class MergerController {
       body.artist,
       body.offset,
     );
+  }
+
+  @Post('playlists')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async generatePlaylist(@Body() body: GeneratePlaylistSchema) {
+    // generate Spotify playlist
+    // ...
+
+    // save information in database
+    await this.databaseService.addUserPlaylist(
+      'id',
+      body.uuid,
+      'description',
+      body.artists,
+    );
+    return 'id';
+  }
+
+  @Get('playlists')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async getPlaylists(@Body() body: GetPlaylistsSchema) {
+    return this.databaseService.getUserPlaylists(body.uuid);
   }
 }
