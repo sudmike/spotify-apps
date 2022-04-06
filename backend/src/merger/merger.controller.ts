@@ -11,7 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { SpotifyService } from './services/spotify.service';
+import { PlaylistEntries, SpotifyService } from './services/spotify.service';
 import { DatabaseService } from './services/database.service';
 import { v5 as UUID } from 'uuid';
 import { AuthGuard } from '../guards/auth.guard';
@@ -42,10 +42,7 @@ class GeneratePlaylistSchema {
   uuid: string;
 
   @IsArray()
-  artists: string[];
-
-  @IsArray()
-  playlists: string;
+  parts: PlaylistEntries[];
 }
 
 class GetPlaylistsSchema {
@@ -134,11 +131,15 @@ export class MergerController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async generatePlaylist(@Body() body: GeneratePlaylistSchema) {
     // generate Spotify playlist
-    // ...
+    const playlistId = await this.spotifyService.generatePlaylist(body.parts);
 
     // save information in database
-    await this.databaseService.addUserPlaylist('id', body.uuid, body.artists);
-    return 'id';
+    await this.databaseService.addUserPlaylist(
+      playlistId,
+      body.uuid,
+      body.parts.map((entry) => entry.artist.id),
+    );
+    return playlistId;
   }
 
   @Get('playlists')
