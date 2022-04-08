@@ -7,6 +7,9 @@ export default class GeneratePlaylistSchema {
   @IsUUID()
   uuid: string;
 
+  /**
+   * Contains IDs of 'This is XYZ' playlists and their artists IDs and names.
+   */
   @IsArray()
   @ArrayMinSize(1)
   parts: ArtistPlaylistEntity[];

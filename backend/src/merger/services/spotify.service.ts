@@ -22,7 +22,7 @@ export class SpotifyService extends ISpotifyService {
 
   /**
    * Returns the artist that matches the requested artist name.
-   * @param artist THe name of the artist to return results for.
+   * @param artist The name of the artist to return results for.
    */
   async searchArtist(artist: string) {
     try {

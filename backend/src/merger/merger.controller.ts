@@ -77,7 +77,7 @@ export class MergerController {
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
   async searchArtist(@Body() body: SearchArtistSchema) {
-    return await this.spotifyService.searchArtist(body.id);
+    return await this.spotifyService.searchArtist(body.name);
   }
 
   @Get('artist/alternatives')
@@ -85,7 +85,7 @@ export class MergerController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async searchArtistAlternatives(@Body() body: SearchArtistAlternativesSchema) {
     return await this.spotifyService.searchArtistAlternatives(
-      body.id,
+      body.name,
       body.offset,
     );
   }
