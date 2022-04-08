@@ -1,13 +1,18 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { IFirebaseService } from '../../services/external/IFirebase.service';
+import * as fs from 'fs';
 
 @Injectable()
 export class DatabaseService extends IFirebaseService {
   constructor() {
     super();
-    import(`../${process.env.FIREBASE_CREDENTIALS_MERGER}.json`).then((res) => {
-      super.initialize(res);
-    });
+    const credentialsFromFile = JSON.parse(
+      fs.readFileSync(
+        `./src/merger/${process.env.FIREBASE_CREDENTIALS_MERGER}.json`,
+        'utf-8',
+      ),
+    );
+    super.initialize(credentialsFromFile);
   }
 
   /**
