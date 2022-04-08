@@ -12,10 +12,18 @@ export default class SearchArtistAlternativesSchema {
   @IsUUID()
   uuid: string;
 
+  /**
+   * The name of the artist to search.
+   * @example Kanye West
+   */
   @IsString()
   @IsNotEmpty()
-  id: string;
+  name: string;
 
+  /**
+   * The offset for viable artists.
+   * @example 0
+   */
   @IsNumber()
   @IsPositive()
   offset: number;
