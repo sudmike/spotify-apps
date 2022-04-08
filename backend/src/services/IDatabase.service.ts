@@ -33,43 +33,47 @@ export abstract class IDatabaseService {
    * Adds a field to an entry in the database.
    * @param collection The path to a node.
    * @param id The id of the entry.
-   * @param field The field of the entry that something should be added to.
-   * @param data The data the should be added.
-   * @param subId The ID of the entry that should be added to the field.
+   * @param field The path parts to the field.
+   * @param data The data that should be added.
    */
   abstract addEntryField(
     collection: string,
     id: string,
-    field: string,
+    field: string[],
     data: any,
-    subId?: string,
+  ): void;
+
+  /**
+   * Updates a field of an entry of the database. If the entry does not exist, it is created.
+   * @param collection The path to a node.
+   * @param id The id of the entry.
+   * @param field The path parts to the field
+   * @param data The data that should be updated.
+   */
+  abstract updateEntryField(
+    collection: string,
+    id: string,
+    field: string[],
+    data: any,
   ): void;
 
   /**
    * Fetches a field of an entry from the database.
    * @param collection The path to a node.
    * @param id The id of the entry.
-   * @param field The field of the entry that should be fetched
-   * @param subId The ID of the entry that should be removed from the field.
+   * @param field The path parts to the field.
    */
-  abstract getEntryField(
-    collection: string,
-    id: string,
-    field: string,
-    subId?: string,
-  ): any;
+  abstract getEntryField(collection: string, id: string, field: string[]): any;
 
   /**
    * Removes a field from an entry in the database.
    * @param collection The path to a node.
    * @param id The id of the entry.
-   * @param field The field of the entry that something should be removed from.
-   * @param subId The ID of the entry that should be removed from the field.
+   * @param field The path parts to the field.
    */
   abstract removeEntryField(
     collection: string,
     id: string,
-    field: string,
-    subId?: string,
+    field: string[],
   ): void;
 }

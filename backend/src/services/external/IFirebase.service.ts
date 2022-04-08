@@ -59,13 +59,10 @@ export abstract class IFirebaseService implements IDatabaseService {
   async addEntryField(
     collection: string,
     id: string,
-    field: string,
+    field: string[],
     data: any,
-    subId?: string,
   ): Promise<void> {
-    const ref = this.database.ref(
-      `${collection}/${id}/${field}${subId ? `/${subId}` : ''}`,
-    );
+    const ref = this.database.ref(`${collection}/${id}/${path(field)}`);
     try {
       await ref.set(data);
     } catch (e) {
@@ -77,14 +74,26 @@ export abstract class IFirebaseService implements IDatabaseService {
   async getEntryField(
     collection: string,
     id: string,
-    field: string,
-    subId?: string,
+    field: string[],
   ): Promise<any> {
-    const ref = this.database.ref(
-      `${collection}/${id}/${field}${subId ? `/${subId}` : ''}`,
-    );
+    const ref = this.database.ref(`${collection}/${id}/${path(field)}`);
     try {
       return (await ref.get()).val();
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  async updateEntryField(
+    collection: string,
+    id: string,
+    field: string[],
+    data: any,
+  ): Promise<void> {
+    const ref = this.database.ref(`${collection}/${id}/${path(field)}`);
+    try {
+      await ref.update(data);
     } catch (e) {
       console.log(e);
       throw e;
@@ -94,12 +103,9 @@ export abstract class IFirebaseService implements IDatabaseService {
   async removeEntryField(
     collection: string,
     id: string,
-    field: string,
-    subId?: string,
+    field: string[],
   ): Promise<void> {
-    const ref = this.database.ref(
-      `${collection}/${id}/${field}${subId ? `/${subId}` : ''}`,
-    );
+    const ref = this.database.ref(`${collection}/${id}/${path(field)}`);
     try {
       await ref.remove();
     } catch (e) {
@@ -107,4 +113,13 @@ export abstract class IFirebaseService implements IDatabaseService {
       throw e;
     }
   }
+}
+
+function path(parts: string[]): string {
+  let path = '';
+  for (const [index, part] of parts.entries()) {
+    path += part;
+    if (index < parts.length - 1) path += '/';
+  }
+  return path;
 }

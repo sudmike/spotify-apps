@@ -72,7 +72,7 @@ export class DatabaseService extends IFirebaseService {
       });
 
       // modify user entry
-      await super.addEntryField('users', user, 'active-playlists', true, id);
+      await super.addEntryField('users', user, ['active-playlists', id], true);
     } catch (e) {
       console.log(e);
       throw e;
@@ -87,8 +87,8 @@ export class DatabaseService extends IFirebaseService {
   async removeUserPlaylist(id: string, user: string) {
     try {
       await super.removeEntry('playlists', id);
-      await super.removeEntryField('users', user, 'inactive-playlists', id);
-      await super.removeEntryField('users', user, 'active-playlists', id);
+      await super.removeEntryField('users', user, ['inactive-playlists', id]);
+      await super.removeEntryField('users', user, ['active-playlists', id]);
     } catch (e) {
       console.log(e);
       throw e;
@@ -101,8 +101,10 @@ export class DatabaseService extends IFirebaseService {
    */
   async getUserPlaylists(id: string): Promise<PlaylistData[]> {
     try {
-      const resA = await super.getEntryField('users', id, 'active-playlists');
-      const resI = await super.getEntryField('users', id, 'inactive-playlists');
+      const resA = await super.getEntryField('users', id, ['active-playlists']);
+      const resI = await super.getEntryField('users', id, [
+        'inactive-playlists',
+      ]);
 
       // map responses to arrays of playlist ids
       const activeIds = resA ? Object.keys(resA) : [];
