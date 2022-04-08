@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ISpotifyService } from '../../services/ISpotify.service';
 import {
   generatePlaylistDescription,
@@ -102,9 +102,10 @@ export class SpotifyService extends ISpotifyService {
   /**
    * Returns details about the requested playlists.
    * @param ids The IDs of the playlists.
-   * @param ignore Ignores playlists that are not followed by the user. (usually deleted)
+   * @param onDeleted Handler for when a playlist has been deleted.
    */
-  async getPlaylistDetails(ids: string[], ignore = false) {
+  async getPlaylistDetails(ids: string[], onDeleted?: (playlist) => void) {
+    const username = await ISpotifyService.getUsername(this.getSpotifyApi());
     const playlists: {
       id: string;
       details: { name: string; description: string; images: string[] };
@@ -119,14 +120,16 @@ export class SpotifyService extends ISpotifyService {
           })
         ).body;
 
-        playlists.push({
-          id,
-          details: {
-            name: playlist.name,
-            description: playlist.description,
-            images: playlist.images.map((image) => image.url),
-          },
-        });
+        (await this.getPlaylistFollowingStatus(id, username))
+          ? playlists.push({
+              id,
+              details: {
+                name: playlist.name,
+                description: playlist.description,
+                images: playlist.images.map((image) => image.url),
+              },
+            })
+          : onDeleted(id);
       }
       return playlists;
     } catch (e) {
@@ -283,6 +286,29 @@ export class SpotifyService extends ISpotifyService {
       ).body.playlists.items?.at(0);
 
       if (res?.owner.id === 'spotify') return res.id || undefined;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
+   * Returns true if user follows playlist and false if not.
+   * @param id The ID of the playlist.
+   * @param user The ID of the user.
+   */
+  async getPlaylistFollowingStatus(id: string, user: string) {
+    try {
+      const res = (
+        await this.getSpotifyApi().areFollowingPlaylist(user, id, [user])
+      ).body;
+
+      if (res.length !== 1)
+        throw new InternalServerErrorException(
+          undefined,
+          'There was an unexpected reply when asking for the following status.',
+        );
+      else return res.at(0);
     } catch (e) {
       console.log(e);
       throw e;

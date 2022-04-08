@@ -116,7 +116,9 @@ export abstract class ISpotifyService {
     }
   }
 
-  private static async getUsername(spotifyApi: SpotifyWebApi): Promise<string> {
+  protected static async getUsername(
+    spotifyApi: SpotifyWebApi,
+  ): Promise<string> {
     try {
       return (await spotifyApi.getMe()).body.id;
     } catch (e) {
