@@ -8,35 +8,11 @@ export abstract class IDatabaseService {
   abstract addEntry(collection: string, id: string, data: any): void;
 
   /**
-   * Adds a field to an entry in the database.
-   * @param collection The path to a node.
-   * @param id The id of the entry.
-   * @param field The field of the entry that something should be added to.
-   * @param subId The ID of the entry that should be added to the field.
-   * @param data The data the should be added.
-   */
-  abstract addEntryField(
-    collection: string,
-    id: string,
-    field: string,
-    subId: string,
-    data: any,
-  ): void;
-
-  /**
    * Fetches an entry from the database.
    * @param collection The path to a node.
    * @param id The id of the entry.
    */
   abstract getEntry(collection: string, id: string): any;
-
-  /**
-   * Fetches a field of an entry from the database.
-   * @param collection The path to a node.
-   * @param id The id of the entry.
-   * @param field The field of the entry that should be fetched
-   */
-  abstract getEntryField(collection: string, id: string, field: string): any;
 
   /**
    * Updates an entry of the database. If the entry does not exist, it is created.
@@ -45,6 +21,43 @@ export abstract class IDatabaseService {
    * @param data The data that should be updated.
    */
   abstract updateEntry(collection: string, id: string, data: any): void;
+
+  /**
+   * Removes an entry from the database.
+   * @param collection
+   * @param id
+   */
+  abstract removeEntry(collection: string, id: string): void;
+
+  /**
+   * Adds a field to an entry in the database.
+   * @param collection The path to a node.
+   * @param id The id of the entry.
+   * @param field The field of the entry that something should be added to.
+   * @param data The data the should be added.
+   * @param subId The ID of the entry that should be added to the field.
+   */
+  abstract addEntryField(
+    collection: string,
+    id: string,
+    field: string,
+    data: any,
+    subId?: string,
+  ): void;
+
+  /**
+   * Fetches a field of an entry from the database.
+   * @param collection The path to a node.
+   * @param id The id of the entry.
+   * @param field The field of the entry that should be fetched
+   * @param subId The ID of the entry that should be removed from the field.
+   */
+  abstract getEntryField(
+    collection: string,
+    id: string,
+    field: string,
+    subId?: string,
+  ): any;
 
   /**
    * Removes a field from an entry in the database.
@@ -57,6 +70,6 @@ export abstract class IDatabaseService {
     collection: string,
     id: string,
     field: string,
-    subId: string,
+    subId?: string,
   ): void;
 }

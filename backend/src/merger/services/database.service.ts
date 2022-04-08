@@ -72,7 +72,23 @@ export class DatabaseService extends IFirebaseService {
       });
 
       // modify user entry
-      await super.addEntryField('users', user, 'active-playlists', id, true);
+      await super.addEntryField('users', user, 'active-playlists', true, id);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
+   * Removes information about a playlist.
+   * @param id The playlists ID.
+   * @param user A UUID that identifies the user.
+   */
+  async removeUserPlaylist(id: string, user: string) {
+    try {
+      await super.removeEntry('playlists', id);
+      await super.removeEntryField('users', user, 'inactive-playlists', id);
+      await super.removeEntryField('users', user, 'active-playlists', id);
     } catch (e) {
       console.log(e);
       throw e;
