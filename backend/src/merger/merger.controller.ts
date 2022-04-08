@@ -11,55 +11,19 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { PlaylistEntries, SpotifyService } from './services/spotify.service';
+import { SpotifyService } from './services/spotify.service';
 import { DatabaseService } from './services/database.service';
 import { v5 as UUID } from 'uuid';
 import { AuthGuard } from '../guards/auth.guard';
 import { SpotifyTokenInterceptor } from './interceptors/spotify-token.interceptor';
-import { IsArray, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import SearchArtistSchema from './schemas/search-artist.schema';
+import SearchArtistAlternativesSchema from './schemas/search-artist-alternative.schema';
+import GeneratePlaylistSchema from './schemas/generate-playlist.schema';
+import BaseSchema from './schemas/base.schema';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-class SearchArtistSchema {
-  @IsUUID()
-  uuid: string;
-
-  @IsNotEmpty()
-  artist: string;
-}
-
-class SearchArtistAlternativesSchema {
-  @IsUUID()
-  uuid: string;
-
-  @IsNotEmpty()
-  artist: string;
-
-  @IsNumber()
-  offset: number;
-}
-
-class GeneratePlaylistSchema {
-  @IsUUID()
-  uuid: string;
-
-  @IsArray()
-  parts: PlaylistEntries[];
-}
-
-class GetPlaylistsSchema {
-  @IsUUID()
-  uuid: string;
-}
-
-class SetPlaylistActiveSchema {
-  @IsUUID()
-  uuid: string;
-}
-
-class SetPlaylistInactiveSchema {
-  @IsUUID()
-  uuid: string;
-}
-
+@ApiTags('merger')
+@ApiBearerAuth()
 @Controller('merger')
 export class MergerController {
   private spotifyScope = ['playlist-read-private', 'playlist-modify-private'];
@@ -113,7 +77,7 @@ export class MergerController {
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
   async searchArtist(@Body() body: SearchArtistSchema) {
-    return await this.spotifyService.searchArtist(body.artist);
+    return await this.spotifyService.searchArtist(body.id);
   }
 
   @Get('artist/alternatives')
@@ -121,7 +85,7 @@ export class MergerController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async searchArtistAlternatives(@Body() body: SearchArtistAlternativesSchema) {
     return await this.spotifyService.searchArtistAlternatives(
-      body.artist,
+      body.id,
       body.offset,
     );
   }
@@ -145,7 +109,7 @@ export class MergerController {
   @Get('playlists')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
-  async getPlaylists(@Body() body: GetPlaylistsSchema) {
+  async getPlaylists(@Body() body: BaseSchema) {
     let data = await this.databaseService.getUserPlaylists(body.uuid);
 
     const playlistIds: string[] = data.map((d) => d.id);
@@ -185,7 +149,7 @@ export class MergerController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async setPlaylistActive(
     @Param('playlist') playlist: string,
-    @Body() body: SetPlaylistActiveSchema,
+    @Body() body: BaseSchema,
   ) {
     // await this.databaseService.setPlaylistActiveness(body.uuid, playlist, true);
     throw new NotImplementedException();
@@ -196,7 +160,7 @@ export class MergerController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async setPlaylistInactive(
     @Param('playlist') playlist: string,
-    @Body() body: SetPlaylistInactiveSchema,
+    @Body() body: BaseSchema,
   ) {
     // await this.databaseService.setPlaylistActiveness(body.uuid, playlist, false);
     throw new NotImplementedException();

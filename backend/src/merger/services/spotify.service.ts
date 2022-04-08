@@ -6,6 +6,7 @@ import {
   shuffleArray,
   trimTrackSelection,
 } from './generation.helper';
+import ArtistPlaylistEntity from '../schemas/artist-playlist.entity';
 
 @Injectable()
 export class SpotifyService extends ISpotifyService {
@@ -177,7 +178,7 @@ export class SpotifyService extends ISpotifyService {
    * Generates a Spotify playlist.
    * @param entries Information about playlists that the generation is based on etc.
    */
-  async generatePlaylist(entries: PlaylistEntries[]) {
+  async generatePlaylist(entries: ArtistPlaylistEntity[]) {
     try {
       const artists = entries.map((entry) => entry.artist.name);
       const title = generatePlaylistTitle(artists);
@@ -200,15 +201,15 @@ export class SpotifyService extends ISpotifyService {
 
   /**
    * Returns a list of song IDs that are extracted from the playlists which are passed.
-   * @param playlistEntries These contain the IDs of playlists and the number of songs that should be extracted.
+   * @param entries These contain the IDs of playlists and the number of songs that should be extracted.
    * @private
    */
-  private async generateTrackList(playlistEntries: PlaylistEntries[]) {
+  private async generateTrackList(entries: ArtistPlaylistEntity[]) {
     let tracks = [];
 
     try {
       // go through each playlist and get tracks
-      for await (const entry of playlistEntries) {
+      for await (const entry of entries) {
         // get tracks from playlist
         const tracksSubset = await this.getTracksFromPlaylist(entry.playlist);
 
@@ -315,12 +316,3 @@ export class SpotifyService extends ISpotifyService {
     }
   }
 }
-
-export type PlaylistEntries = {
-  playlist: string;
-  artist: {
-    id: string;
-    name: string;
-  };
-  number: number;
-};
