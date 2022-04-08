@@ -146,7 +146,32 @@ export class MergerController {
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
   async getPlaylists(@Body() body: GetPlaylistsSchema) {
-    return this.databaseService.getUserPlaylists(body.uuid);
+    const data = await this.databaseService.getUserPlaylists(body.uuid);
+
+    const playlistIds: string[] = data.map((d) => d.id);
+    const playlists = await this.spotifyService.getPlaylistDetails(playlistIds);
+
+    const artistIds: string[] = []
+      .concat(...data.map((d) => d.artists))
+      .filter((value, index, self) => self.indexOf(value) === index);
+    const artists = await this.spotifyService.getArtistDetails(artistIds);
+
+    // combine all data
+    return data.map((entry) => {
+      const playlist = playlists.at(
+        playlists.findIndex((p) => p.id === entry.id),
+      );
+      const artist = entry.artists.map((artistId) => {
+        const temp = artists.at(artists.findIndex((a) => a.id === artistId));
+        return { id: temp.id, ...temp.details };
+      });
+      return {
+        id: entry.id,
+        active: entry.active,
+        playlist: playlist.details,
+        artists: artist,
+      };
+    });
   }
 
   @Post('playlists/:playlist/active')
