@@ -100,6 +100,77 @@ export class SpotifyService extends ISpotifyService {
   }
 
   /**
+   * Returns details about the requested playlists.
+   * @param ids The IDs of the playlists.
+   * @param ignore Ignores playlists that are not followed by the user. (usually deleted)
+   */
+  async getPlaylistDetails(ids: string[], ignore = false) {
+    const playlists: {
+      id: string;
+      details: { name: string; description: string; images: string[] };
+    }[] = [];
+
+    try {
+      // fetch playlists one by one
+      for await (const id of ids) {
+        const playlist = (
+          await this.getSpotifyApi().getPlaylist(id, {
+            fields: 'id,name,description,images,owner(id)',
+          })
+        ).body;
+
+        playlists.push({
+          id,
+          details: {
+            name: playlist.name,
+            description: playlist.description,
+            images: playlist.images.map((image) => image.url),
+          },
+        });
+      }
+      return playlists;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
+   * Returns details about the requested artists.
+   * @param ids The IDs of the artists.
+   */
+  async getArtistDetails(ids: string[]) {
+    let artists: {
+      id: string;
+      details: { name: string; images: string[] };
+    }[] = [];
+
+    try {
+      // get artists batch by batch
+      while (ids.length > 0) {
+        const idsSub = ids.splice(0, 50);
+        const batch = (await this.getSpotifyApi().getArtists(idsSub)).body
+          .artists;
+
+        artists = artists.concat(
+          batch.map((artist) => ({
+            id: artist.id,
+            details: {
+              name: artist.name,
+              images: artist.images.map((image) => image.url),
+            },
+          })),
+        );
+      }
+
+      return artists;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
    * Generates a Spotify playlist.
    * @param entries Information about playlists that the generation is based on etc.
    */
@@ -134,12 +205,12 @@ export class SpotifyService extends ISpotifyService {
 
     try {
       // go through each playlist and get tracks
-      for await (const chunk of playlistEntries) {
+      for await (const entry of playlistEntries) {
         // get tracks from playlist
-        const tracksSubset = await this.getTracksFromPlaylist(chunk.playlist);
+        const tracksSubset = await this.getTracksFromPlaylist(entry.playlist);
 
         // filter tracks and add them to array
-        tracks = tracks.concat(trimTrackSelection(tracksSubset, chunk.number));
+        tracks = tracks.concat(trimTrackSelection(tracksSubset, entry.number));
       }
 
       return shuffleArray(tracks);
@@ -164,6 +235,7 @@ export class SpotifyService extends ISpotifyService {
         const playlist = (
           await this.getSpotifyApi().getPlaylistTracks(id, {
             offset: tracks.length,
+            fields: 'total,limit,offset,items(track.uri)',
           })
         ).body;
         remaining = playlist.total - playlist.offset - playlist.limit;

@@ -83,10 +83,7 @@ export class DatabaseService extends IFirebaseService {
    * Gets the playlist IDs of a user.
    * @param id A UUID that identifies the user.
    */
-  async getUserPlaylists(id: string): Promise<{
-    active: ActivePlaylistsData[];
-    inactive: InactivePlaylistsData[];
-  }> {
+  async getUserPlaylists(id: string): Promise<PlaylistData[]> {
     try {
       const resA = await super.getEntryField('users', id, 'active-playlists');
       const resI = await super.getEntryField('users', id, 'inactive-playlists');
@@ -95,19 +92,22 @@ export class DatabaseService extends IFirebaseService {
       const activeIds = resA ? Object.keys(resA) : [];
       const inactiveIds = resI ? Object.keys(resI) : [];
 
-      // populate data with artist ids
-      const active: ActivePlaylistsData[] = [];
-      const inactive: InactivePlaylistsData[] = [];
-      for await (const playlistId of activeIds) {
-        const artists = await this.getPlaylistArtists(playlistId, id);
-        active.push({ id: playlistId, artists });
-      }
-      for await (const playlistId of inactiveIds) {
-        const artists = await this.getPlaylistArtists(playlistId, id);
-        inactive.push({ id: playlistId, artists });
-      }
+      const playlists: PlaylistData[] = [];
+      for await (const playlistId of activeIds)
+        playlists.push({
+          id: playlistId,
+          artists: await this.getPlaylistArtists(playlistId, id),
+          active: true,
+        });
 
-      return { active, inactive };
+      for await (const playlistId of inactiveIds)
+        playlists.push({
+          id: playlistId,
+          artists: await this.getPlaylistArtists(playlistId, id),
+          active: false,
+        });
+
+      return playlists;
     } catch (e) {
       console.log(e);
       throw e;
@@ -159,7 +159,5 @@ export type UserData = {
 };
 
 export type PlaylistArtistsData = string[];
-export type PlaylistData = { id: string; artists: PlaylistArtistsData };
-
-export type ActivePlaylistsData = PlaylistData;
-export type InactivePlaylistsData = PlaylistData;
+type PlaylistDataRes = { id: string; artists: PlaylistArtistsData };
+export type PlaylistData = PlaylistDataRes & { active: boolean };
