@@ -76,17 +76,19 @@ export class MergerController {
   @Get('artist')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
-  async searchArtist(@Body() body: SearchArtistSchema) {
-    return await this.spotifyService.searchArtist(body.name);
+  async searchArtist(@Query() query: SearchArtistSchema) {
+    return await this.spotifyService.searchArtist(query.name);
   }
 
   @Get('artist/alternatives')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
-  async searchArtistAlternatives(@Body() body: SearchArtistAlternativesSchema) {
+  async searchArtistAlternatives(
+    @Query() query: SearchArtistAlternativesSchema,
+  ) {
     return await this.spotifyService.searchArtistAlternatives(
-      body.name,
-      body.offset,
+      query.name,
+      query.offset,
     );
   }
 
@@ -109,14 +111,14 @@ export class MergerController {
   @Get('playlists')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
-  async getPlaylists(@Body() body: BaseSchema) {
-    let data = await this.databaseService.getUserPlaylists(body.uuid);
+  async getPlaylists(@Query() query: BaseSchema) {
+    let data = await this.databaseService.getUserPlaylists(query.uuid);
 
     const playlistIds: string[] = data.map((d) => d.id);
     const playlists = await this.spotifyService.getPlaylistDetails(
       playlistIds,
       (id) => {
-        this.databaseService.removeUserPlaylist(id, body.uuid);
+        this.databaseService.removeUserPlaylist(id, query.uuid);
         data = data.filter((d) => d.id !== id);
       },
     );

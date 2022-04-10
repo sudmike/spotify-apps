@@ -1,10 +1,5 @@
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsPositive,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiHideProperty } from '@nestjs/swagger';
 
 export default class SearchArtistAlternativesSchema {
@@ -25,6 +20,6 @@ export default class SearchArtistAlternativesSchema {
    * @example 0
    */
   @IsNumber()
-  @IsPositive()
+  @Type(() => Number)
   offset: number;
 }
