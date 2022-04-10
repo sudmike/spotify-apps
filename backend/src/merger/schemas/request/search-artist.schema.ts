@@ -7,8 +7,8 @@ export default class SearchArtistSchema {
   uuid: string;
 
   /**
-   * The name of the artist to search.
-   * @example Kanye West
+   * The name of the artist to search
+   * @example 'Kanye West'
    */
   @IsString()
   @IsNotEmpty()

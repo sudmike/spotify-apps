@@ -6,7 +6,9 @@ import {
   shuffleArray,
   trimTrackSelection,
 } from './generation.helper';
-import ArtistPlaylistEntity from '../schemas/artist-playlist.entity';
+import ArtistPlaylistEntity from '../schemas/request/artist-playlist.entity';
+import { SearchArtistResponseSchema } from '../schemas/response/search-artist-response.schema';
+import { SearchArtistAlternativeResponseSchema } from '../schemas/response/search-artist-alternative-response.schema';
 
 @Injectable()
 export class SpotifyService extends ISpotifyService {
@@ -24,7 +26,7 @@ export class SpotifyService extends ISpotifyService {
    * Returns the artist that matches the requested artist name.
    * @param artist The name of the artist to return results for.
    */
-  async searchArtist(artist: string) {
+  async searchArtist(artist: string): Promise<SearchArtistResponseSchema> {
     try {
       const res = (
         await super.getSpotifyApi().searchArtists(artist, { limit: 1 })
@@ -35,7 +37,7 @@ export class SpotifyService extends ISpotifyService {
       // check for 'This is XYZ' playlist
       const playlist = await this.getThisIsPlaylistId(entry?.name); //abuse
       if (!entry || !playlist)
-        return { query: artist, alternatives: more, artist: null };
+        return { query: artist, next: more, artist: null };
 
       entry.href = playlist;
 
@@ -61,7 +63,10 @@ export class SpotifyService extends ISpotifyService {
    * @param artist The name of the artist to return results for.
    * @param offset The offset to the last request to get new results.
    */
-  async searchArtistAlternatives(artist: string, offset = 0) {
+  async searchArtistAlternatives(
+    artist: string,
+    offset = 0,
+  ): Promise<SearchArtistAlternativeResponseSchema> {
     try {
       const limit = 10;
       const res = (
@@ -71,7 +76,7 @@ export class SpotifyService extends ISpotifyService {
       let more: null | number = res.next ? offset : null;
 
       // filter out artists that don't have a 'This is XYZ' playlist
-      const validEntries = [];
+      const validEntries: SpotifyApi.ArtistObjectFull[] = [];
       for await (const [index, entry] of entries.entries()) {
         if (more !== null) more = offset + index + 1;
 
