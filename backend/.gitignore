@@ -2,6 +2,7 @@
 /dist
 /node_modules
 /openapi/build
+openapitools.json
 
 # Logs
 logs

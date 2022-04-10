@@ -2,7 +2,7 @@ import {
   Body,
   Controller,
   Get,
-  NotImplementedException,
+  HttpCode,
   Param,
   Post,
   Query,
@@ -20,7 +20,12 @@ import SearchArtistSchema from './schemas/request/search-artist.schema';
 import SearchArtistAlternativesSchema from './schemas/request/search-artist-alternative.schema';
 import GeneratePlaylistSchema from './schemas/request/generate-playlist.schema';
 import BaseSchema from './schemas/request/base.schema';
-import { ApiBearerAuth, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiExcludeEndpoint,
+  ApiForbiddenResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { SearchArtistResponseSchema } from './schemas/response/search-artist-response.schema';
 import { SearchArtistAlternativeResponseSchema } from './schemas/response/search-artist-alternative-response.schema';
 import { GeneratePlaylistResponseSchema } from './schemas/response/generate-playlist-response.schema';
@@ -28,6 +33,7 @@ import { GetPlaylistResponseSchema } from './schemas/response/get-playlist-respo
 
 @ApiTags('merger')
 @ApiBearerAuth()
+@ApiForbiddenResponse()
 @Controller('merger')
 export class MergerController {
   private spotifyScope = ['playlist-read-private', 'playlist-modify-private'];
@@ -161,24 +167,28 @@ export class MergerController {
   }
 
   @Post('playlists/:playlist/active')
+  @HttpCode(204)
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
   async setPlaylistActive(
     @Param('playlist') playlist: string,
-    @Body() body: BaseSchema,
+    @Body() body: BaseSchema | any,
   ) {
-    // await this.databaseService.setPlaylistActiveness(body.uuid, playlist, true);
-    throw new NotImplementedException();
+    await this.databaseService.setPlaylistActiveness(body.uuid, playlist, true);
   }
 
   @Post('playlists/:playlist/inactive')
+  @HttpCode(204)
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
   async setPlaylistInactive(
     @Param('playlist') playlist: string,
-    @Body() body: BaseSchema,
+    @Body() body: BaseSchema | any,
   ) {
-    // await this.databaseService.setPlaylistActiveness(body.uuid, playlist, false);
-    throw new NotImplementedException();
+    await this.databaseService.setPlaylistActiveness(
+      body.uuid,
+      playlist,
+      false,
+    );
   }
 }
