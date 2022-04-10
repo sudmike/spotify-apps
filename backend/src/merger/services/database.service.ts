@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { IFirebaseService } from '../../services/external/IFirebase.service';
 import * as fs from 'fs';
 
@@ -145,9 +149,27 @@ export class DatabaseService extends IFirebaseService {
    */
   async setPlaylistActiveness(id: string, playlist: string, active: boolean) {
     try {
-      // ... check playlist (active, inactive, does not exist)
-      // ... add to XYZ
-      // ... remove from XYZ
+      const fieldA = 'active-playlists';
+      const fieldI = 'inactive-playlists';
+      const resA = await super.getEntryField('users', id, [fieldA, playlist]);
+      const resI = await super.getEntryField('users', id, [fieldI, playlist]);
+
+      // throw error if playlist cannot be found
+      if (!resA && !resI) {
+        throw new NotFoundException(
+          undefined,
+          `Playlist to set ${
+            active ? 'active' : 'inactive'
+          } could not be found`,
+        );
+      }
+      // change status according to 'active' parameter
+      else {
+        const add = active ? fieldA : fieldI;
+        const remove = active ? fieldI : fieldA;
+        await super.addEntryField('users', id, [add, playlist], true);
+        await super.removeEntryField('users', id, [remove, playlist]);
+      }
     } catch (e) {
       console.log(e);
       throw e;
