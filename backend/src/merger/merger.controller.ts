@@ -16,11 +16,15 @@ import { DatabaseService } from './services/database.service';
 import { v5 as UUID } from 'uuid';
 import { AuthGuard } from '../guards/auth.guard';
 import { SpotifyTokenInterceptor } from './interceptors/spotify-token.interceptor';
-import SearchArtistSchema from './schemas/search-artist.schema';
-import SearchArtistAlternativesSchema from './schemas/search-artist-alternative.schema';
-import GeneratePlaylistSchema from './schemas/generate-playlist.schema';
-import BaseSchema from './schemas/base.schema';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import SearchArtistSchema from './schemas/request/search-artist.schema';
+import SearchArtistAlternativesSchema from './schemas/request/search-artist-alternative.schema';
+import GeneratePlaylistSchema from './schemas/request/generate-playlist.schema';
+import BaseSchema from './schemas/request/base.schema';
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
+import { SearchArtistResponseSchema } from './schemas/response/search-artist-response.schema';
+import { SearchArtistAlternativeResponseSchema } from './schemas/response/search-artist-alternative-response.schema';
+import { GeneratePlaylistResponseSchema } from './schemas/response/generate-playlist-response.schema';
+import { GetPlaylistResponseSchema } from './schemas/response/get-playlist-response.schema';
 
 @ApiTags('merger')
 @ApiBearerAuth()
@@ -35,6 +39,7 @@ export class MergerController {
 
   @Get('login')
   @Redirect('https://spotify.com')
+  @ApiExcludeEndpoint()
   getLogin() {
     const url = this.spotifyService.loginRedirect(this.spotifyScope);
 
@@ -43,6 +48,7 @@ export class MergerController {
 
   @Get('login/callback')
   @Redirect()
+  @ApiExcludeEndpoint()
   async getCallback(@Query('state') state, @Query('code') code) {
     // check that query parameters are present
     if (!state || !code) {
@@ -69,6 +75,7 @@ export class MergerController {
   }
 
   @Get('frontend')
+  @ApiExcludeEndpoint()
   getFrontend() {
     return 'WOW look at this temporary frontend!';
   }
@@ -76,7 +83,9 @@ export class MergerController {
   @Get('artist')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
-  async searchArtist(@Query() query: SearchArtistSchema) {
+  async searchArtist(
+    @Query() query: SearchArtistSchema,
+  ): Promise<SearchArtistResponseSchema> {
     return await this.spotifyService.searchArtist(query.name);
   }
 
@@ -85,7 +94,7 @@ export class MergerController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async searchArtistAlternatives(
     @Query() query: SearchArtistAlternativesSchema,
-  ) {
+  ): Promise<SearchArtistAlternativeResponseSchema> {
     return await this.spotifyService.searchArtistAlternatives(
       query.name,
       query.offset,
@@ -95,23 +104,28 @@ export class MergerController {
   @Post('playlists')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
-  async generatePlaylist(@Body() body: GeneratePlaylistSchema) {
+  async generatePlaylist(
+    @Body() body: GeneratePlaylistSchema,
+  ): Promise<GeneratePlaylistResponseSchema> {
     // generate Spotify playlist
-    const playlistId = await this.spotifyService.generatePlaylist(body.parts);
+    const id = await this.spotifyService.generatePlaylist(body.parts);
 
     // save information in database
     await this.databaseService.addUserPlaylist(
-      playlistId,
+      id,
       body.uuid,
       body.parts.map((entry) => entry.artist.id),
     );
-    return playlistId;
+
+    return { id };
   }
 
   @Get('playlists')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
-  async getPlaylists(@Query() query: BaseSchema) {
+  async getPlaylists(
+    @Query() query: BaseSchema,
+  ): Promise<GetPlaylistResponseSchema[]> {
     let data = await this.databaseService.getUserPlaylists(query.uuid);
 
     const playlistIds: string[] = data.map((d) => d.id);
