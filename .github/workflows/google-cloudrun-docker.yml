@@ -48,6 +48,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches: 
+      - main
 
 env:
   PROJECT_ID: spotify-apps-api # TODO: update Google Cloud project id
@@ -95,6 +98,7 @@ jobs:
 
       - name: Create env file and firebase creds file
         run: |
+          ls
           cd ./backend
           touch ./.env.prod
           echo SPOTIFY_CLIENT_ID_MERGER=${{ secrets.SPOTIFY_CLIENT_ID_MERGER }} >> ./.env.prod
@@ -105,6 +109,7 @@ jobs:
           echo FIREBASE_URL_MERGER=${{ secrets.FIREBASE_URL_MERGER }} >> ./.env.prod
           cat ./.env.prod
           
+          ls
           cd ./merger
           touch ./firebase-creds-prod.json
           cat > ./firebase-creds-prod.json << EOL
@@ -121,6 +126,7 @@ jobs:
           line 11,   "client_x509_cert_url": "${{ secrets.FIREBASE_CLIENT_X509_CERT_URL_MERGER }}"
           line 12, }
           EOL
+          ls
 
           
       - name: Build and Push Container
