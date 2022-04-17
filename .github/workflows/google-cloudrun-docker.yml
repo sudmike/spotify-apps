@@ -101,6 +101,8 @@ jobs:
           echo SPOTIFY_CLIENT_SECRET_MERGER=${{ secrets.SPOTIFY_CLIENT_SECRET_MERGER }} >> ./.env.prod
           echo SPOTIFY_REDIRECT_URI_MERGER=${{ secrets.SPOTIFY_REDIRECT_URI_MERGER }} >> ./.env.prod
           echo FRONTEND_REDIRECT_URI_SPOTIFY=${{ secrets.FRONTEND_REDIRECT_URI_SPOTIFY }} >> ./.env.prod
+          echo FIREBASE_CREDENTIALS_MERGER=firebase-creds-prod >> ./.env.prod
+          echo FIREBASE_URL_MERGER=${{ secrets.FIREBASE_URL_MERGER }} >> ./.env.prod
           cat ./.env.prod
           
           cd ./merger
