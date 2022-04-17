@@ -127,7 +127,9 @@ jobs:
           
       - name: Build and Push Container
         run: |-
+          cd ./backend
           ls
+          cd ..
           DOCKER_BUILDKIT=1 docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }}" --target production ./backend
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }}"
 
