@@ -9,7 +9,7 @@ const ENV = process.env.NODE_ENV;
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: !ENV ? '.env' : `.env.${ENV}`,
+      envFilePath: !ENV ? '.env.prod' : `.env.${ENV}`,
       isGlobal: true,
     }),
     MergerModule,
