@@ -105,7 +105,7 @@ jobs:
           echo FIREBASE_URL_MERGER=${{ secrets.FIREBASE_URL_MERGER }} >> ./.env.prod
           cat ./.env.prod
           
-          cd ./merger
+          cd ./src/merger
           touch ./firebase-creds-prod.json
           cat > ./firebase-creds-prod.json << EOL
           line 1, {
