@@ -130,7 +130,8 @@ jobs:
 
           cd ../../..
           ls -a
-          DOCKER_BUILDKIT=1 docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }}" --target production ./backend
+          #DOCKER_BUILDKIT=1 docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }}" --target production ./backend
+          DOCKER_BUILDKIT=1 docker compose build prod -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }}"
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }}"
 
       # END - Docker auth and build
