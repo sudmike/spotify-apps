@@ -6,6 +6,7 @@ import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  throw new Error(process.env.SPOTIFY_CLIENT_ID_MERGER)
   console.log(process.env.SPOTIFY_CLIENT_ID_MERGER)
   console.log(process.env.FIREBASE_CREDENTIALS_MERGER)
   const config = new DocumentBuilder()
