@@ -10,6 +10,7 @@ import * as fs from 'fs';
 export class DatabaseService extends IFirebaseService {
   constructor() {
     super();
+    throw new Error(process.env.FIREBASE_CREDENTIALS_MERGER)
     const credentialsFromFile = JSON.parse(
       fs.readFileSync(
         `./src/merger/${process.env.FIREBASE_CREDENTIALS_MERGER}.json`,
