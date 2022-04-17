@@ -110,7 +110,7 @@ jobs:
           cat ./.env.prod
           
           ls
-          cd ./merger
+          cd ./src/merger
           touch ./firebase-creds-prod.json
           cat > ./firebase-creds-prod.json << EOL
           line 1, {
