@@ -109,6 +109,7 @@ jobs:
           #echo FIREBASE_CREDENTIALS_MERGER=firebase-creds-prod >> ./.env.prod
           #echo FIREBASE_URL_MERGER=${{ secrets.FIREBASE_URL_MERGER }} >> ./.env.prod
           cat ./.env.prod
+          wc -l < ./.env.prod
           
           ls -a
           
@@ -132,6 +133,7 @@ jobs:
           #line 12, }
           #EOL
     
+          wc -l < ./firebase-creds-prod.json
 
           cd ../../..
           ls -a
