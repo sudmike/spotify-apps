@@ -12,7 +12,7 @@ RUN npm run build
 
 FROM node:17-alpine As production
 
-ARG NODE_ENV=production
+ARG NODE_ENV=prod
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
