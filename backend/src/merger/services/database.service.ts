@@ -12,7 +12,7 @@ export class DatabaseService extends IFirebaseService {
     super();
     // throw new Error(JSON.stringify(process.env))
     // throw new Error(String(fs.readdirSync('./')));
-    throw new Error('Directory:' + String(fs.readdirSync('./') + 'file content:' + String(fs.readFileSync(`./.env.prod`, 'utf-8')));
+    throw new Error('Directory:' + String(fs.readdirSync('./')) + 'file content:' + String(fs.readFileSync(`./.env.prod`, 'utf-8')));
     const credentialsFromFile = JSON.parse(
       fs.readFileSync(
         `./src/merger/${process.env.FIREBASE_CREDENTIALS_MERGER}.json`,
