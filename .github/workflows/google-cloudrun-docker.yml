@@ -114,7 +114,9 @@ jobs:
           
           cd ./src/merger
           touch ./firebase-creds-prod.json
-          echo ${{ secrets.FIREBASE_CREDS_FILE_TEXT }}
+          echo ${{ secrets.FIREBASE_CREDS_FILE_TEXT }} >> ./firebase-creds-prod.json
+          cat ./firebase-creds-prod.json
+
           #cat > ./firebase-creds-prod.json << EOL
           #line 1, {
           #line 2,   "type": "service_account",
@@ -129,6 +131,7 @@ jobs:
           #line 11,   "client_x509_cert_url": "${{ secrets.FIREBASE_CLIENT_X509_CERT_URL_MERGER }}"
           #line 12, }
           #EOL
+    
 
           cd ../../..
           ls -a
