@@ -101,7 +101,7 @@ jobs:
         run: |-
           cd ./backend
           touch ./.env.prod
-          echo ${{ secrets.ENV_FILE_TEXT }} >> ./.env.prod
+          echo '${{ secrets.ENV_FILE_TEXT }}' >> ./.env.prod
           #SPOTIFY_CLIENT_ID_MERGER=${{ secrets.SPOTIFY_CLIENT_ID_MERGER }} >> ./.env.prod
           #echo SPOTIFY_CLIENT_SECRET_MERGER=${{ secrets.SPOTIFY_CLIENT_SECRET_MERGER }} >> ./.env.prod
           #echo SPOTIFY_REDIRECT_URI_MERGER=${{ secrets.SPOTIFY_REDIRECT_URI_MERGER }} >> ./.env.prod
@@ -114,7 +114,7 @@ jobs:
           
           cd ./src/merger
           touch ./firebase-creds-prod.json
-          echo "${{ secrets.FIREBASE_CREDS_FILE_TEXT }}" >> ./firebase-creds-prod.json
+          echo '${{ secrets.FIREBASE_CREDS_FILE_TEXT }}' >> ./firebase-creds-prod.json
           cat ./firebase-creds-prod.json
 
           #cat > ./firebase-creds-prod.json << EOL
