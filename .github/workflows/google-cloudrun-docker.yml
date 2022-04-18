@@ -114,7 +114,7 @@ jobs:
           
           cd ./src/merger
           touch ./firebase-creds-prod.json
-          VAR1=${{ secrets.FIREBASE_CREDS_FILE_TEXT }}
+          VAR1="${{ secrets.FIREBASE_CREDS_FILE_TEXT }}"
           echo "${VAR1}" >> ./firebase-creds-prod.json
           cat ./firebase-creds-prod.json
 
