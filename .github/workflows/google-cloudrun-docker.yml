@@ -101,32 +101,34 @@ jobs:
         run: |-
           cd ./backend
           touch ./.env.prod
-          echo SPOTIFY_CLIENT_ID_MERGER=${{ secrets.SPOTIFY_CLIENT_ID_MERGER }} >> ./.env.prod
-          echo SPOTIFY_CLIENT_SECRET_MERGER=${{ secrets.SPOTIFY_CLIENT_SECRET_MERGER }} >> ./.env.prod
-          echo SPOTIFY_REDIRECT_URI_MERGER=${{ secrets.SPOTIFY_REDIRECT_URI_MERGER }} >> ./.env.prod
-          echo FRONTEND_REDIRECT_URI_SPOTIFY=${{ secrets.FRONTEND_REDIRECT_URI_SPOTIFY }} >> ./.env.prod
-          echo FIREBASE_CREDENTIALS_MERGER=firebase-creds-prod >> ./.env.prod
-          echo FIREBASE_URL_MERGER=${{ secrets.FIREBASE_URL_MERGER }} >> ./.env.prod
+          echo ${{ secrets.ENV_FILE_TEXT }} >> ./.env.prod
+          #SPOTIFY_CLIENT_ID_MERGER=${{ secrets.SPOTIFY_CLIENT_ID_MERGER }} >> ./.env.prod
+          #echo SPOTIFY_CLIENT_SECRET_MERGER=${{ secrets.SPOTIFY_CLIENT_SECRET_MERGER }} >> ./.env.prod
+          #echo SPOTIFY_REDIRECT_URI_MERGER=${{ secrets.SPOTIFY_REDIRECT_URI_MERGER }} >> ./.env.prod
+          #echo FRONTEND_REDIRECT_URI_SPOTIFY=${{ secrets.FRONTEND_REDIRECT_URI_SPOTIFY }} >> ./.env.prod
+          #echo FIREBASE_CREDENTIALS_MERGER=firebase-creds-prod >> ./.env.prod
+          #echo FIREBASE_URL_MERGER=${{ secrets.FIREBASE_URL_MERGER }} >> ./.env.prod
           cat ./.env.prod
           
           ls -a
           
           cd ./src/merger
           touch ./firebase-creds-prod.json
-          cat > ./firebase-creds-prod.json << EOL
-          line 1, {
-          line 2,   "type": "service_account",
-          line 3,   "project_id": "spotify-apps-merger-prod",
-          line 4,   "private_key_id": "${{ secrets.FIREBASE_PRIVATE_KEY_ID_MERGER }}",
-          line 5,   "private_key": "${{ secrets.FIREBASE_PRIVATE_KEY_MERGER }}",
-          line 6,   "client_email": "${{ secrets.FIREBASE_CLIENT_EMAIL_MERGER }}",
-          line 7,   "client_id": "${{ secrets.FIREBASE_CLIENT_ID_MERGER }}",
-          line 8,   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-          line 9,   "token_uri": "https://oauth2.googleapis.com/token",
-          line 10,   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-          line 11,   "client_x509_cert_url": "${{ secrets.FIREBASE_CLIENT_X509_CERT_URL_MERGER }}"
-          line 12, }
-          EOL
+          echo ${{ secrets.FIREBASE_CREDS_FILE_TEXT }}
+          #cat > ./firebase-creds-prod.json << EOL
+          #line 1, {
+          #line 2,   "type": "service_account",
+          #line 3,   "project_id": "spotify-apps-merger-prod",
+          #line 4,   "private_key_id": "${{ secrets.FIREBASE_PRIVATE_KEY_ID_MERGER }}",
+          #line 5,   "private_key": "${{ secrets.FIREBASE_PRIVATE_KEY_MERGER }}",
+          #line 6,   "client_email": "${{ secrets.FIREBASE_CLIENT_EMAIL_MERGER }}",
+          #line 7,   "client_id": "${{ secrets.FIREBASE_CLIENT_ID_MERGER }}",
+          #line 8,   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+          #line 9,   "token_uri": "https://oauth2.googleapis.com/token",
+          #line 10,   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+          #line 11,   "client_x509_cert_url": "${{ secrets.FIREBASE_CLIENT_X509_CERT_URL_MERGER }}"
+          #line 12, }
+          #EOL
 
           cd ../../..
           ls -a
