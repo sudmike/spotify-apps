@@ -23,6 +23,6 @@ async function bootstrap() {
     }),
   );
   fs.writeFileSync('./openapi/openapi.json', JSON.stringify(document));
-  await app.listen(3000);
+  await app.listen(8080);
 }
 bootstrap();
