@@ -30,6 +30,7 @@ import { SearchArtistResponseSchema } from './schemas/response/search-artist-res
 import { SearchArtistAlternativeResponseSchema } from './schemas/response/search-artist-alternative-response.schema';
 import { GeneratePlaylistResponseSchema } from './schemas/response/generate-playlist-response.schema';
 import { GetPlaylistResponseSchema } from './schemas/response/get-playlist-response.schema';
+import * as crypto from 'crypto';
 
 @ApiTags('merger')
 @ApiBearerAuth()
@@ -68,7 +69,11 @@ export class MergerController {
     const spotifyData = await this.spotifyService.callback(state, code);
 
     // generate a uuid based on the username
-    const uuid = UUID(spotifyData.username, UUID.URL);
+    const hash = crypto
+      .createHash('sha1')
+      .update(UUID.URL + process.env.UUID_SALT_MERGER)
+      .digest('hex');
+    const uuid = UUID(hash, UUID.URL);
 
     // add user and refresh token to database
     await this.databaseService.addUser(uuid);
