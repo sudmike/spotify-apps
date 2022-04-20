@@ -203,6 +203,10 @@ export type UserData = {
   refreshToken: string;
 };
 
-export type PlaylistArtistsData = { id: string; playlist: string }[];
+export type PlaylistArtistsData = {
+  id: string;
+  playlist: string;
+  number: number;
+}[];
 type PlaylistDataRes = { id: string; artists: PlaylistArtistsData };
 export type PlaylistData = PlaylistDataRes & { active: boolean };
