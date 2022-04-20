@@ -135,6 +135,26 @@ export class MergerController {
     return { id };
   }
 
+  @Post('playlist/:playlist/refresh')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async refreshPlaylist(
+    @Param('playlist') playlist: string,
+    @Body() body: BaseSchema,
+  ): Promise<void> {
+    // get generation related data from database
+    const data = await this.databaseService.getPlaylistArtists(
+      playlist,
+      body.uuid,
+    );
+
+    // regenerate Spotify playlist
+    await this.spotifyService.regeneratePlaylist(
+      playlist,
+      data.map((entry) => ({ playlist: entry.playlist, number: entry.number })),
+    );
+  }
+
   @Get('playlists')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
