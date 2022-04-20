@@ -6,9 +6,10 @@ import {
   shuffleArray,
   trimTrackSelection,
 } from './generation.helper';
-import ArtistPlaylistEntity from '../schemas/request/artist-playlist.entity';
+import ArtistPlaylistEntity from '../schemas/entities/artist-playlist.entity';
 import { SearchArtistResponseSchema } from '../schemas/response/search-artist-response.schema';
 import { SearchArtistAlternativeResponseSchema } from '../schemas/response/search-artist-alternative-response.schema';
+import GenerationInformationEntity from '../schemas/entities/generation-information.entity';
 
 @Injectable()
 export class SpotifyService extends ISpotifyService {
@@ -195,7 +196,7 @@ export class SpotifyService extends ISpotifyService {
       });
       const playlistId = res.body.id;
 
-      await this.addTracksToPlaylist(playlistId, tracks);
+      await this.setTracksOfPlaylist(playlistId, tracks);
 
       return playlistId;
     } catch (e) {
@@ -205,11 +206,24 @@ export class SpotifyService extends ISpotifyService {
   }
 
   /**
+   * Regenerates the track list for an already created playlist.
+   * @param playlist The ID of the playlist.
+   * @param entries Information about playlists that the generation is based on etc.
+   */
+  async regeneratePlaylist(
+    playlist: string,
+    entries: GenerationInformationEntity[],
+  ) {
+    const tracks = await this.generateTrackList(entries);
+    await this.setTracksOfPlaylist(playlist, tracks);
+  }
+
+  /**
    * Returns a list of song IDs that are extracted from the playlists which are passed.
    * @param entries These contain the IDs of playlists and the number of songs that should be extracted.
    * @private
    */
-  private async generateTrackList(entries: ArtistPlaylistEntity[]) {
+  private async generateTrackList(entries: GenerationInformationEntity[]) {
     let tracks = [];
 
     try {
@@ -259,16 +273,20 @@ export class SpotifyService extends ISpotifyService {
   }
 
   /**
-   * Adds tracks to a playlist.
+   * Adds tracks to a playlist and replaces any old ones.
    * @param id The ID of the playlist.
    * @param tracks The IDs of the tracks that should be added.
    * @private
    */
-  private async addTracksToPlaylist(id: string, tracks: string[]) {
+  private async setTracksOfPlaylist(id: string, tracks: string[]) {
     try {
+      let first = true;
       while (tracks.length > 0) {
         const batch = tracks.splice(0, 100);
-        await this.getSpotifyApi().addTracksToPlaylist(id, batch);
+        first
+          ? await this.getSpotifyApi().replaceTracksInPlaylist(id, batch)
+          : await this.getSpotifyApi().addTracksToPlaylist(id, batch);
+        first = false;
       }
     } catch (e) {
       console.log(e);

@@ -177,11 +177,11 @@ export class DatabaseService extends IFirebaseService {
   }
 
   /**
-   * Return an array of artist IDs.
+   * Return an array of artist IDs and related information.
    * @param id The ID of the playlist.
    * @param user A UUID that identifies the user.
    */
-  private async getPlaylistArtists(
+  async getPlaylistArtists(
     id: string,
     user: string,
   ): Promise<PlaylistArtistsData> {
