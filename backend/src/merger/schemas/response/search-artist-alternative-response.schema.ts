@@ -1,4 +1,4 @@
-import { ArtistResponse } from './artist-response.entity';
+import { ArtistResponse } from '../entities/artist-response.entity';
 
 export class SearchArtistAlternativeResponseSchema {
   /**
