@@ -128,6 +128,7 @@ export class MergerController {
       body.parts.map((entry) => ({
         id: entry.artist.id,
         playlist: entry.playlist,
+        number: entry.number,
       })),
     );
 
