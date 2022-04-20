@@ -71,7 +71,7 @@ export class DatabaseService extends IFirebaseService {
   async addUserPlaylist(
     id: string,
     user: string,
-    artists: string[],
+    artists: PlaylistArtistsData,
   ): Promise<void> {
     try {
       // create playlist entry
@@ -203,6 +203,6 @@ export type UserData = {
   refreshToken: string;
 };
 
-export type PlaylistArtistsData = string[];
+export type PlaylistArtistsData = { id: string; playlist: string }[];
 type PlaylistDataRes = { id: string; artists: PlaylistArtistsData };
 export type PlaylistData = PlaylistDataRes & { active: boolean };
