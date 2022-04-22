@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  NotFoundException,
   Param,
   Post,
   Query,
@@ -156,6 +157,45 @@ export class MergerController {
 
     // set last updated time in database
     await this.databaseService.setPlaylistUpdated(body.uuid, playlist);
+  }
+
+  @Get('playlists/:playlist')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async getPlaylist(
+    @Query() query: BaseSchema,
+    @Param('playlist') playlist: string,
+  ): Promise<GetPlaylistResponseSchema> {
+    const data = await this.databaseService.getUserPlaylist(
+      query.uuid,
+      playlist,
+    );
+
+    const playlists = await this.spotifyService.getPlaylistDetails(
+      [playlist],
+      (id) => {
+        this.databaseService.removeUserPlaylist(id, query.uuid);
+      },
+    );
+
+    if (playlists.length === 0)
+      throw new NotFoundException(undefined, 'The playlist could not be found');
+    else {
+      const singlePlaylist = playlists.at(0);
+      const artistIds = data.artists.map((artist) => artist.id);
+      const artists = await this.spotifyService.getArtistDetails(artistIds);
+
+      return {
+        id: data.id,
+        active: data.active,
+        playlist: singlePlaylist.details,
+        artists: artists.map((artist) => ({
+          id: artist.id,
+          name: artist.details.name,
+          images: artist.details.images,
+        })),
+      };
+    }
   }
 
   @Get('playlists')
