@@ -135,7 +135,7 @@ export class MergerController {
     return { id };
   }
 
-  @Post('playlist/:playlist/refresh')
+  @Post('playlists/:playlist/refresh')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
   async refreshPlaylist(
@@ -153,6 +153,9 @@ export class MergerController {
       playlist,
       data.map((entry) => ({ playlist: entry.playlist, number: entry.number })),
     );
+
+    // set last updated time in database
+    await this.databaseService.setPlaylistUpdated(body.uuid, playlist);
   }
 
   @Get('playlists')

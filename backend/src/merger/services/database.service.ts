@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -81,7 +82,9 @@ export class DatabaseService extends IFirebaseService {
       });
 
       // modify user entry
-      await super.addEntryField('users', user, ['active-playlists', id], true);
+      await super.addEntryField('users', user, ['active-playlists', id], {
+        updated: new Date().getTime(),
+      });
     } catch (e) {
       console.log(e);
       throw e;
@@ -149,31 +152,35 @@ export class DatabaseService extends IFirebaseService {
    */
   async setPlaylistActiveness(id: string, playlist: string, active: boolean) {
     try {
-      const fieldA = 'active-playlists';
-      const fieldI = 'inactive-playlists';
-      const resA = await super.getEntryField('users', id, [fieldA, playlist]);
-      const resI = await super.getEntryField('users', id, [fieldI, playlist]);
-
-      // throw error if playlist cannot be found
-      if (!resA && !resI) {
-        throw new NotFoundException(
-          undefined,
-          `Playlist to set ${
-            active ? 'active' : 'inactive'
-          } could not be found`,
-        );
-      }
-      // change status according to 'active' parameter
+      const res = await this.getAIPlaylist(id, playlist);
+      if (res.active === active) return;
       else {
-        const add = active ? fieldA : fieldI;
-        const remove = active ? fieldI : fieldA;
-        await super.addEntryField('users', id, [add, playlist], true);
+        // change status according to 'active' parameter
+        const add = active ? 'active-playlists' : 'inactive-playlists';
+        const remove = active ? 'inactive-playlists' : 'active-playlists';
+        await super.addEntryField('users', id, [add, playlist], res.data);
         await super.removeEntryField('users', id, [remove, playlist]);
       }
     } catch (e) {
       console.log(e);
       throw e;
     }
+  }
+
+  /**
+   * Sets last updated time of a playlist to now.
+   * @param id A UUID that identifies the user.
+   * @param playlist The ID of the playlist.
+   */
+  async setPlaylistUpdated(id: string, playlist: string) {
+    const data = await this.getAIPlaylist(id, playlist);
+
+    await super.updateEntryField(
+      'users',
+      id,
+      [data.active ? 'active-playlists' : 'inactive-playlists', playlist],
+      { updated: new Date().getTime() },
+    );
   }
 
   /**
@@ -194,6 +201,41 @@ export class DatabaseService extends IFirebaseService {
         undefined,
         'Requested playlist does not belong to user',
       );
+    }
+  }
+
+  /**
+   * Checks for a playlist in the active and inactive section of the database and returns the contents and if it is active or inactive.
+   * @param id A UUID that identifies the user.
+   * @param playlist The ID of the playlist.
+   */
+  private async getAIPlaylist(
+    id: string,
+    playlist: string,
+  ): Promise<{ data: any; active: boolean }> {
+    const fieldActive = 'active-playlists';
+    const fieldInactive = 'inactive-playlists';
+    const active = await super.getEntryField('users', id, [
+      fieldActive,
+      playlist,
+    ]);
+    const inactive = await super.getEntryField('users', id, [
+      fieldInactive,
+      playlist,
+    ]);
+
+    // throw error if playlist cannot be found
+    if (!active && !inactive) {
+      throw new NotFoundException(undefined, `Playlist could not be found`);
+    } else if (active && inactive) {
+      throw new ConflictException(
+        undefined,
+        'There is an inconsistency in the database because a playlist is set as both active and inactive',
+      );
+    } else {
+      return active
+        ? { data: active, active: true }
+        : { data: inactive, active: false };
     }
   }
 }
