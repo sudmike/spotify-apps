@@ -108,7 +108,26 @@ export class DatabaseService extends IFirebaseService {
   }
 
   /**
-   * Gets the playlist IDs of a user.
+   * Gets a specific playlist ID of a user and the IDs of the related artists.
+   * @param id A UUID that identifies the user.
+   * @param playlist The ID of the playlist.
+   */
+  async getUserPlaylist(id: string, playlist: string): Promise<PlaylistData> {
+    try {
+      const res = await this.getAIPlaylist(id, playlist);
+      return {
+        id: playlist,
+        active: res.active,
+        artists: await this.getPlaylistArtists(playlist, id),
+      };
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
+   * Gets the playlist IDs of a user and the IDs of the related artists.
    * @param id A UUID that identifies the user.
    */
   async getUserPlaylists(id: string): Promise<PlaylistData[]> {
