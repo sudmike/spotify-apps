@@ -1,4 +1,4 @@
-# Backend README.md
+# Backend README
 
 This document gives background on the backend and explains how to set it up.
 
