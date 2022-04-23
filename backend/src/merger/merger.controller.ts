@@ -83,7 +83,7 @@ export class MergerController {
       spotifyData.refresh_token,
     );
 
-    return { url: `${process.env.FRONTEND_REDIRECT_URI_SPOTIFY}?id=${uuid}` };
+    return { url: `${process.env.FRONTEND_REDIRECT_URI}?id=${uuid}` };
   }
 
   @Get('frontend')

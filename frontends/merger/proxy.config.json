@@ -1,6 +1,6 @@
 {
   "/api/*": {
-    "target": "",
+    "target": "http://localhost:8080/merger",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
