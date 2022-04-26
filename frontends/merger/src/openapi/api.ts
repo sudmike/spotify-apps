@@ -268,6 +268,39 @@ export const MergerApiAxiosParamCreator = function (configuration?: Configuratio
     return {
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mergerControllerCheckAuth: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/merger/auth`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {GeneratePlaylistSchema} generatePlaylistSchema 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -378,15 +411,12 @@ export const MergerApiAxiosParamCreator = function (configuration?: Configuratio
         /**
          * 
          * @param {string} playlist 
-         * @param {object} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        mergerControllerRefreshPlaylist: async (playlist: string, body: object, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        mergerControllerRefreshPlaylist: async (playlist: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'playlist' is not null or undefined
             assertParamExists('mergerControllerRefreshPlaylist', 'playlist', playlist)
-            // verify required parameter 'body' is not null or undefined
-            assertParamExists('mergerControllerRefreshPlaylist', 'body', body)
             const localVarPath = `/merger/playlists/{playlist}/refresh`
                 .replace(`{${"playlist"}}`, encodeURIComponent(String(playlist)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -406,12 +436,9 @@ export const MergerApiAxiosParamCreator = function (configuration?: Configuratio
 
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -591,6 +618,15 @@ export const MergerApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async mergerControllerCheckAuth(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mergerControllerCheckAuth(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @param {GeneratePlaylistSchema} generatePlaylistSchema 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -621,12 +657,11 @@ export const MergerApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {string} playlist 
-         * @param {object} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async mergerControllerRefreshPlaylist(playlist: string, body: object, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.mergerControllerRefreshPlaylist(playlist, body, options);
+        async mergerControllerRefreshPlaylist(playlist: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mergerControllerRefreshPlaylist(playlist, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -682,6 +717,14 @@ export const MergerApiFactory = function (configuration?: Configuration, basePat
     return {
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mergerControllerCheckAuth(options?: any): AxiosPromise<void> {
+            return localVarFp.mergerControllerCheckAuth(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {GeneratePlaylistSchema} generatePlaylistSchema 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -709,12 +752,11 @@ export const MergerApiFactory = function (configuration?: Configuration, basePat
         /**
          * 
          * @param {string} playlist 
-         * @param {object} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        mergerControllerRefreshPlaylist(playlist: string, body: object, options?: any): AxiosPromise<void> {
-            return localVarFp.mergerControllerRefreshPlaylist(playlist, body, options).then((request) => request(axios, basePath));
+        mergerControllerRefreshPlaylist(playlist: string, options?: any): AxiosPromise<void> {
+            return localVarFp.mergerControllerRefreshPlaylist(playlist, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -765,6 +807,16 @@ export const MergerApiFactory = function (configuration?: Configuration, basePat
 export class MergerApi extends BaseAPI {
     /**
      * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MergerApi
+     */
+    public mergerControllerCheckAuth(options?: AxiosRequestConfig) {
+        return MergerApiFp(this.configuration).mergerControllerCheckAuth(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @param {GeneratePlaylistSchema} generatePlaylistSchema 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -798,13 +850,12 @@ export class MergerApi extends BaseAPI {
     /**
      * 
      * @param {string} playlist 
-     * @param {object} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MergerApi
      */
-    public mergerControllerRefreshPlaylist(playlist: string, body: object, options?: AxiosRequestConfig) {
-        return MergerApiFp(this.configuration).mergerControllerRefreshPlaylist(playlist, body, options).then((request) => request(this.axios, this.basePath));
+    public mergerControllerRefreshPlaylist(playlist: string, options?: AxiosRequestConfig) {
+        return MergerApiFp(this.configuration).mergerControllerRefreshPlaylist(playlist, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

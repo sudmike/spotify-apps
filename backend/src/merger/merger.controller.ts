@@ -92,6 +92,13 @@ export class MergerController {
     return 'WOW look at this temporary frontend!';
   }
 
+  @Post('auth')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async checkAuth() {
+    // guard and interceptor do the checking
+  }
+
   @Get('artist')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
@@ -141,7 +148,7 @@ export class MergerController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async refreshPlaylist(
     @Param('playlist') playlist: string,
-    @Body() body: BaseSchema,
+    @Body() body: BaseSchema | any,
   ): Promise<void> {
     // get generation related data from database
     const data = await this.databaseService.getPlaylistArtists(
