@@ -27,7 +27,32 @@ export class ApiService {
       ).data;
     } catch (e) {
       // ... send out error
-      return [];
+      throw new Error('Failed to get playlists');
+    }
+  }
+
+  async getPlaylist(id: string): Promise<GetPlaylistResponseSchema> {
+    try {
+      return (
+        await this.api.mergerControllerGetPlaylist(
+          id,
+          ApiService.getAuthorizationHeader(),
+        )
+      ).data;
+    } catch (e) {
+      // ... send out error
+      throw new Error('Failed to get playlist');
+    }
+  }
+
+  async regeneratePlaylist(id: string): Promise<void> {
+    try {
+      await this.api.mergerControllerRefreshPlaylist(
+        id,
+        ApiService.getAuthorizationHeader(),
+      );
+    } catch (e) {
+      throw new Error('Failed to regenerate playlist');
     }
   }
 

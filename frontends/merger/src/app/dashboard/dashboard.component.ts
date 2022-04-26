@@ -13,7 +13,10 @@ export class DashboardComponent implements OnInit {
   constructor(private api: ApiService) {}
 
   async ngOnInit(): Promise<void> {
-    this.playlists = await this.api.getPlaylists();
-    console.log(this.playlists);
+    try {
+      this.playlists = await this.api.getPlaylists();
+    } catch (e) {
+      // ... handle failed fetching of playlists
+    }
   }
 }

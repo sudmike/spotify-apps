@@ -15,8 +15,8 @@
       </mat-grid-tile>
     </mat-grid-list>
   </mat-card-content>
-<!--  <mat-card-actions>-->
-<!--    <button mat-button>LIKE</button>-->
-<!--    <button mat-button>SHARE</button>-->
-<!--  </mat-card-actions>-->
+  <mat-card-actions>
+    <button mat-raised-button [class.spinner]="regenerateLoading" [disabled]="regenerateLoading" (click)="regeneratePlaylist()">Regenerate</button>
+    <button mat-raised-button>EDIT</button>
+  </mat-card-actions>
 </mat-card>
