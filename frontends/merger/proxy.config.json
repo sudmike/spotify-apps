@@ -1,12 +1,12 @@
 {
   "/api/*": {
-    "target": "http://localhost:8080/merger",
+    "target": "http://localhost:8080",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
     "router": {
-      "localhost:4200" : "http://localhost:8080/merger",
-      "my.frontend.url" : "https://spotify-apps-api-hlndvxcxuq-ey.a.run.app/merger"
+      "localhost:4200" : "http://localhost:8080",
+      "my.frontend.url" : "https://spotify-apps-api-hlndvxcxuq-ey.a.run.app"
     },
     "pathRewrite": {
       "^/api": ""
