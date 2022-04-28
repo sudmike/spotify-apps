@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { ArtistResponse } from 'src/openapi';
 import { ApiService } from '../services/api.service';
 import { MatTable } from '@angular/material/table';
@@ -8,17 +8,15 @@ import { MatTable } from '@angular/material/table';
   templateUrl: './create.component.html',
   styleUrls: ['./create.component.less'],
 })
-export class CreateComponent implements OnInit {
+export class CreateComponent {
   searchArtist = '';
-  artistTableData: {
+  artistData: {
     artist: ArtistResponse;
     alternatives: ArtistResponse[] | null;
   }[] = [];
   @ViewChild('table', { static: true, read: MatTable }) table: any;
 
   constructor(private api: ApiService) {}
-
-  ngOnInit(): void {}
 
   /**
    * Searches for an artist and adds the artist to artist table data if found.
@@ -30,7 +28,7 @@ export class CreateComponent implements OnInit {
       if (!res.artist) {
         // ... handle no valid artist found
       } else {
-        this.artistTableData.push({
+        this.artistData.push({
           artist: res.artist,
           alternatives: res.next
             ? (await this.api.searchArtistAlternatives(res.query)).artists
@@ -51,9 +49,7 @@ export class CreateComponent implements OnInit {
    * @param id The ID of the artist.
    */
   onRemoveArtist(id: string) {
-    this.artistTableData = this.artistTableData.filter(
-      (data) => data.artist.id !== id,
-    );
+    this.artistData = this.artistData.filter((data) => data.artist.id !== id);
     this.renderTable();
   }
 
@@ -63,14 +59,14 @@ export class CreateComponent implements OnInit {
    * @param alternative The ID of the artist that is the replacement.
    */
   async onChangeToAlternative(id: string, alternative: string) {
-    const entry = this.artistTableData.find((data) => data.artist.id === id);
+    const entry = this.artistData.find((data) => data.artist.id === id);
     const main = entry?.artist;
     const sub = entry?.alternatives?.find((alt) => alt.id === alternative);
 
     if (!main || !sub) {
       // ... handle error that the change failed
     } else {
-      this.artistTableData.map((data) => {
+      this.artistData.map((data) => {
         // replace the artist only on the related entry
         if (data.artist.id === id) {
           data.artist = sub;
@@ -88,7 +84,22 @@ export class CreateComponent implements OnInit {
   }
 
   /**
-   * Renders the table. Function needs to be called after modifying table data.
+   * Submits playlist to be generated. Gets called on button press.
+   */
+  async onSubmit() {
+    try {
+      const artists = this.artistData.map((data) => data.artist);
+      await this.api.submitPlaylist(artists);
+      // ... notify about success
+      this.artistData = [];
+      this.renderTable();
+    } catch (e) {
+      // ... handle error that the playlist could not be generated
+    }
+  }
+
+  /**
+   * Renders the table. Function should be called after modifying data.
    * @private
    */
   private renderTable() {
