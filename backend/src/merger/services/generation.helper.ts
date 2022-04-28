@@ -52,7 +52,7 @@ export function generatePlaylistDescription(artists: string[]): string {
  * @param artists Names of the artists.
  * @param sort Defines if the names should be resorted.
  */
-function prepArtistsForDescription(artists: string[], sort = true): string[] {
+function prepArtistsForDescription(artists: string[], sort = false): string[] {
   for (let artist of artists) {
     // remove all comments
     artist = artist.replace(/,/g, '');
