@@ -19,7 +19,7 @@ export class CreateComponent {
   constructor(private api: ApiService) {}
 
   /**
-   * Searches for an artist and adds the artist to artist table data if found.
+   * Searches for an artist and adds the artist to artist data if found.
    */
   async onSearchArtist() {
     try {
@@ -27,6 +27,10 @@ export class CreateComponent {
 
       if (!res.artist) {
         // ... handle no valid artist found
+      } else if (
+        this.artistData.find((data) => data.artist.id === res.artist?.id)
+      ) {
+        // ... handle artist already there
       } else {
         this.artistData.push({
           artist: res.artist,
@@ -45,7 +49,7 @@ export class CreateComponent {
   }
 
   /**
-   * Removes an entry from the artist table data. Gets called on button press.
+   * Removes an entry from the artist data. Gets called on button press.
    * @param id The ID of the artist.
    */
   onRemoveArtist(id: string) {
@@ -59,6 +63,11 @@ export class CreateComponent {
    * @param alternative The ID of the artist that is the replacement.
    */
   async onChangeToAlternative(id: string, alternative: string) {
+    if (this.artistData.find((data) => data.artist.id === alternative)) {
+      // ... handle error that artist is already selected
+      return;
+    }
+
     const entry = this.artistData.find((data) => data.artist.id === id);
     const main = entry?.artist;
     const sub = entry?.alternatives?.find((alt) => alt.id === alternative);
