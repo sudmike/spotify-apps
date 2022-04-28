@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import { GetPlaylistResponseSchema, MergerApiFactory } from '../../openapi';
+import {
+  ArtistResponse,
+  GetPlaylistResponseSchema,
+  MergerApiFactory,
+} from '../../openapi';
 
 @Injectable({
   providedIn: 'root',
@@ -80,6 +84,23 @@ export class ApiService {
       ).data;
     } catch (e) {
       throw new Error('Failed to search for artist alternatives');
+    }
+  }
+
+  async submitPlaylist(artists: ArtistResponse[]) {
+    try {
+      await this.api.mergerControllerGeneratePlaylist(
+        {
+          parts: artists.map((artist) => ({
+            playlist: artist.playlist,
+            artist: { id: artist.id, name: artist.name },
+            number: 20,
+          })),
+        },
+        ApiService.getAuthorizationHeader(),
+      );
+    } catch (e) {
+      throw new Error('Failed to generate playlist');
     }
   }
 
