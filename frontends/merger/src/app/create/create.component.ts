@@ -18,6 +18,9 @@ export class CreateComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  /**
+   * Searches for an artist and adds the artist to artist table data if found.
+   */
   async onSearchArtist() {
     try {
       const res = await this.api.searchArtist(this.searchArtist);
@@ -31,7 +34,7 @@ export class CreateComponent implements OnInit {
           name: res.artist.name,
           image: res.artist.images[2],
         });
-        this.table.renderRows();
+        this.renderTable();
 
         // reset the input field
         this.searchArtist = '';
@@ -39,5 +42,27 @@ export class CreateComponent implements OnInit {
     } catch (e) {
       // ... handle failed artist search
     }
+  }
+
+  /**
+   * Removes an entry from the artist table data. Gets called on button press.
+   * @param id The ID of the artist.
+   */
+  onRemoveArtist(id: string) {
+    this.artistResponses = this.artistResponses.filter(
+      (res) => res.artist?.id !== id,
+    );
+    this.artistTableData = this.artistTableData.filter(
+      (data) => data.id !== id,
+    );
+    this.renderTable();
+  }
+
+  /**
+   * Renders the table. Function needs to be called after modifying table data.
+   * @private
+   */
+  private renderTable() {
+    this.table.renderRows();
   }
 }
