@@ -69,6 +69,20 @@ export class ApiService {
     }
   }
 
+  async searchArtistAlternatives(name: string) {
+    try {
+      return (
+        await this.api.mergerControllerSearchArtistAlternatives(
+          name,
+          1,
+          ApiService.getAuthorizationHeader(),
+        )
+      ).data;
+    } catch (e) {
+      throw new Error('Failed to search for artist alternatives');
+    }
+  }
+
   private static getAuthorizationHeader() {
     const id = localStorage.getItem('id');
     if (id) return { headers: { Authorization: `Bearer ${id}` } };

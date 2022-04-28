@@ -19,6 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
+import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { MatTableModule } from '@angular/material/table';
     MatInputModule,
     FormsModule,
     MatTableModule,
+    MatSelectModule,
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent],
