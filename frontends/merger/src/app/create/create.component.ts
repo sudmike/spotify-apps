@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { SearchArtistResponseSchema } from 'src/openapi';
+import { ArtistResponse } from 'src/openapi';
 import { ApiService } from '../services/api.service';
 import { MatTable } from '@angular/material/table';
 
@@ -10,8 +10,10 @@ import { MatTable } from '@angular/material/table';
 })
 export class CreateComponent implements OnInit {
   searchArtist = '';
-  artistResponses: SearchArtistResponseSchema[] = [];
-  artistTableData: { id: string; name: string; image: string }[] = [];
+  artistTableData: {
+    artist: ArtistResponse;
+    alternatives: ArtistResponse[] | null;
+  }[] = [];
   @ViewChild('table', { static: true, read: MatTable }) table: any;
 
   constructor(private api: ApiService) {}
@@ -28,11 +30,11 @@ export class CreateComponent implements OnInit {
       if (!res.artist) {
         // ... handle no valid artist found
       } else {
-        this.artistResponses.push(res);
         this.artistTableData.push({
-          id: res.artist.id,
-          name: res.artist.name,
-          image: res.artist.images[2],
+          artist: res.artist,
+          alternatives: res.next
+            ? (await this.api.searchArtistAlternatives(res.query)).artists
+            : null,
         });
         this.renderTable();
 
@@ -49,13 +51,40 @@ export class CreateComponent implements OnInit {
    * @param id The ID of the artist.
    */
   onRemoveArtist(id: string) {
-    this.artistResponses = this.artistResponses.filter(
-      (res) => res.artist?.id !== id,
-    );
     this.artistTableData = this.artistTableData.filter(
-      (data) => data.id !== id,
+      (data) => data.artist.id !== id,
     );
     this.renderTable();
+  }
+
+  /**
+   * Restructures artist data by switching an artist with an alternative artist. Gets called on button press.
+   * @param id The ID of the artist that should be replaced.
+   * @param alternative The ID of the artist that is the replacement.
+   */
+  async onChangeToAlternative(id: string, alternative: string) {
+    const entry = this.artistTableData.find((data) => data.artist.id === id);
+    const main = entry?.artist;
+    const sub = entry?.alternatives?.find((alt) => alt.id === alternative);
+
+    if (!main || !sub) {
+      // ... handle error that the change failed
+    } else {
+      this.artistTableData.map((data) => {
+        // replace the artist only on the related entry
+        if (data.artist.id === id) {
+          data.artist = sub;
+          data.alternatives?.splice(
+            data.alternatives?.findIndex((alt) => alt.id === sub.id),
+            1,
+            main,
+          );
+        }
+        return data;
+      });
+
+      this.renderTable();
+    }
   }
 
   /**
