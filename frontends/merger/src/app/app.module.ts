@@ -13,6 +13,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { CreateComponent } from './create/create.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -21,6 +27,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
     CallbackComponent,
     DashboardComponent,
     DashboardPlaylistComponent,
+    CreateComponent,
   ],
   imports: [
     BrowserModule,
@@ -30,6 +37,11 @@ import { MatGridListModule } from '@angular/material/grid-list';
     MatButtonModule,
     MatListModule,
     MatGridListModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    FormsModule,
+    MatTableModule,
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent],
