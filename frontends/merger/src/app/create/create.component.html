@@ -1,0 +1,21 @@
+<mat-form-field>
+  <mat-placeholder>Add artist</mat-placeholder>
+  <input matInput [(ngModel)]="searchArtist" (keyup.enter)="onSearchArtist()">
+  <button mat-button matSuffix mat-stroked-button aria-label="add artist" (click)="onSearchArtist()">
+    <mat-icon>add</mat-icon>
+  </button>
+</mat-form-field>
+
+<table #table mat-table [dataSource]="artistTableData">
+  <ng-container matColumnDef="image">
+    <th mat-header-cell *matHeaderCellDef>Picture</th>
+    <td mat-cell *matCellDef="let artist"><img src="{{artist.image}}" alt="{{artist.image}} + image"></td>
+  </ng-container>
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef>Name</th>
+    <td mat-cell *matCellDef="let artist">{{artist.name}}</td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="['image', 'name']"></tr>
+  <tr mat-row *matRowDef="let row; columns: ['image', 'name'];"></tr>
+</table>
