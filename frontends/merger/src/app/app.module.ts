@@ -20,6 +20,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
+import { ArtistTableComponent } from './reusable/artist-table/artist-table.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { MatSelectModule } from '@angular/material/select';
     DashboardComponent,
     DashboardPlaylistComponent,
     CreateComponent,
+    ArtistTableComponent,
   ],
   imports: [
     BrowserModule,
