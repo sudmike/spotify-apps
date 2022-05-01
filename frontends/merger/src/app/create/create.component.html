@@ -1,11 +1,26 @@
 <mat-form-field>
   <mat-placeholder>Add artist</mat-placeholder>
   <input matInput [(ngModel)]="searchArtist" (keyup.enter)="onSearchArtist()">
-  <button mat-button matSuffix mat-stroked-button aria-label="add artist" (click)="onSearchArtist()">
+  <button
+    [disabled]="searchLoading"
+    [class.spinner]="searchLoading"
+    mat-button
+    matSuffix
+    mat-stroked-button
+    aria-label="add artist"
+    (click)="onSearchArtist()"
+  >
     <mat-icon>add</mat-icon>
   </button>
 </mat-form-field>
 
 <app-artist-table></app-artist-table>
 
-<button mat-raised-button (click)="onSubmit()">Submit</button>
+<button
+  [disabled]="submitLoading"
+  [class.spinner]="submitLoading"
+  mat-raised-button
+  (click)="onSubmit()"
+>
+  Submit
+</button>
