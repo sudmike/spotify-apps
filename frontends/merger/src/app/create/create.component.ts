@@ -9,6 +9,8 @@ import { ArtistTableComponent } from '../reusable/artist-table/artist-table.comp
 })
 export class CreateComponent {
   searchArtist = '';
+  searchLoading = false;
+  submitLoading = false;
   @ViewChild(ArtistTableComponent) table: any;
 
   constructor(private api: ApiService) {}
@@ -17,6 +19,10 @@ export class CreateComponent {
    * Searches for an artist and adds the artist to artist data if found.
    */
   async onSearchArtist() {
+    // skip requests if the last one is still loading
+    if (this.searchLoading || !this.searchArtist) return;
+
+    this.searchLoading = true;
     try {
       const res = await this.api.searchArtist(this.searchArtist);
 
@@ -38,12 +44,14 @@ export class CreateComponent {
     } catch (e) {
       // ... handle failed artist search
     }
+    this.searchLoading = false;
   }
 
   /**
    * Submits playlist to be generated. Gets called on button press.
    */
   async onSubmit() {
+    this.submitLoading = true;
     try {
       const artists = this.table.getArtistData();
       await this.api.submitPlaylist(artists);
@@ -52,5 +60,6 @@ export class CreateComponent {
     } catch (e) {
       // ... handle error that the playlist could not be generated
     }
+    this.submitLoading = false;
   }
 }
