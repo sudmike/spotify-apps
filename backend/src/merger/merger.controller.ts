@@ -38,7 +38,11 @@ import * as crypto from 'crypto';
 @ApiForbiddenResponse()
 @Controller('merger')
 export class MergerController {
-  private spotifyScope = ['playlist-read-private', 'playlist-modify-private'];
+  private spotifyScope = [
+    'playlist-read-private',
+    'playlist-modify-private',
+    'playlist-modify-public',
+  ];
 
   constructor(
     private readonly spotifyService: SpotifyService,
@@ -72,7 +76,7 @@ export class MergerController {
     // generate a uuid based on the username
     const hash = crypto
       .createHash('sha1')
-      .update(UUID.URL + process.env.UUID_SALT_MERGER)
+      .update(spotifyData.username + process.env.UUID_SALT_MERGER)
       .digest('hex');
     const uuid = UUID(hash, UUID.URL);
 
