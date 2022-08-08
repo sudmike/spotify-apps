@@ -6,10 +6,4 @@ export class ArtistResponse extends ArtistResponseSimple {
    * @example 91
    */
   popularity: number;
-
-  /**
-   * The ID of the 'This is XYZ' playlist
-   * @example 37i9dQZF1DZ06evO3nMr04
-   */
-  playlist: string;
 }

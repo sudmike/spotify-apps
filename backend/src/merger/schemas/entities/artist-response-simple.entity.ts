@@ -15,4 +15,10 @@ export class ArtistResponseSimple {
    * Array of URLs to artist images
    */
   images: string[];
+
+  /**
+   * The ID of the 'This is XYZ' playlist
+   * @example 37i9dQZF1DZ06evO3nMr04
+   */
+  playlist: string;
 }

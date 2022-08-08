@@ -204,6 +204,7 @@ export class MergerController {
           id: artist.id,
           name: artist.details.name,
           images: artist.details.images,
+          playlist: data.artists.find((a) => a.id === artist.id)!.playlist,
         })),
       };
     }
