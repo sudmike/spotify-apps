@@ -213,6 +213,8 @@ export class DatabaseService extends IFirebaseService {
   ): Promise<PlaylistArtistsData> {
     const res = await super.getEntry('playlists', id);
 
+    if (!res) throw new NotFoundException(undefined, 'Not found in database');
+
     if (res.user === user) {
       return res.artists;
     } else {

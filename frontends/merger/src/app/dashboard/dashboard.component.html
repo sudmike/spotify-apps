@@ -1,4 +1,14 @@
 <p>dashboard works!</p>
-<div *ngFor="let playlist of playlists">
-  <app-dashboard-playlist [data]="playlist"></app-dashboard-playlist>
+<div class="content">
+  <div fxLayout="row wrap" fxLayoutGap="1em grid">
+    <div fxFlex="20%" fxFlex.xs="100%" fxFlex.sm="33%" fxFlex.md="25%" *ngFor="let playlist of playlists">
+      <app-dashboard-playlist [data]="playlist"></app-dashboard-playlist>
+    </div>
+    <div fxFlex="20%" fxFlex.xs="100%" fxFlex.sm="33%" fxFlex.md="25%">
+      <mat-card style="max-width: 16em">
+        <mat-icon >add</mat-icon>
+        <mat-card-title>Create Playlist</mat-card-title>
+      </mat-card>
+    </div>
+  </div>
 </div>
