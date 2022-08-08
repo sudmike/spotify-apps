@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -46,6 +47,7 @@ import { ArtistTableComponent } from './reusable/artist-table/artist-table.compo
     FormsModule,
     MatTableModule,
     MatSelectModule,
+    FlexLayoutModule,
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent],

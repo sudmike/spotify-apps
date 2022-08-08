@@ -226,27 +226,16 @@ export class MergerController {
       },
     );
 
-    const artistIds: string[] = []
-      .concat(...data.map((d) => d.artists.map((a) => a.id)))
-      .filter((value, index, self) => self.indexOf(value) === index);
-    const artistsRes = await this.spotifyService.getArtistDetails(artistIds);
-
     // combine all data
     return data.map((entry) => {
       const playlist = playlists.at(
         playlists.findIndex((p) => p.id === entry.id),
       );
-      const artists = entry.artists.map((artistId) => {
-        const temp = artistsRes.at(
-          artistsRes.findIndex((a) => a.id === artistId.id),
-        );
-        return { id: temp.id, ...temp.details };
-      });
       return {
         id: entry.id,
         active: entry.active,
         playlist: playlist.details,
-        artists,
+        artists: [],
       };
     });
   }
