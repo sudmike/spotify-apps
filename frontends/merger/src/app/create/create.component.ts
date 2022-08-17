@@ -1,6 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
 import { ApiService } from '../services/api.service';
-import { ArtistTableComponent } from '../reusable/artist-table/artist-table.component';
+import {
+  ArtistTableComponent,
+  TableMode,
+} from '../reusable/artist-table/artist-table.component';
+import { ArtistResponseSimple } from '../../openapi';
 
 @Component({
   selector: 'app-create',
@@ -8,6 +12,8 @@ import { ArtistTableComponent } from '../reusable/artist-table/artist-table.comp
   styleUrls: ['./create.component.less'],
 })
 export class CreateComponent {
+  tableMode = TableMode; // so that HTML knows enum
+
   searchArtist = '';
   searchLoading = false;
   submitLoading = false;
@@ -53,7 +59,7 @@ export class CreateComponent {
   async onSubmit() {
     this.submitLoading = true;
     try {
-      const artists = this.table.getArtistData();
+      const artists: ArtistResponseSimple[] = await this.table.getArtistData();
       await this.api.submitPlaylist(artists);
       // ... notify about success
       this.table.setArtistData([]);

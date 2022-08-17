@@ -53,17 +53,36 @@ export interface ArtistPlaylistEntity {
      */
     'playlist': string;
     /**
-     * Contains the ID and name of the artist
-     * @type {ArtistEntity}
+     * 
+     * @type {ArtistPlaylistEntityArtist}
      * @memberof ArtistPlaylistEntity
      */
-    'artist': ArtistEntity;
+    'artist': ArtistPlaylistEntityArtist;
     /**
      * The number of songs that should be added from the artists \'This is XYZ\' playlist
      * @type {number}
      * @memberof ArtistPlaylistEntity
      */
     'number': number;
+}
+/**
+ * Contains the ID and name of the artist
+ * @export
+ * @interface ArtistPlaylistEntityArtist
+ */
+export interface ArtistPlaylistEntityArtist {
+    /**
+     * The ID of the artist
+     * @type {string}
+     * @memberof ArtistPlaylistEntityArtist
+     */
+    'id': string;
+    /**
+     * The name of the artist
+     * @type {string}
+     * @memberof ArtistPlaylistEntityArtist
+     */
+    'name': string;
 }
 /**
  * 
@@ -77,12 +96,6 @@ export interface ArtistResponse {
      * @memberof ArtistResponse
      */
     'popularity': number;
-    /**
-     * The ID of the \'This is XYZ\' playlist
-     * @type {string}
-     * @memberof ArtistResponse
-     */
-    'playlist': string;
     /**
      * The ID of the artist
      * @type {string}
@@ -101,6 +114,12 @@ export interface ArtistResponse {
      * @memberof ArtistResponse
      */
     'images': Array<string>;
+    /**
+     * The ID of the \'This is XYZ\' playlist
+     * @type {string}
+     * @memberof ArtistResponse
+     */
+    'playlist': string;
 }
 /**
  * 
@@ -126,6 +145,12 @@ export interface ArtistResponseSimple {
      * @memberof ArtistResponseSimple
      */
     'images': Array<string>;
+    /**
+     * The ID of the \'This is XYZ\' playlist
+     * @type {string}
+     * @memberof ArtistResponseSimple
+     */
+    'playlist': string;
 }
 /**
  * 
@@ -253,11 +278,48 @@ export interface SearchArtistResponseSchema {
      */
     'next': number | null;
     /**
-     * The artist that is returned
-     * @type {ArtistResponse}
+     * 
+     * @type {SearchArtistResponseSchemaArtist}
      * @memberof SearchArtistResponseSchema
      */
-    'artist': ArtistResponse | null;
+    'artist': SearchArtistResponseSchemaArtist | null;
+}
+/**
+ * The artist that is returned
+ * @export
+ * @interface SearchArtistResponseSchemaArtist
+ */
+export interface SearchArtistResponseSchemaArtist {
+    /**
+     * Popularity score of the artist
+     * @type {number}
+     * @memberof SearchArtistResponseSchemaArtist
+     */
+    'popularity': number;
+    /**
+     * The ID of the artist
+     * @type {string}
+     * @memberof SearchArtistResponseSchemaArtist
+     */
+    'id': string;
+    /**
+     * The name of the artist
+     * @type {string}
+     * @memberof SearchArtistResponseSchemaArtist
+     */
+    'name': string;
+    /**
+     * Array of URLs to artist images
+     * @type {Array<string>}
+     * @memberof SearchArtistResponseSchemaArtist
+     */
+    'images': Array<string>;
+    /**
+     * The ID of the \'This is XYZ\' playlist
+     * @type {string}
+     * @memberof SearchArtistResponseSchemaArtist
+     */
+    'playlist': string;
 }
 
 /**
