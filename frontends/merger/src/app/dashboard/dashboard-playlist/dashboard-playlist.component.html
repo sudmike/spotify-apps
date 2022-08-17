@@ -1,9 +1,13 @@
-<mat-card style="max-width: 16em">
-  <img mat-card-image src="{{data.playlist.images[0]}}" alt="{{data.playlist.name}} + 'image">
-  <mat-card-title>{{data.playlist.name}}</mat-card-title>
-<!--  <mat-card-subtitle *ngIf="data.playlist.description">{{data.playlist.description}}</mat-card-subtitle>-->
+<mat-card style="max-width: 20em">
+  <img mat-card-image src="{{data.playlist.images[0]}}" alt="{{data.playlist.name}} + 'image"
+       [routerLink]="'/playlist/' + data.id">
+  <mat-card-title [routerLink]="'/playlist/' + data.id">{{data.playlist.name}}</mat-card-title>
   <mat-card-actions>
-    <button mat-raised-button [class.spinner]="regenerateLoading" [disabled]="regenerateLoading" (click)="regeneratePlaylist()">Regenerate</button>
-    <button mat-raised-button [routerLink]="'/playlist/' + data.id">EDIT</button>
+    <button mat-fab color="accent" [class.spinner]="regenerateLoading"
+            class="starry"
+            [disabled]="regenerateLoading"
+            (click)="regeneratePlaylist()">
+      <mat-icon>refresh</mat-icon>
+    </button>
   </mat-card-actions>
 </mat-card>
