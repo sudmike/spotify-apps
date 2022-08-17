@@ -1,6 +1,11 @@
-import { Component, ViewChild } from '@angular/core';
-import { ArtistResponse } from '../../../openapi';
+import { Component, Input, ViewChild } from '@angular/core';
+import { ArtistResponseSimple } from '../../../openapi';
 import { MatTable } from '@angular/material/table';
+
+export enum TableMode {
+  view,
+  edit,
+}
 
 @Component({
   selector: 'app-artist-table',
@@ -8,16 +13,26 @@ import { MatTable } from '@angular/material/table';
   styleUrls: ['./artist-table.component.less'],
 })
 export class ArtistTableComponent {
-  artistData: {
-    artist: ArtistResponse;
-    alternatives: ArtistResponse[] | null;
+  tableMode = TableMode; // so that HTML knows enum
+  @Input() mode: TableMode = TableMode.view;
+  @Input() artistData: {
+    artist: ArtistResponseSimple;
+    alternatives: ArtistResponseSimple[] | null;
   }[] = [];
   @ViewChild('table', { static: true, read: MatTable }) table: any;
 
   /**
+   * Set mode of table to view-only or to edit.
+   * @param mode Mode to set.
+   */
+  setMode(mode: TableMode) {
+    this.mode = mode;
+  }
+
+  /**
    * Returns primary artists.
    */
-  getArtistData(): ArtistResponse[] {
+  async getArtistData(): Promise<ArtistResponseSimple[]> {
     return this.artistData.map((data) => data.artist);
   }
 
@@ -27,10 +42,11 @@ export class ArtistTableComponent {
    */
   setArtistData(
     data: {
-      artist: ArtistResponse;
-      alternatives: ArtistResponse[] | null;
+      artist: ArtistResponseSimple;
+      alternatives: ArtistResponseSimple[] | null;
     }[],
   ) {
+    console.log(data);
     this.artistData = data;
     this.renderTable();
   }
@@ -40,8 +56,8 @@ export class ArtistTableComponent {
    * @param data The tuple of artist and possible alternative artists.
    */
   addArtistToTable(data: {
-    artist: ArtistResponse;
-    alternatives: ArtistResponse[] | null;
+    artist: ArtistResponseSimple;
+    alternatives: ArtistResponseSimple[] | null;
   }) {
     this.artistData.push(data);
     this.renderTable();
@@ -51,7 +67,7 @@ export class ArtistTableComponent {
    * Checks if an artist is already part of artist data. Returns true if artist is already part and false if not.
    * @param artist The artist to check.
    */
-  checkForArtist(artist: ArtistResponse): boolean {
+  checkForArtist(artist: ArtistResponseSimple): boolean {
     return Boolean(
       this.artistData.find((data) => data.artist.id === artist.id),
     );

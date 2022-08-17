@@ -14,7 +14,7 @@
   </button>
 </mat-form-field>
 
-<app-artist-table></app-artist-table>
+<app-artist-table [mode]="tableMode.edit" [artistData]="[]"></app-artist-table>
 
 <button
   [disabled]="submitLoading"

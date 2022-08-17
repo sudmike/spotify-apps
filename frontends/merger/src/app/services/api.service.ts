@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
-  ArtistResponse,
+  ArtistResponseSimple,
   GetPlaylistResponseSchema,
   MergerApiFactory,
 } from '../../openapi';
@@ -87,7 +87,7 @@ export class ApiService {
     }
   }
 
-  async submitPlaylist(artists: ArtistResponse[]) {
+  async submitPlaylist(artists: ArtistResponseSimple[]) {
     try {
       await this.api.mergerControllerGeneratePlaylist(
         {

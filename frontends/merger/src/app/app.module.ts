@@ -22,6 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { ArtistTableComponent } from './reusable/artist-table/artist-table.component';
+import { PlaylistComponent } from './playlist/playlist.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { ArtistTableComponent } from './reusable/artist-table/artist-table.compo
     DashboardPlaylistComponent,
     CreateComponent,
     ArtistTableComponent,
+    PlaylistComponent,
   ],
   imports: [
     BrowserModule,

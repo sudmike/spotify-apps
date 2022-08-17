@@ -1,0 +1,9 @@
+<p>Big Playlist Page</p>
+
+<div *ngIf="id && playlist">
+  <h1>{{playlist.name}}</h1>
+  <h3>{{playlist.description}}</h3>
+
+  <app-artist-table [mode]="tableMode.view" [artistData]="templateTableArtists"></app-artist-table>
+
+</div>
