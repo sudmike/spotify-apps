@@ -1,5 +1,5 @@
 import { PlaylistsResponse } from '../entities/playlist-response.entity';
-import { ArtistResponseSimple } from '../entities/artist-response-simple.entity';
+import { ArtistResponse } from '../entities/artist-response.entity';
 
 export class GetPlaylistResponseSchema {
   /**
@@ -16,5 +16,5 @@ export class GetPlaylistResponseSchema {
 
   playlist: PlaylistsResponse;
 
-  artists: ArtistResponseSimple[];
+  artists: ArtistResponse[];
 }

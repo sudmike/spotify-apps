@@ -1,4 +1,17 @@
 <table #table mat-table [dataSource]="artistData">
+  <ng-container matColumnDef="order">
+    <th mat-header-cell *matHeaderCellDef>Order</th>
+    <td mat-cell *matCellDef="let i = index">
+      <button mat-icon-button aria-label="move up"
+              (click)="onMoveArtist(i, i - 1)">
+        <mat-icon>arrow_upward</mat-icon>
+      </button>
+      <button mat-icon-button aria-label="move down"
+              (click)="onMoveArtist(i, i + 1)">
+        <mat-icon>arrow_downward</mat-icon>
+      </button>
+  </ng-container>
+
   <ng-container matColumnDef="image">
     <th mat-header-cell *matHeaderCellDef>Picture</th>
     <td mat-cell *matCellDef="let data"><img src="{{data.artist.images[2]}}"
@@ -8,7 +21,7 @@
     <th mat-header-cell *matHeaderCellDef>Name</th>
     <td mat-cell *matCellDef="let data">
       {{data.artist.name}}
-      <mat-select *ngIf=" mode === tableMode.edit && data.alternatives" style="width: 1em">
+      <mat-select *ngIf="data.alternatives && data.alternatives.length > 0">
         <mat-option style="height: initial" *ngFor="let alternative of data.alternatives"
                     (click)="onChangeToAlternative(data.artist.id, alternative.id)">
           <img class="img-icon" src="{{alternative.images[2]}}"
@@ -26,12 +39,6 @@
     </td>
   </ng-container>
 
-  <span *ngIf="mode === tableMode.edit">
-    <tr mat-header-row *matHeaderRowDef="['image', 'name', 'remove']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['image', 'name', 'remove'];"></tr>
-  </span>
-  <span *ngIf="mode === tableMode.view">
-    <tr mat-header-row *matHeaderRowDef="['image', 'name']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['image', 'name'];"></tr>
-  </span>
+  <tr mat-header-row *matHeaderRowDef="['order', 'image', 'name', 'remove']"></tr>
+  <tr mat-row *matRowDef="let row; columns: ['order', 'image', 'name', 'remove'];"></tr>
 </table>

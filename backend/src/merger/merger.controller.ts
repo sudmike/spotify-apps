@@ -18,7 +18,6 @@ import { v5 as UUID } from 'uuid';
 import { AuthGuard } from '../guards/auth.guard';
 import { SpotifyTokenInterceptor } from './interceptors/spotify-token.interceptor';
 import SearchArtistSchema from './schemas/request/search-artist.schema';
-import SearchArtistAlternativesSchema from './schemas/request/search-artist-alternative.schema';
 import GeneratePlaylistSchema from './schemas/request/generate-playlist.schema';
 import BaseSchema from './schemas/request/base.schema';
 import {
@@ -28,7 +27,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { SearchArtistResponseSchema } from './schemas/response/search-artist-response.schema';
-import { SearchArtistAlternativeResponseSchema } from './schemas/response/search-artist-alternative-response.schema';
 import { GeneratePlaylistResponseSchema } from './schemas/response/generate-playlist-response.schema';
 import { GetPlaylistResponseSchema } from './schemas/response/get-playlist-response.schema';
 import * as crypto from 'crypto';
@@ -112,18 +110,6 @@ export class MergerController {
     return await this.spotifyService.searchArtist(query.name);
   }
 
-  @Get('artist/alternatives')
-  @UseGuards(AuthGuard)
-  @UseInterceptors(SpotifyTokenInterceptor)
-  async searchArtistAlternatives(
-    @Query() query: SearchArtistAlternativesSchema,
-  ): Promise<SearchArtistAlternativeResponseSchema> {
-    return await this.spotifyService.searchArtistAlternatives(
-      query.name,
-      query.offset,
-    );
-  }
-
   @Post('playlists')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
@@ -204,7 +190,8 @@ export class MergerController {
           id: artist.id,
           name: artist.details.name,
           images: artist.details.images,
-          playlist: data.artists.find((a) => a.id === artist.id)!.playlist,
+          playlist: data.artists.find((a) => a.id === artist.id)?.playlist,
+          number: data.artists.find((a) => a.id === artist.id)?.number,
         })),
       };
     }

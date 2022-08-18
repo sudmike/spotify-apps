@@ -73,20 +73,6 @@ export class ApiService {
     }
   }
 
-  async searchArtistAlternatives(name: string) {
-    try {
-      return (
-        await this.api.mergerControllerSearchArtistAlternatives(
-          name,
-          1,
-          ApiService.getAuthorizationHeader(),
-        )
-      ).data;
-    } catch (e) {
-      throw new Error('Failed to search for artist alternatives');
-    }
-  }
-
   async submitPlaylist(artists: ArtistResponseSimple[]) {
     try {
       await this.api.mergerControllerGeneratePlaylist(

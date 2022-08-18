@@ -20,9 +20,10 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
-import { ArtistTableComponent } from './reusable/artist-table/artist-table.component';
+import { ArtistPaneComponent } from './reusable/edit/artist-pane/artist-pane.component';
 import { PlaylistComponent } from './playlist/playlist.component';
 import { HomeComponent } from './home/home.component';
+import { EditComponent } from './reusable/edit/edit.component';
 
 @NgModule({
   declarations: [
@@ -31,9 +32,10 @@ import { HomeComponent } from './home/home.component';
     DashboardComponent,
     DashboardPlaylistComponent,
     CreateComponent,
-    ArtistTableComponent,
+    ArtistPaneComponent,
     PlaylistComponent,
     HomeComponent,
+    EditComponent,
   ],
   imports: [
     BrowserModule,

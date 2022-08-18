@@ -1,32 +1,27 @@
-import { Component, Input, ViewChild } from '@angular/core';
-import { ArtistResponseSimple } from '../../../openapi';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ArtistResponseSimple } from '../../../../openapi';
 import { MatTable } from '@angular/material/table';
-
-export enum TableMode {
-  view,
-  edit,
-}
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
-  selector: 'app-artist-table',
-  templateUrl: './artist-table.component.html',
-  styleUrls: ['./artist-table.component.less'],
+  selector: 'app-artist-table-pane',
+  templateUrl: './artist-pane.component.html',
+  styleUrls: ['./artist-pane.component.less'],
 })
-export class ArtistTableComponent {
-  tableMode = TableMode; // so that HTML knows enum
-  @Input() mode: TableMode = TableMode.view;
-  @Input() artistData: {
+export class ArtistPaneComponent implements OnInit {
+  @Input() initialArtistData: ArtistResponseSimple[] = [];
+  @ViewChild(MatTable) table!: MatTable<any>;
+
+  artistData: {
     artist: ArtistResponseSimple;
     alternatives: ArtistResponseSimple[] | null;
   }[] = [];
-  @ViewChild('table', { static: true, read: MatTable }) table: any;
 
-  /**
-   * Set mode of table to view-only or to edit.
-   * @param mode Mode to set.
-   */
-  setMode(mode: TableMode) {
-    this.mode = mode;
+  ngOnInit(): void {
+    this.artistData = this.initialArtistData.map((artist) => ({
+      artist: artist,
+      alternatives: [],
+    }));
   }
 
   /**
@@ -34,21 +29,6 @@ export class ArtistTableComponent {
    */
   async getArtistData(): Promise<ArtistResponseSimple[]> {
     return this.artistData.map((data) => data.artist);
-  }
-
-  /**
-   * Sets artist data.
-   * @param data Tuples of artists and their possible alternative artists.
-   */
-  setArtistData(
-    data: {
-      artist: ArtistResponseSimple;
-      alternatives: ArtistResponseSimple[] | null;
-    }[],
-  ) {
-    console.log(data);
-    this.artistData = data;
-    this.renderTable();
   }
 
   /**
@@ -79,6 +59,17 @@ export class ArtistTableComponent {
    */
   onRemoveArtist(id: string) {
     this.artistData = this.artistData.filter((data) => data.artist.id !== id);
+    this.renderTable();
+  }
+
+  /**
+   * Moves position of artist in table. Gets called on button press.
+   * @param positionFrom The position of the entry that should be moved.
+   * @param positionTo The position of where the entry should be moved to.
+   */
+  onMoveArtist(positionFrom: number, positionTo: number) {
+    if (positionTo < 0 || positionTo > this.artistData.length) return;
+    moveItemInArray(this.artistData, positionFrom, positionTo);
     this.renderTable();
   }
 
