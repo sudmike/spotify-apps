@@ -2,10 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { ActivatedRoute } from '@angular/router';
 import { ArtistResponseSimple, PlaylistsResponse } from '../../openapi';
-import {
-  ArtistTableComponent,
-  TableMode,
-} from '../reusable/artist-table/artist-table.component';
+import { EditComponent } from '../reusable/edit/edit.component';
 
 @Component({
   selector: 'app-playlist',
@@ -13,13 +10,12 @@ import {
   styleUrls: ['./playlist.component.less'],
 })
 export class PlaylistComponent implements OnInit {
-  tableMode = TableMode; // so that HTML knows enum
-  templateTableArtists: any;
+  templateTableArtists: ArtistResponseSimple[] = [];
 
   id: string | undefined;
   playlist: PlaylistsResponse | undefined;
   artists: ArtistResponseSimple[] | undefined;
-  @ViewChild(ArtistTableComponent) table: any;
+  @ViewChild(EditComponent) edit!: EditComponent;
 
   constructor(private api: ApiService, private route: ActivatedRoute) {}
 
@@ -33,10 +29,7 @@ export class PlaylistComponent implements OnInit {
         this.playlist = res.playlist;
         this.artists = res.artists;
 
-        this.templateTableArtists = this.artists.map((artist) => ({
-          artist,
-          alternatives: null,
-        }));
+        this.templateTableArtists = this.artists;
       }
     });
   }

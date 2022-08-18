@@ -1,0 +1,17 @@
+<mat-form-field>
+  <mat-placeholder>Add artist</mat-placeholder>
+  <input matInput [(ngModel)]="searchArtist" (keyup.enter)="onSearchArtist()">
+  <button
+    [disabled]="searchLoading"
+    [class.spinner]="searchLoading"
+    mat-button
+    matSuffix
+    mat-stroked-button
+    aria-label="add artist"
+    (click)="onSearchArtist()"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</mat-form-field>
+
+<app-artist-table-pane [initialArtistData]="artistData"></app-artist-table-pane>

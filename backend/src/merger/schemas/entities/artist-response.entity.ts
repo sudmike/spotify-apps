@@ -2,8 +2,8 @@ import { ArtistResponseSimple } from './artist-response-simple.entity';
 
 export class ArtistResponse extends ArtistResponseSimple {
   /**
-   * Popularity score of the artist
-   * @example 91
+   * Number of songs to select from the artist
+   * @example 25
    */
-  popularity: number;
+  number: number;
 }

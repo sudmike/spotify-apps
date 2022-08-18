@@ -1,4 +1,4 @@
-import { ArtistResponse } from '../entities/artist-response.entity';
+import { ArtistResponseSimple } from '../entities/artist-response-simple.entity';
 
 export class SearchArtistResponseSchema {
   /**
@@ -16,5 +16,5 @@ export class SearchArtistResponseSchema {
   /**
    * The artist that is returned
    */
-  artist: ArtistResponse | null;
+  artist: ArtistResponseSimple | null;
 }

@@ -8,7 +8,6 @@ import {
 } from './generation.helper';
 import ArtistPlaylistEntity from '../schemas/entities/artist-playlist.entity';
 import { SearchArtistResponseSchema } from '../schemas/response/search-artist-response.schema';
-import { SearchArtistAlternativeResponseSchema } from '../schemas/response/search-artist-alternative-response.schema';
 import GenerationInformationEntity from '../schemas/entities/generation-information.entity';
 
 @Injectable()
@@ -49,56 +48,8 @@ export class SpotifyService extends ISpotifyService {
           id: entry.id,
           name: entry.name,
           images: entry.images.map((image) => image.url),
-          popularity: entry.popularity,
           playlist: entry.href,
         },
-      };
-    } catch (e) {
-      console.log(e);
-      throw e;
-    }
-  }
-
-  /**
-   * Returns up to 5 artists that fit the requested artist name.
-   * @param artist The name of the artist to return results for.
-   * @param offset The offset to the last request to get new results.
-   */
-  async searchArtistAlternatives(
-    artist: string,
-    offset = 0,
-  ): Promise<SearchArtistAlternativeResponseSchema> {
-    try {
-      const limit = 10;
-      const res = (
-        await super.getSpotifyApi().searchArtists(artist, { limit, offset })
-      ).body.artists;
-      const entries = res.items;
-      let more: null | number = res.next ? offset : null;
-
-      // filter out artists that don't have a 'This is XYZ' playlist
-      const validEntries: SpotifyApi.ArtistObjectFull[] = [];
-      for await (const [index, entry] of entries.entries()) {
-        if (more !== null) more = offset + index + 1;
-
-        const playlistId = await this.getThisIsPlaylistId(entry.name);
-        if (playlistId) {
-          entry.href = playlistId; // abuse
-          validEntries.push(entry);
-          if (validEntries.length >= 5) break;
-        }
-      }
-
-      return {
-        query: artist,
-        next: more,
-        artists: validEntries.map((entry) => ({
-          id: entry.id,
-          name: entry.name,
-          images: entry.images.map((image) => image.url),
-          popularity: entry.popularity,
-          playlist: entry.href,
-        })),
       };
     } catch (e) {
       console.log(e);
