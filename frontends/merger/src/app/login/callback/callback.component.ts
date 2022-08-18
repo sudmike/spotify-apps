@@ -15,7 +15,11 @@ export class CallbackComponent implements OnInit {
     this.route.queryParams.subscribe(async (params) => {
       if (params['id']) {
         localStorage.setItem('id', params['id']);
-        await this.router.navigate(['']);
+
+        // redirect
+        const returnUrl = localStorage.getItem('returnUrl');
+        localStorage.removeItem('returnUrl');
+        await this.router.navigate(returnUrl ? [returnUrl] : ['dashboard']);
       }
     });
   }

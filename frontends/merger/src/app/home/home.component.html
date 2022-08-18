@@ -1,0 +1,16 @@
+<div class="mat-typography app-frame mat-app-background">
+  <div fxLayout.gt-md="row wrap" fxLayoutAlign.gt-md="space-between" fxLayoutGap="1em grid"
+       fxLayout.lt-lg="column"
+       style="height: 100%"
+  >
+    <div [ngClass.gt-md]="{'hor-div-one': true}" [ngClass.lt-lg]="{'vert-div': true}"
+         fxFlex.gt-md="50%">
+      <h1>Stop worrying about stale playlists!</h1>
+      <br>
+      <h2>Create Spotify playlists that stay up to date with your favorite artists now.</h2> <br>
+      <button mat-raised-button [routerLink]="'/dashboard'">Let's go</button>
+    </div>
+    <div [ngClass.gt-md]="{'hor-div-two': true}" [ngClass.lt-lg]="{'vert-div': true}"
+         fxFlex.gt-md="50%"></div>
+  </div>
+</div>
