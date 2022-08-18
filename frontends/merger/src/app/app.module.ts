@@ -4,7 +4,6 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LoginComponent } from './login/login.component';
 import { CallbackComponent } from './login/callback/callback.component';
 import { AuthGuard } from './_guards/auth.guard';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -23,17 +22,18 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { ArtistTableComponent } from './reusable/artist-table/artist-table.component';
 import { PlaylistComponent } from './playlist/playlist.component';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent,
     CallbackComponent,
     DashboardComponent,
     DashboardPlaylistComponent,
     CreateComponent,
     ArtistTableComponent,
     PlaylistComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,
