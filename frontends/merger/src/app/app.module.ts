@@ -24,6 +24,8 @@ import { ArtistPaneComponent } from './reusable/edit/artist-pane/artist-pane.com
 import { PlaylistComponent } from './playlist/playlist.component';
 import { HomeComponent } from './home/home.component';
 import { EditComponent } from './reusable/edit/edit.component';
+import { ConfigPaneComponent } from './reusable/edit/config-pane/config-pane.component';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -36,6 +38,7 @@ import { EditComponent } from './reusable/edit/edit.component';
     PlaylistComponent,
     HomeComponent,
     EditComponent,
+    ConfigPaneComponent,
   ],
   imports: [
     BrowserModule,
@@ -52,6 +55,7 @@ import { EditComponent } from './reusable/edit/edit.component';
     MatTableModule,
     MatSelectModule,
     FlexLayoutModule,
+    MatTabsModule,
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent],

@@ -1,17 +1,29 @@
-<mat-form-field>
-  <mat-placeholder>Add artist</mat-placeholder>
-  <input matInput [(ngModel)]="searchArtist" (keyup.enter)="onSearchArtist()">
-  <button
-    [disabled]="searchLoading"
-    [class.spinner]="searchLoading"
-    mat-button
-    matSuffix
-    mat-stroked-button
-    aria-label="add artist"
-    (click)="onSearchArtist()"
-  >
-    <mat-icon>add</mat-icon>
-  </button>
-</mat-form-field>
+<div fxLayout.gt-md="row" fxLayoutAlign.gt-md="space-between" fxLayoutGap="1em grid"
+     fxLayout.xs="column">
+  <mat-card fxFlex.gt-md="60%" fxFlex.lt-lg="100%">
+    <mat-form-field>
+      <mat-placeholder>Add artist</mat-placeholder>
+      <input matInput [(ngModel)]="searchArtist" (keyup.enter)="onSearchArtist()">
+      <button
+        [disabled]="searchLoading"
+        [class.spinner]="searchLoading"
+        mat-button
+        matSuffix
+        mat-stroked-button
+        aria-label="add artist"
+        (click)="onSearchArtist()"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    </mat-form-field>
 
-<app-artist-table-pane [initialArtistData]="artistData"></app-artist-table-pane>
+    <app-artist-pane (artistChange)="onArtistChange($event)"
+                     [artists]="artists"></app-artist-pane>
+
+  </mat-card>
+
+  <mat-card fxFlex.gt-md="40%" fxFlex.lt-lg="100%">
+    <app-config-pane [artists]="artists"></app-config-pane>
+  </mat-card>
+
+</div>

@@ -1,56 +1,39 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { ArtistResponseSimple } from '../../../../openapi';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { MatTable } from '@angular/material/table';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { ArtistResponseFull } from '../../../../openapi';
 
 @Component({
-  selector: 'app-artist-table-pane',
+  selector: 'app-artist-pane',
   templateUrl: './artist-pane.component.html',
   styleUrls: ['./artist-pane.component.less'],
 })
-export class ArtistPaneComponent implements OnInit {
-  @Input() initialArtistData: ArtistResponseSimple[] = [];
+export class ArtistPaneComponent {
+  @Input() artists: ArtistResponseFull[] = [];
+  @Output() artistChange = new EventEmitter<ArtistResponseFull[]>();
   @ViewChild(MatTable) table!: MatTable<any>;
-
-  artistData: {
-    artist: ArtistResponseSimple;
-    alternatives: ArtistResponseSimple[] | null;
-  }[] = [];
-
-  ngOnInit(): void {
-    this.artistData = this.initialArtistData.map((artist) => ({
-      artist: artist,
-      alternatives: [],
-    }));
-  }
-
-  /**
-   * Returns primary artists.
-   */
-  async getArtistData(): Promise<ArtistResponseSimple[]> {
-    return this.artistData.map((data) => data.artist);
-  }
 
   /**
    * Adds an entry to the artist data.
-   * @param data The tuple of artist and possible alternative artists.
+   * @param artist The artist to add.
    */
-  addArtistToTable(data: {
-    artist: ArtistResponseSimple;
-    alternatives: ArtistResponseSimple[] | null;
-  }) {
-    this.artistData.push(data);
-    this.renderTable();
+  addArtistToTable(artist: ArtistResponseFull) {
+    this.artists.push(artist);
+    this.updateTable();
   }
 
   /**
    * Checks if an artist is already part of artist data. Returns true if artist is already part and false if not.
    * @param artist The artist to check.
    */
-  checkForArtist(artist: ArtistResponseSimple): boolean {
-    return Boolean(
-      this.artistData.find((data) => data.artist.id === artist.id),
-    );
+  checkForArtist(artist: ArtistResponseFull): boolean {
+    return Boolean(this.artists.find((a) => a.id === artist.id));
   }
 
   /**
@@ -58,8 +41,8 @@ export class ArtistPaneComponent implements OnInit {
    * @param id The ID of the artist.
    */
   onRemoveArtist(id: string) {
-    this.artistData = this.artistData.filter((data) => data.artist.id !== id);
-    this.renderTable();
+    this.artists = this.artists.filter((a) => a.id !== id);
+    this.updateTable();
   }
 
   /**
@@ -68,51 +51,25 @@ export class ArtistPaneComponent implements OnInit {
    * @param positionTo The position of where the entry should be moved to.
    */
   onMoveArtist(positionFrom: number, positionTo: number) {
-    if (positionTo < 0 || positionTo > this.artistData.length) return;
-    moveItemInArray(this.artistData, positionFrom, positionTo);
-    this.renderTable();
+    if (positionTo < 0 || positionTo > this.artists.length) return;
+    moveItemInArray(this.artists, positionFrom, positionTo);
+    this.updateTable();
   }
 
   /**
-   * Restructures artist data by switching an artist with an alternative artist. Gets called on button press.
-   * @param id The ID of the artist that should be replaced.
-   * @param alternative The ID of the artist that is the replacement.
-   */
-  async onChangeToAlternative(id: string, alternative: string) {
-    if (this.artistData.find((data) => data.artist.id === alternative)) {
-      // ... handle error that artist is already selected
-      return;
-    }
-
-    const entry = this.artistData.find((data) => data.artist.id === id);
-    const main = entry?.artist;
-    const sub = entry?.alternatives?.find((alt) => alt.id === alternative);
-
-    if (!main || !sub) {
-      // ... handle error that the change failed
-    } else {
-      this.artistData.map((data) => {
-        // replace the artist only on the related entry
-        if (data.artist.id === id) {
-          data.artist = sub;
-          data.alternatives?.splice(
-            data.alternatives?.findIndex((alt) => alt.id === sub.id),
-            1,
-            main,
-          );
-        }
-        return data;
-      });
-
-      this.renderTable();
-    }
-  }
-
-  /**
-   * Renders the artist-table. Function should be called after modifying data.
+   * Renders the artist-table and emits event that artists have changed. Function should be called after modifying data.
    * @private
    */
-  private renderTable() {
+  private updateTable() {
+    this.artistChange.emit(this.getArtists());
     this.table.renderRows();
+  }
+
+  /**
+   * Returns artists.
+   * @private
+   */
+  private getArtists(): ArtistResponseFull[] {
+    return this.artists;
   }
 }

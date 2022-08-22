@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   Query,
   Redirect,
   UnauthorizedException,
@@ -18,7 +19,7 @@ import { v5 as UUID } from 'uuid';
 import { AuthGuard } from '../guards/auth.guard';
 import { SpotifyTokenInterceptor } from './interceptors/spotify-token.interceptor';
 import SearchArtistSchema from './schemas/request/search-artist.schema';
-import GeneratePlaylistSchema from './schemas/request/generate-playlist.schema';
+import SubmitPlaylistSchema from './schemas/request/submit-playlist.schema';
 import BaseSchema from './schemas/request/base.schema';
 import {
   ApiBearerAuth,
@@ -114,7 +115,7 @@ export class MergerController {
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
   async generatePlaylist(
-    @Body() body: GeneratePlaylistSchema,
+    @Body() body: SubmitPlaylistSchema,
   ): Promise<GeneratePlaylistResponseSchema> {
     // generate Spotify playlist
     const id = await this.spotifyService.generatePlaylist(body.parts);
@@ -124,7 +125,31 @@ export class MergerController {
       id,
       body.uuid,
       body.parts.map((entry) => ({
-        id: entry.artist.id,
+        id: entry.id,
+        playlist: entry.playlist,
+        number: entry.number,
+      })),
+    );
+
+    return { id };
+  }
+
+  @Put('playlists/:playlist')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async updatePlaylist(
+    @Param('playlist') playlist: string,
+    @Body() body: SubmitPlaylistSchema,
+  ): Promise<GeneratePlaylistResponseSchema> {
+    // generate Spotify playlist
+    const id = await this.spotifyService.updatePlaylist(playlist, body.parts);
+
+    // save information in database
+    await this.databaseService.updateUserPlaylist(
+      id,
+      body.uuid,
+      body.parts.map((entry) => ({
+        id: entry.id,
         playlist: entry.playlist,
         number: entry.number,
       })),

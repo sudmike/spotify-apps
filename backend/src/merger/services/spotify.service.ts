@@ -6,9 +6,9 @@ import {
   shuffleArray,
   trimTrackSelection,
 } from './generation.helper';
-import ArtistPlaylistEntity from '../schemas/entities/artist-playlist.entity';
 import { SearchArtistResponseSchema } from '../schemas/response/search-artist-response.schema';
 import GenerationInformationEntity from '../schemas/entities/generation-information.entity';
+import { ArtistFull } from '../schemas/entities/artist-full.entity';
 
 @Injectable()
 export class SpotifyService extends ISpotifyService {
@@ -49,6 +49,7 @@ export class SpotifyService extends ISpotifyService {
           name: entry.name,
           images: entry.images.map((image) => image.url),
           playlist: entry.href,
+          number: null,
         },
       };
     } catch (e) {
@@ -135,9 +136,9 @@ export class SpotifyService extends ISpotifyService {
    * Generates a Spotify playlist.
    * @param entries Information about playlists that the generation is based on etc.
    */
-  async generatePlaylist(entries: ArtistPlaylistEntity[]) {
+  async generatePlaylist(entries: ArtistFull[]) {
     try {
-      const artists = entries.map((entry) => entry.artist.name);
+      const artists = entries.map((entry) => entry.name);
       const title = generatePlaylistTitle(artists);
       const description = generatePlaylistDescription(artists);
       const tracks = await this.generateTrackList(entries);
@@ -150,6 +151,32 @@ export class SpotifyService extends ISpotifyService {
       await this.setTracksOfPlaylist(playlistId, tracks);
 
       return playlistId;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
+   * Updates a Spotify playlist.
+   * @param playlist The ID of the playlist.
+   * @param entries Information about playlists that the generation is based on etc.
+   */
+  async updatePlaylist(playlist: string, entries: ArtistFull[]) {
+    try {
+      const artists = entries.map((entry) => entry.name);
+      const title = generatePlaylistTitle(artists);
+      const description = generatePlaylistDescription(artists);
+      const tracks = await this.generateTrackList(entries);
+
+      await this.getSpotifyApi().changePlaylistDetails(playlist, {
+        name: title,
+        description,
+      });
+
+      await this.setTracksOfPlaylist(playlist, tracks);
+
+      return playlist;
     } catch (e) {
       console.log(e);
       throw e;

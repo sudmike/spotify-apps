@@ -92,6 +92,46 @@ export class DatabaseService extends IFirebaseService {
   }
 
   /**
+   * Adds information about a generated playlist.
+   * @param id The playlists ID.
+   * @param user A UUID that identifies the user.
+   * @param artists The IDs of artists that are part of the playlist.
+   */
+  async updateUserPlaylist(
+    id: string,
+    user: string,
+    artists: PlaylistArtistsData,
+  ): Promise<void> {
+    try {
+      // create playlist entry
+      await super.updateEntry('playlists', id, {
+        user,
+        artists,
+      });
+
+      const res = await this.getAIPlaylist(user, id);
+
+      // modify user entry
+      if (res.active)
+        await super.updateEntryField('users', user, ['active-playlists', id], {
+          updated: new Date().getTime(),
+        });
+      else
+        await super.updateEntryField(
+          'users',
+          user,
+          ['inactive-playlists', id],
+          {
+            updated: new Date().getTime(),
+          },
+        );
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
    * Removes information about a playlist.
    * @param id The playlists ID.
    * @param user A UUID that identifies the user.

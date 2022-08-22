@@ -1,9 +1,14 @@
-<p>Big Playlist Page</p>
-
 <div *ngIf="id && playlist">
   <h1>{{playlist.name}}</h1>
-  <h3>{{playlist.description}}</h3>
-
-  <app-edit [artistData]="templateTableArtists"></app-edit>
+  <app-edit [artists]="artists"></app-edit>
+  <button
+    class="starry"
+    [disabled]="saveLoading"
+    [class.spinner]="saveLoading"
+    mat-raised-button
+    (click)="onSave()"
+  >
+    Save
+  </button>
 
 </div>
