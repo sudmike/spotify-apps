@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { ApiService } from '../services/api.service';
-import { ArtistResponseSimple } from '../../openapi';
+import { ArtistResponseFull } from '../../openapi';
 import { EditComponent } from '../reusable/edit/edit.component';
 import { Router } from '@angular/router';
 
@@ -21,7 +21,7 @@ export class CreateComponent {
   async onSubmit() {
     this.submitLoading = true;
     try {
-      const artists: ArtistResponseSimple[] = await this.edit.getArtistData();
+      const artists: ArtistResponseFull[] = await this.edit.getArtistData();
       await this.api.submitPlaylist(artists);
       // ... notify about success
       await this.router.navigate(['dashboard']);

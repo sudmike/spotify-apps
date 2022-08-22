@@ -1,10 +1,15 @@
-<app-edit [artistData]="[]"></app-edit>
+<div>
+  <h1>Create a new playlist</h1>
+  <app-edit [artists]="[]"></app-edit>
+  <button
+    class="starry"
+    [disabled]="submitLoading"
+    [class.spinner]="submitLoading"
+    mat-raised-button
+    (click)="onSubmit()"
+  >
+    Create
+  </button>
+</div>
 
-<button
-  [disabled]="submitLoading"
-  [class.spinner]="submitLoading"
-  mat-raised-button
-  (click)="onSubmit()"
->
-  Submit
-</button>
+

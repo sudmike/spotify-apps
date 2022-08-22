@@ -1,6 +1,7 @@
 import { Component, Input, ViewChild } from '@angular/core';
-import { ArtistResponseSimple } from '../../../openapi';
+import { ArtistResponseFull } from '../../../openapi';
 import { ArtistPaneComponent } from './artist-pane/artist-pane.component';
+import { ConfigPaneComponent } from './config-pane/config-pane.component';
 import { ApiService } from '../../services/api.service';
 
 @Component({
@@ -9,8 +10,9 @@ import { ApiService } from '../../services/api.service';
   styleUrls: ['./edit.component.less'],
 })
 export class EditComponent {
-  @Input() artistData: ArtistResponseSimple[] = [];
+  @Input() artists: ArtistResponseFull[] = []; // only at beginning
   @ViewChild(ArtistPaneComponent) table!: ArtistPaneComponent;
+  @ViewChild(ConfigPaneComponent) config!: ConfigPaneComponent;
 
   searchArtist = '';
   searchLoading = false;
@@ -18,10 +20,18 @@ export class EditComponent {
   constructor(private api: ApiService) {}
 
   /**
+   * Gets triggered when artists change in artist table.
+   * @param artists The new list of artists.
+   */
+  onArtistChange(artists: ArtistResponseFull[]) {
+    this.config.setArtists(artists);
+  }
+
+  /**
    * Returns artists from artist table.
    */
-  async getArtistData(): Promise<ArtistResponseSimple[]> {
-    return this.table.getArtistData();
+  async getArtistData(): Promise<ArtistResponseFull[]> {
+    return this.config.getArtists();
   }
 
   /**
@@ -40,12 +50,7 @@ export class EditComponent {
       } else if (this.table.checkForArtist(res.artist)) {
         // ... handle artist already there
       } else {
-        this.table.addArtistToTable({
-          artist: res.artist,
-          alternatives: res.next
-            ? (await this.api.searchArtistAlternatives(res.query)).artists
-            : null,
-        });
+        this.table.addArtistToTable(res.artist);
 
         // reset the input field
         this.searchArtist = '';

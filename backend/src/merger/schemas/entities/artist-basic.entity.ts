@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export default class ArtistEntity {
+export default class ArtistBasic {
   /**
    * The ID of the artist
    * @example 5K4W6rqBFWDnAN6FQUkS6x

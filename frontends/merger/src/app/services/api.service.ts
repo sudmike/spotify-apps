@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
-  ArtistResponseSimple,
+  ArtistResponseFull,
   GetPlaylistResponseSchema,
   MergerApiFactory,
 } from '../../openapi';
@@ -73,20 +73,28 @@ export class ApiService {
     }
   }
 
-  async submitPlaylist(artists: ArtistResponseSimple[]) {
+  async submitPlaylist(artists: ArtistResponseFull[]) {
     try {
       await this.api.mergerControllerGeneratePlaylist(
         {
-          parts: artists.map((artist) => ({
-            playlist: artist.playlist,
-            artist: { id: artist.id, name: artist.name },
-            number: 20,
-          })),
+          parts: artists,
         },
         ApiService.getAuthorizationHeader(),
       );
     } catch (e) {
-      throw new Error('Failed to generate playlist');
+      throw new Error('Failed to submit playlist');
+    }
+  }
+
+  async updatePlaylist(id: string, artists: ArtistResponseFull[]) {
+    try {
+      await this.api.mergerControllerUpdatePlaylist(
+        id,
+        { parts: artists },
+        ApiService.getAuthorizationHeader(),
+      );
+    } catch (e) {
+      throw new Error('Failed to update playlist');
     }
   }
 

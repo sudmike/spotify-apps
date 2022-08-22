@@ -1,8 +1,8 @@
 import { ArrayMinSize, IsArray, IsUUID } from 'class-validator';
 import { ApiHideProperty } from '@nestjs/swagger';
-import ArtistPlaylistEntity from '../entities/artist-playlist.entity';
+import { ArtistFull } from '../entities/artist-full.entity';
 
-export default class GeneratePlaylistSchema {
+export default class SubmitPlaylistSchema {
   @ApiHideProperty()
   @IsUUID()
   uuid: string;
@@ -12,5 +12,5 @@ export default class GeneratePlaylistSchema {
    */
   @IsArray()
   @ArrayMinSize(1)
-  parts: ArtistPlaylistEntity[];
+  parts: ArtistFull[];
 }
