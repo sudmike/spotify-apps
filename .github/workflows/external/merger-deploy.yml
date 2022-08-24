@@ -1,0 +1,37 @@
+# Frontend Merger Deploy to Cloud Builder / App Engine
+
+steps:
+  - name: gcr.io/cloud-builders/npm
+    args:
+      - install
+    dir: frontends/merger
+
+  - name: gcr.io/cloud-builders/gcloud
+    args:
+      - '-c'
+      - |
+        cp ./env.dev.example.ts ./env.dev.ts
+        cp ./env.prod.example.ts ./env.prod.ts
+        touch ./.env.prod.ts
+        echo '$_MERGER_ENV_FILE_TEXT' >> ./.env.prod.ts
+        cat ./.env.prod.ts
+    dir: frontends/merger
+    entrypoint: bash
+
+  - name: 'node:16.10'
+    args:
+      - run
+      - build
+      - '--prod'
+    dir: frontends/merger
+    entrypoint: npm
+
+  - name: gcr.io/cloud-builders/gcloud
+    args:
+      - app
+      - deploy
+      - '--version=prod'
+    dir: frontends/merger
+
+options:
+  logging: CLOUD_LOGGING_ONLY
