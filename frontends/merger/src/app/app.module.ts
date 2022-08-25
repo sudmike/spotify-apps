@@ -26,6 +26,8 @@ import { HomeComponent } from './home/home.component';
 import { EditComponent } from './reusable/edit/edit.component';
 import { ConfigPaneComponent } from './reusable/edit/config-pane/config-pane.component';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { NavbarComponent } from './navbar/navbar.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +41,7 @@ import { MatTabsModule } from '@angular/material/tabs';
     HomeComponent,
     EditComponent,
     ConfigPaneComponent,
+    NavbarComponent,
   ],
   imports: [
     BrowserModule,
@@ -56,6 +59,7 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatSelectModule,
     FlexLayoutModule,
     MatTabsModule,
+    MatToolbarModule,
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent],
