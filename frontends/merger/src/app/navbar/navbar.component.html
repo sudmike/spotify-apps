@@ -1,0 +1,12 @@
+<mat-toolbar *ngIf="show">
+  <span>My App</span>
+  <span class="example-spacer"></span>
+  <button mat-button [routerLink]="['/dashboard']">
+    <mat-icon class="gold-icon">dashboard</mat-icon>
+    Dashboard
+  </button>
+  <button mat-button [routerLink]="['/create']">
+    <mat-icon class="gold-icon">add_box</mat-icon>
+    Create
+  </button>
+</mat-toolbar>
