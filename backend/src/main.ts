@@ -6,6 +6,7 @@ import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   const config = new DocumentBuilder()
     .addBearerAuth()
     .setTitle('Spotify apps NestJS backend')
