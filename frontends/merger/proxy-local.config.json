@@ -4,10 +4,6 @@
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
-    "router": {
-      "localhost:4200" : "http://localhost:8080",
-      "my.frontend.url" : "https://spotify-apps-api-hlndvxcxuq-ey.a.run.app"
-    },
     "pathRewrite": {
       "^/api": ""
     }

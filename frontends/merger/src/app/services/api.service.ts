@@ -4,12 +4,13 @@ import {
   GetPlaylistResponseSchema,
   MergerApiFactory,
 } from '../../openapi';
+import { env } from '../../../env.dev';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  api = MergerApiFactory(undefined, '/api');
+  api = MergerApiFactory(undefined, env.production ? env.backendUrl : '/api');
 
   async checkAuth(): Promise<boolean> {
     try {
@@ -31,6 +32,7 @@ export class ApiService {
       ).data;
     } catch (e) {
       // ... send out error
+      ApiService.checkForUnauthorizedException(e);
       throw new Error('Failed to get playlists');
     }
   }
@@ -45,6 +47,7 @@ export class ApiService {
       ).data;
     } catch (e) {
       // ... send out error
+      ApiService.checkForUnauthorizedException(e);
       throw new Error('Failed to get playlist');
     }
   }
@@ -56,6 +59,8 @@ export class ApiService {
         ApiService.getAuthorizationHeader(),
       );
     } catch (e) {
+      // ... send out error
+      ApiService.checkForUnauthorizedException(e);
       throw new Error('Failed to regenerate playlist');
     }
   }
@@ -69,6 +74,8 @@ export class ApiService {
         )
       ).data;
     } catch (e) {
+      // ... send out error
+      ApiService.checkForUnauthorizedException(e);
       throw new Error('Failed to search for artist');
     }
   }
@@ -82,6 +89,8 @@ export class ApiService {
         ApiService.getAuthorizationHeader(),
       );
     } catch (e) {
+      // ... send out error
+      ApiService.checkForUnauthorizedException(e);
       throw new Error('Failed to submit playlist');
     }
   }
@@ -94,6 +103,8 @@ export class ApiService {
         ApiService.getAuthorizationHeader(),
       );
     } catch (e) {
+      // ... send out error
+      ApiService.checkForUnauthorizedException(e);
       throw new Error('Failed to update playlist');
     }
   }
@@ -102,5 +113,12 @@ export class ApiService {
     const id = localStorage.getItem('id');
     if (id) return { headers: { Authorization: `Bearer ${id}` } };
     else throw new Error('Storage item id not set');
+  }
+
+  private static checkForUnauthorizedException(e: any) {
+    if (e.response.status === 401) { // if the token is invalid, remove it from the cache
+      localStorage.removeItem('id');
+      location.reload();
+    }
   }
 }
