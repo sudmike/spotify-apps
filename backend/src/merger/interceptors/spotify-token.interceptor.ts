@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Injectable,
   NestInterceptor,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { SpotifyService } from '../services/spotify.service';
@@ -36,8 +37,15 @@ export class SpotifyTokenInterceptor implements NestInterceptor {
     }
 
     // get Spotify access token and set it
-    const accessToken = await this.getAccessToken(uuid);
-    this.spotifyService.setAccessToken(accessToken);
+    try {
+      const accessToken = await this.getAccessToken(uuid);
+      this.spotifyService.setAccessToken(accessToken);
+    } catch (e) {
+      throw new UnauthorizedException(
+        e,
+        'Could not get Spotify token from user.',
+      );
+    }
 
     return next.handle();
   }

@@ -1,0 +1,11 @@
+{
+  "/api/*": {
+    "target": "https://spotify-apps-api-hlndvxcxuq-ey.a.run.app",
+    "secure": true,
+    "logLevel": "debug",
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api": ""
+    }
+  }
+}

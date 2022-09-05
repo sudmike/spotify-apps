@@ -11,10 +11,9 @@ steps:
       - '-c'
       - |
         cp ./env.dev.example.ts ./env.dev.ts
-        cp ./env.prod.example.ts ./env.prod.ts
-        touch ./.env.prod.ts
-        echo '$_MERGER_ENV_FILE_TEXT' >> ./.env.prod.ts
-        cat ./.env.prod.ts
+        touch ./env.prod.ts
+        echo "$_MERGER_ENV_FILE_TEXT" >> ./env.prod.ts
+        cat ./env.prod.ts
     dir: frontends/merger
     entrypoint: bash
 
