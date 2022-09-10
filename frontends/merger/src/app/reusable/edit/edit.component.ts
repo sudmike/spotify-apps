@@ -35,6 +35,21 @@ export class EditComponent {
    * Returns artists from artist table.
    */
   async getArtistData(): Promise<ArtistResponseFull[]> {
+    let artists = this.config.getArtists();
+
+    // sanitize artists
+    artists = artists.filter((artist) => artist.number > 0);
+    artists = artists.map((artist) => ({
+      ...artist,
+      number: (artist.number = artist.number <= 100 ? artist.number : 100),
+    }));
+
+    // check if all requirements are fulfilled
+    if (artists.length < 2) {
+      this.notification.warning('At least two artists need to be included');
+      return [];
+    }
+
     return this.config.getArtists();
   }
 

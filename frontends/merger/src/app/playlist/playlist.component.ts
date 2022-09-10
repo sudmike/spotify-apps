@@ -39,8 +39,10 @@ export class PlaylistComponent implements OnInit {
     this.saveLoading = true;
     try {
       const artists: ArtistResponseFull[] = await this.edit.getArtistData();
-      await this.api.updatePlaylist(this.id, artists);
-      this.notification.success('Saved changes to playlist');
+      if (artists.length > 0) {
+        await this.api.updatePlaylist(this.id, artists);
+        this.notification.success('Saved changes to playlist');
+      }
     } catch (e) {
       this.notification.warning('Failed to save changes');
     }
