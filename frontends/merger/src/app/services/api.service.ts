@@ -5,12 +5,29 @@ import {
   MergerApiFactory,
 } from '../../openapi';
 import { env } from '../../../env.dev';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
   api = MergerApiFactory(undefined, env.production ? env.backendUrl : '/api');
+
+  constructor(private notification: NotificationService) {}
+
+  private static getAuthorizationHeader() {
+    const id = localStorage.getItem('id');
+    if (id) return { headers: { Authorization: `Bearer ${id}` } };
+    else throw new Error('Storage item id not set');
+  }
+
+  private static checkForUnauthorizedException(e: any) {
+    if (e.response.status === 401) {
+      // if the token is invalid, remove it from the cache
+      localStorage.removeItem('id');
+      location.reload();
+    }
+  }
 
   async checkAuth(): Promise<boolean> {
     try {
@@ -31,8 +48,9 @@ export class ApiService {
         )
       ).data;
     } catch (e) {
-      // ... send out error
+      // send out error
       ApiService.checkForUnauthorizedException(e);
+      this.notification.error('Failed to get playlists');
       throw new Error('Failed to get playlists');
     }
   }
@@ -46,8 +64,9 @@ export class ApiService {
         )
       ).data;
     } catch (e) {
-      // ... send out error
+      // send out error
       ApiService.checkForUnauthorizedException(e);
+      this.notification.error('Failed to get playlist');
       throw new Error('Failed to get playlist');
     }
   }
@@ -59,8 +78,9 @@ export class ApiService {
         ApiService.getAuthorizationHeader(),
       );
     } catch (e) {
-      // ... send out error
+      // send out error
       ApiService.checkForUnauthorizedException(e);
+      this.notification.error('Failed to regenerate playlist');
       throw new Error('Failed to regenerate playlist');
     }
   }
@@ -74,8 +94,9 @@ export class ApiService {
         )
       ).data;
     } catch (e) {
-      // ... send out error
+      // send out error
       ApiService.checkForUnauthorizedException(e);
+      this.notification.error('Failed to search for artist');
       throw new Error('Failed to search for artist');
     }
   }
@@ -89,8 +110,9 @@ export class ApiService {
         ApiService.getAuthorizationHeader(),
       );
     } catch (e) {
-      // ... send out error
+      // send out error
       ApiService.checkForUnauthorizedException(e);
+      this.notification.error('Failed to submit playlist');
       throw new Error('Failed to submit playlist');
     }
   }
@@ -103,22 +125,10 @@ export class ApiService {
         ApiService.getAuthorizationHeader(),
       );
     } catch (e) {
-      // ... send out error
+      // send out error
       ApiService.checkForUnauthorizedException(e);
+      this.notification.error('Failed to update playlist');
       throw new Error('Failed to update playlist');
-    }
-  }
-
-  private static getAuthorizationHeader() {
-    const id = localStorage.getItem('id');
-    if (id) return { headers: { Authorization: `Bearer ${id}` } };
-    else throw new Error('Storage item id not set');
-  }
-
-  private static checkForUnauthorizedException(e: any) {
-    if (e.response.status === 401) { // if the token is invalid, remove it from the cache
-      localStorage.removeItem('id');
-      location.reload();
     }
   }
 }

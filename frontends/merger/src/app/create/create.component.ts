@@ -3,6 +3,7 @@ import { ApiService } from '../services/api.service';
 import { ArtistResponseFull } from '../../openapi';
 import { EditComponent } from '../reusable/edit/edit.component';
 import { Router } from '@angular/router';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-create',
@@ -13,7 +14,11 @@ export class CreateComponent {
   submitLoading = false;
   @ViewChild(EditComponent) edit!: EditComponent;
 
-  constructor(private api: ApiService, private readonly router: Router) {}
+  constructor(
+    private api: ApiService,
+    private readonly router: Router,
+    private notification: NotificationService,
+  ) {}
 
   /**
    * Submits playlist to be generated. Gets called on button press.
@@ -23,10 +28,10 @@ export class CreateComponent {
     try {
       const artists: ArtistResponseFull[] = await this.edit.getArtistData();
       await this.api.submitPlaylist(artists);
-      // ... notify about success
+      this.notification.success('Successfully created playlist');
       await this.router.navigate(['dashboard']);
     } catch (e) {
-      // ... handle error that the playlist could not be generated
+      this.notification.error('Failed to create playlist');
     }
     this.submitLoading = false;
   }

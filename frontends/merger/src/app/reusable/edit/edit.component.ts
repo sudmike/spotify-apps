@@ -3,6 +3,7 @@ import { ArtistResponseFull } from '../../../openapi';
 import { ArtistPaneComponent } from './artist-pane/artist-pane.component';
 import { ConfigPaneComponent } from './config-pane/config-pane.component';
 import { ApiService } from '../../services/api.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-edit',
@@ -17,7 +18,10 @@ export class EditComponent {
   searchArtist = '';
   searchLoading = false;
 
-  constructor(private api: ApiService) {}
+  constructor(
+    private api: ApiService,
+    private notification: NotificationService,
+  ) {}
 
   /**
    * Gets triggered when artists change in artist table.
@@ -46,9 +50,9 @@ export class EditComponent {
       const res = await this.api.searchArtist(this.searchArtist);
 
       if (!res.artist) {
-        // ... handle no valid artist found
+        this.notification.warning('Could not find valid artist');
       } else if (this.table.checkForArtist(res.artist)) {
-        // ... handle artist already there
+        this.notification.warning('Artist is already selected');
       } else {
         this.table.addArtistToTable(res.artist);
 
@@ -56,7 +60,7 @@ export class EditComponent {
         this.searchArtist = '';
       }
     } catch (e) {
-      // ... handle failed artist search
+      this.notification.error('Failed to search for artist');
     }
     this.searchLoading = false;
   }
