@@ -3,6 +3,7 @@ import { ApiService } from '../services/api.service';
 import { ActivatedRoute } from '@angular/router';
 import { ArtistResponseFull, PlaylistsResponse } from '../../openapi';
 import { EditComponent } from '../reusable/edit/edit.component';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-playlist',
@@ -16,7 +17,11 @@ export class PlaylistComponent implements OnInit {
   saveLoading = false;
   @ViewChild(EditComponent) edit!: EditComponent;
 
-  constructor(private api: ApiService, private route: ActivatedRoute) {}
+  constructor(
+    private api: ApiService,
+    private route: ActivatedRoute,
+    private notification: NotificationService,
+  ) {}
 
   async ngOnInit(): Promise<void> {
     await this.getPlaylistData();
@@ -31,9 +36,9 @@ export class PlaylistComponent implements OnInit {
     try {
       const artists: ArtistResponseFull[] = await this.edit.getArtistData();
       await this.api.updatePlaylist(this.id, artists);
-      // ... notify about success
+      this.notification.success('Saved changes to playlist');
     } catch (e) {
-      // ... handle error that the playlist could not be generated
+      this.notification.warning('Failed to save changes');
     }
 
     this.saveLoading = false;
@@ -49,10 +54,14 @@ export class PlaylistComponent implements OnInit {
       const id = params['id'];
 
       if (id) {
-        const res = await this.api.getPlaylist(id);
-        this.id = res.id;
-        this.playlist = res.playlist;
-        this.artists = res.artists;
+        try {
+          const res = await this.api.getPlaylist(id);
+          this.id = res.id;
+          this.playlist = res.playlist;
+          this.artists = res.artists;
+        } catch (e) {
+          this.notification.warning('Failed to get playlist data');
+        }
       }
     });
   }
