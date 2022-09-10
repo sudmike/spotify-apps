@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ArtistResponseFull, PlaylistsResponse } from '../../openapi';
 import { EditComponent } from '../reusable/edit/edit.component';
 import { NotificationService } from '../services/notification.service';
+import { TitleService } from '../services/title.service';
 
 @Component({
   selector: 'app-playlist',
@@ -18,10 +19,13 @@ export class PlaylistComponent implements OnInit {
   @ViewChild(EditComponent) edit!: EditComponent;
 
   constructor(
+    private title: TitleService,
     private api: ApiService,
     private route: ActivatedRoute,
     private notification: NotificationService,
-  ) {}
+  ) {
+    this.title.setTitle('Loading...');
+  }
 
   async ngOnInit(): Promise<void> {
     await this.getPlaylistData();
@@ -59,6 +63,7 @@ export class PlaylistComponent implements OnInit {
           this.id = res.id;
           this.playlist = res.playlist;
           this.artists = res.artists;
+          this.title.setTitle(res.playlist.name);
         } catch (e) {
           this.notification.warning('Failed to get playlist data');
         }

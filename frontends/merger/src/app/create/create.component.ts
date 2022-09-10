@@ -4,6 +4,7 @@ import { ArtistResponseFull } from '../../openapi';
 import { EditComponent } from '../reusable/edit/edit.component';
 import { Router } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
+import { TitleService } from '../services/title.service';
 
 @Component({
   selector: 'app-create',
@@ -15,10 +16,13 @@ export class CreateComponent {
   @ViewChild(EditComponent) edit!: EditComponent;
 
   constructor(
+    private title: TitleService,
     private api: ApiService,
     private readonly router: Router,
     private notification: NotificationService,
-  ) {}
+  ) {
+    this.title.setTitle('Create');
+  }
 
   /**
    * Submits playlist to be generated. Gets called on button press.
