@@ -1,11 +1,11 @@
-<mat-toolbar *ngIf="show">
+<mat-toolbar *ngIf="show" ngClass.xs="mobile">
   <span>My App</span>
   <span class="example-spacer"></span>
-  <button mat-button [routerLink]="['/dashboard']">
+  <button [routerLink]="['/dashboard']" mat-button>
     <mat-icon class="gold-icon">dashboard</mat-icon>
     Dashboard
   </button>
-  <button mat-button [routerLink]="['/create']">
+  <button [routerLink]="['/create']" mat-button>
     <mat-icon class="gold-icon">add_box</mat-icon>
     Create
   </button>

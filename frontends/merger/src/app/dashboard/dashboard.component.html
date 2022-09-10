@@ -1,12 +1,12 @@
-<div class="content">
-  <div fxLayout.gt-xs="row wrap" fxLayoutAlign.gt-xs="flex-start"
-       fxLayoutGap="1em grid" fxLayout.xs="column"
-       ngClass.sm="dashboard-sm" ngClass.md="dashboard-md" ngClass.lg="dashboard-lg"
+<div class="content" ngClass.xs="content-mobile">
+  <div fxLayout.gt-xs="row wrap" fxLayout.xs="column"
+       fxLayoutAlign.gt-xs="flex-start" fxLayoutGap="1em grid"
+       ngClass.lg="dashboard-lg" ngClass.md="dashboard-md" ngClass.sm="dashboard-sm"
        ngClass.xl="dashboard-xl"
   >
-    <app-dashboard-playlist fxFlex="25%" fxFlex.xs="100%" fxFlex.sm="50%" fxFlex.md="25%"
-                            fxFlex.lg="25%" fxFlex.xl="16.66%" fxFlexAlign.xs="center"
-                            *ngFor="let playlist of playlists"
-                            [data]="playlist"></app-dashboard-playlist>
+    <app-dashboard-playlist *ngFor="let playlist of playlists" [data]="playlist" fxFlex="25%" fxFlex.lg="25%"
+                            fxFlex.md="25%" fxFlex.sm="50%" fxFlex.xl="16.66%"
+                            fxFlex.xs="100%"
+                            fxFlexAlign.xs="center"></app-dashboard-playlist>
   </div>
 </div>
