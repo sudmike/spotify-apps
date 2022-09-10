@@ -28,6 +28,7 @@ import { ConfigPaneComponent } from './reusable/edit/config-pane/config-pane.com
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavbarComponent } from './navbar/navbar.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,7 @@ import { NavbarComponent } from './navbar/navbar.component';
     FlexLayoutModule,
     MatTabsModule,
     MatToolbarModule,
+    MatSnackBarModule,
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent],
