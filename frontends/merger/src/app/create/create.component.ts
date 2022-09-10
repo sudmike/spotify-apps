@@ -31,9 +31,11 @@ export class CreateComponent {
     this.submitLoading = true;
     try {
       const artists: ArtistResponseFull[] = await this.edit.getArtistData();
-      await this.api.submitPlaylist(artists);
-      this.notification.success('Successfully created playlist');
-      await this.router.navigate(['dashboard']);
+      if (artists.length > 0) {
+        await this.api.submitPlaylist(artists);
+        this.notification.success('Successfully created playlist');
+        await this.router.navigate(['dashboard']);
+      }
     } catch (e) {
       this.notification.error('Failed to create playlist');
     }
