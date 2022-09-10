@@ -1,12 +1,13 @@
 <mat-card>
-  <img mat-card-image src="{{data.playlist.images[0]}}" alt="{{data.playlist.name}} + 'image"
-       [routerLink]="'/playlist/' + data.id">
+  <img *ngIf="data.playlist.images[0]" [routerLink]="'/playlist/' + data.id" alt="{{data.playlist.name}}"
+       mat-card-image
+       src="{{data.playlist.images[0]}}">
   <mat-card-title [routerLink]="'/playlist/' + data.id">{{data.playlist.name}}</mat-card-title>
   <mat-card-actions>
-    <button mat-fab color="accent" [class.spinner]="regenerateLoading"
+    <button (click)="regeneratePlaylist()" [class.spinner]="regenerateLoading" [disabled]="regenerateLoading"
             class="starry"
-            [disabled]="regenerateLoading"
-            (click)="regeneratePlaylist()">
+            color="accent"
+            mat-fab>
       <mat-icon>refresh</mat-icon>
     </button>
   </mat-card-actions>
