@@ -10,6 +10,7 @@ import { TitleService } from '../services/title.service';
   styleUrls: ['./dashboard.component.less'],
 })
 export class DashboardComponent implements OnInit {
+  state: 'loading' | 'empty' | 'ready' | 'error' = 'loading';
   playlists: GetPlaylistResponseSchema[] = [];
 
   constructor(
@@ -23,8 +24,10 @@ export class DashboardComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     try {
       this.playlists = await this.api.getPlaylists();
+      this.state = this.playlists.length === 0 ? 'empty' : 'ready';
     } catch (e) {
       this.notification.error('Failed to load playlists');
+      this.state = 'error';
     }
   }
 }
