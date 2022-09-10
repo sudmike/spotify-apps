@@ -1,8 +1,25 @@
 mat-card {
   margin: 2em;
   min-height: 25em;
+  overflow-x: hidden;
 }
 
 mat-form-field {
   padding: 1em 1.5em 0 1.5em;
+  width: 80%;
+  max-width: 20em;
+}
+
+div.mobile {
+  margin: 0 !important;
+}
+
+.mat-card.mobile {
+  margin: 1.5em 0.5em;
+  padding: 0 !important;
+}
+
+app-artist-pane.scrollable-content {
+  overflow: auto;
+  display: flex;
 }
