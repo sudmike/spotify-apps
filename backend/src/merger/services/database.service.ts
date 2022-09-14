@@ -68,11 +68,15 @@ export class DatabaseService extends IFirebaseService {
    * @param id The playlists ID.
    * @param user A UUID that identifies the user.
    * @param artists The IDs of artists that are part of the playlist.
+   * @param active Refresh playlist every X days.
+   * @param frequency Refresh playlist every X days.
    */
   async addUserPlaylist(
     id: string,
     user: string,
     artists: PlaylistArtistsData,
+    active: boolean,
+    frequency: number,
   ): Promise<void> {
     try {
       // create playlist entry
@@ -82,10 +86,16 @@ export class DatabaseService extends IFirebaseService {
       });
 
       // modify user entry
-      await super.addEntryField('users', user, ['active-playlists', id], {
-        updated: new Date().getTime(),
-        created: new Date().getTime(),
-      });
+      await super.addEntryField(
+        'users',
+        user,
+        [active ? 'active-playlists' : 'inactive-playlists', id],
+        {
+          updated: new Date().getTime(),
+          created: new Date().getTime(),
+          frequency,
+        },
+      );
     } catch (e) {
       console.log(e);
       throw e;
@@ -97,11 +107,15 @@ export class DatabaseService extends IFirebaseService {
    * @param id The playlists ID.
    * @param user A UUID that identifies the user.
    * @param artists The IDs of artists that are part of the playlist.
+   * @param active Refresh playlist every X days.
+   * @param frequency Refresh playlist every X days.
    */
   async updateUserPlaylist(
     id: string,
     user: string,
     artists: PlaylistArtistsData,
+    active: boolean,
+    frequency: number,
   ): Promise<void> {
     try {
       // create playlist entry
@@ -112,20 +126,25 @@ export class DatabaseService extends IFirebaseService {
 
       const res = await this.getAIPlaylist(user, id);
 
+      // clean up the old entry if active status changed
+      if (active != res.active) {
+        await super.removeEntryField('users', user, [
+          res.active ? 'active-playlists' : 'inactive-playlists',
+          id,
+        ]);
+      }
+
       // modify user entry
-      if (res.active)
-        await super.updateEntryField('users', user, ['active-playlists', id], {
+      await super.updateEntryField(
+        'users',
+        user,
+        [active ? 'active-playlists' : 'inactive-playlists', id],
+        {
           updated: new Date().getTime(),
-        });
-      else
-        await super.updateEntryField(
-          'users',
-          user,
-          ['inactive-playlists', id],
-          {
-            updated: new Date().getTime(),
-          },
-        );
+          created: res.created ? res.created : null,
+          frequency,
+        },
+      );
     } catch (e) {
       console.log(e);
       throw e;
@@ -158,9 +177,10 @@ export class DatabaseService extends IFirebaseService {
       const res = await this.getAIPlaylist(id, playlist);
       return {
         id: playlist,
-        active: res.active,
         updated: res.updated,
         created: res.created,
+        active: res.active,
+        frequency: res.frequency,
         artists: await this.getPlaylistArtists(playlist, id),
       };
     } catch (e) {
@@ -189,18 +209,20 @@ export class DatabaseService extends IFirebaseService {
         playlists.push({
           id: playlistId,
           artists: await this.getPlaylistArtists(playlistId, id),
-          active: true,
           updated: resA[playlistId].updated,
           created: resA[playlistId].created,
+          active: true,
+          frequency: resA[playlistId].frequency,
         });
 
       for await (const playlistId of inactiveIds)
         playlists.push({
           id: playlistId,
           artists: await this.getPlaylistArtists(playlistId, id),
-          active: false,
           updated: resI[playlistId].updated,
           created: resI[playlistId].created,
+          active: false,
+          frequency: resI[playlistId].frequency,
         });
 
       // sort playlists by creation date
@@ -223,7 +245,7 @@ export class DatabaseService extends IFirebaseService {
    * Changes a playlist to active or inactive.
    * @param id A UUID that identifies the user.
    * @param playlist The ID of the playlist.
-   * @param active Defines if the playlist should be set to active or to inactive.
+   * @param active Defines if playlist refreshing should be set to active or to inactive.
    */
   async setPlaylistActiveness(id: string, playlist: string, active: boolean) {
     try {
@@ -289,7 +311,13 @@ export class DatabaseService extends IFirebaseService {
   private async getAIPlaylist(
     id: string,
     playlist: string,
-  ): Promise<{ data: any; active: boolean; updated: number; created: number }> {
+  ): Promise<{
+    data: any;
+    updated: number;
+    created: number;
+    active: boolean;
+    frequency: number;
+  }> {
     const fieldActive = 'active-playlists';
     const fieldInactive = 'inactive-playlists';
     const active = await super.getEntryField('users', id, [
@@ -316,12 +344,14 @@ export class DatabaseService extends IFirebaseService {
             active: true,
             updated: active.updated,
             created: active.created,
+            frequency: active.frequency,
           }
         : {
             data: inactive,
             active: false,
             updated: inactive.updated,
             created: inactive.created,
+            frequency: inactive.frequency,
           };
     }
   }
@@ -339,7 +369,8 @@ export type PlaylistArtistsData = {
 }[];
 type PlaylistDataRes = { id: string; artists: PlaylistArtistsData };
 export type PlaylistData = PlaylistDataRes & {
-  active: boolean;
   updated: number;
   created: number;
+  active: boolean;
+  frequency: number;
 };
