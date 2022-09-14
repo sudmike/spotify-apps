@@ -84,6 +84,7 @@ export class DatabaseService extends IFirebaseService {
       // modify user entry
       await super.addEntryField('users', user, ['active-playlists', id], {
         updated: new Date().getTime(),
+        created: new Date().getTime(),
       });
     } catch (e) {
       console.log(e);
@@ -158,6 +159,8 @@ export class DatabaseService extends IFirebaseService {
       return {
         id: playlist,
         active: res.active,
+        updated: res.updated,
+        created: res.created,
         artists: await this.getPlaylistArtists(playlist, id),
       };
     } catch (e) {
@@ -187,6 +190,8 @@ export class DatabaseService extends IFirebaseService {
           id: playlistId,
           artists: await this.getPlaylistArtists(playlistId, id),
           active: true,
+          updated: resA[playlistId].updated,
+          created: resA[playlistId].created,
         });
 
       for await (const playlistId of inactiveIds)
@@ -194,7 +199,18 @@ export class DatabaseService extends IFirebaseService {
           id: playlistId,
           artists: await this.getPlaylistArtists(playlistId, id),
           active: false,
+          updated: resI[playlistId].updated,
+          created: resI[playlistId].created,
         });
+
+      // sort playlists by creation date
+      playlists.sort((p1, p2) => {
+        return p1.created && p2.created
+          ? p2.created - p1.created
+          : p1.created
+          ? -1
+          : 1;
+      });
 
       return playlists;
     } catch (e) {
@@ -273,7 +289,7 @@ export class DatabaseService extends IFirebaseService {
   private async getAIPlaylist(
     id: string,
     playlist: string,
-  ): Promise<{ data: any; active: boolean }> {
+  ): Promise<{ data: any; active: boolean; updated: number; created: number }> {
     const fieldActive = 'active-playlists';
     const fieldInactive = 'inactive-playlists';
     const active = await super.getEntryField('users', id, [
@@ -295,8 +311,18 @@ export class DatabaseService extends IFirebaseService {
       );
     } else {
       return active
-        ? { data: active, active: true }
-        : { data: inactive, active: false };
+        ? {
+            data: active,
+            active: true,
+            updated: active.updated,
+            created: active.created,
+          }
+        : {
+            data: inactive,
+            active: false,
+            updated: inactive.updated,
+            created: inactive.created,
+          };
     }
   }
 }
@@ -312,4 +338,8 @@ export type PlaylistArtistsData = {
   number: number;
 }[];
 type PlaylistDataRes = { id: string; artists: PlaylistArtistsData };
-export type PlaylistData = PlaylistDataRes & { active: boolean };
+export type PlaylistData = PlaylistDataRes & {
+  active: boolean;
+  updated: number;
+  created: number;
+};
