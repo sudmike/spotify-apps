@@ -1,7 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { ActivatedRoute } from '@angular/router';
-import { ArtistResponseFull, PlaylistsResponse } from '../../openapi';
+import {
+  ArtistResponseFull,
+  MetadataResponse,
+  PlaylistsResponse,
+} from '../../openapi';
 import { EditComponent } from '../reusable/edit/edit.component';
 import { NotificationService } from '../services/notification.service';
 import { TitleService } from '../services/title.service';
@@ -15,6 +19,12 @@ export class PlaylistComponent implements OnInit {
   id: string | undefined;
   playlist: PlaylistsResponse | undefined;
   artists: ArtistResponseFull[] = [];
+  metadata: MetadataResponse = {
+    updated: 0,
+    created: 0,
+    active: true,
+    frequency: 7,
+  };
   saveLoading = false;
   @ViewChild(EditComponent) edit!: EditComponent;
 
@@ -38,9 +48,11 @@ export class PlaylistComponent implements OnInit {
     if (!this.id) return;
     this.saveLoading = true;
     try {
-      const artists: ArtistResponseFull[] = await this.edit.getArtistData();
+      const artists: ArtistResponseFull[] = this.edit.getArtistData();
+      const active: boolean = this.edit.getActive();
+      const frequency: number = this.edit.getFrequency();
       if (artists.length > 0) {
-        await this.api.updatePlaylist(this.id, artists);
+        await this.api.updatePlaylist(this.id, artists, active, frequency);
         this.notification.success('Saved changes to playlist');
       }
     } catch (e) {
@@ -65,6 +77,7 @@ export class PlaylistComponent implements OnInit {
           this.id = res.id;
           this.playlist = res.playlist;
           this.artists = res.artists;
+          this.metadata = res.metadata;
           this.title.setTitle(res.playlist.name);
         } catch (e) {
           this.notification.warning('Failed to get playlist data');

@@ -30,9 +30,11 @@ export class CreateComponent {
   async onSubmit() {
     this.submitLoading = true;
     try {
-      const artists: ArtistResponseFull[] = await this.edit.getArtistData();
+      const artists: ArtistResponseFull[] = this.edit.getArtistData();
+      const active: boolean = this.edit.getActive();
+      const frequency: number = this.edit.getFrequency();
       if (artists.length > 0) {
-        await this.api.submitPlaylist(artists);
+        await this.api.submitPlaylist(artists, active, frequency);
         this.notification.success('Successfully created playlist');
         await this.router.navigate(['dashboard']);
       }

@@ -1,35 +1,56 @@
-mat-form-field {
+div.container {
   font-size: larger;
-}
-
-mat-form-field.frequency {
-  margin: 2em 2em 0 2em;
-}
-
-mat-form-field.equal {
-  margin: 1.5em 0;
-}
-
-mat-form-field.songs {
-  font-size: initial;
+  font-weight: lighter;
   margin: 0;
-  max-width: 5em
+  padding: 0 1em;
+}
+
+mat-checkbox {
+  float: right;
+}
+
+mat-checkbox ::ng-deep .mat-checkbox-inner-container {
+  width: 1.4em;
+  height: 1.4em;
+}
+
+span.pane-header {
+  display: inline-flex;
+  align-items: center;
+}
+
+span.pane-header h2 {
+  margin: 0;
+  padding-right: 0.6em;
+  font-size: large;
+}
+
+div {
+  margin-left: 1.5em;
+}
+
+div mat-form-field {
+  padding: 0 0.5em;
+  max-width: 5em;
+}
+
+mat-form-field input {
+  text-align: center;
+}
+
+div.container.mobile mat-icon {
+  display: none;
+}
+
+div.container.mobile mat-checkbox {
+  float: none;
 }
 
 
-mat-card-footer {
-  margin: 1em 0;
+div.container.mobile div {
+  margin-left: 0.5em;
 }
 
-table.mat-table {
-  display: table;
-  width: 100%;
-}
-
-.mat-column-name {
-  min-width: 75%;
-}
-
-.mat-column-remove {
-  width: 20%;
+div.container.mobile div mat-form-field {
+  max-width: 4.5em;
 }

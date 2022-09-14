@@ -101,11 +101,17 @@ export class ApiService {
     }
   }
 
-  async submitPlaylist(artists: ArtistResponseFull[]) {
+  async submitPlaylist(
+    artists: ArtistResponseFull[],
+    active: boolean,
+    frequency: number,
+  ) {
     try {
       await this.api.mergerControllerGeneratePlaylist(
         {
           parts: artists,
+          active,
+          frequency,
         },
         ApiService.getAuthorizationHeader(),
       );
@@ -117,11 +123,20 @@ export class ApiService {
     }
   }
 
-  async updatePlaylist(id: string, artists: ArtistResponseFull[]) {
+  async updatePlaylist(
+    id: string,
+    artists: ArtistResponseFull[],
+    active: boolean,
+    frequency: number,
+  ) {
     try {
       await this.api.mergerControllerUpdatePlaylist(
         id,
-        { parts: artists },
+        {
+          parts: artists,
+          active,
+          frequency,
+        },
         ApiService.getAuthorizationHeader(),
       );
     } catch (e) {

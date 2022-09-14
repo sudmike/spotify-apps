@@ -22,7 +22,7 @@ export class DashboardPlaylistComponent {
     try {
       await this.api.regeneratePlaylist(this.data.id);
       await this.refresh();
-      this.notification.starry('Regenerated songs in playlist');
+      this.notification.success('Regenerated songs in playlist');
       this.regenerateLoading = false;
     } catch (e) {
       this.notification.error('Failed to regenerate playlist');

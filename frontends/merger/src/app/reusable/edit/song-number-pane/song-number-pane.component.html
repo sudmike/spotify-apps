@@ -1,0 +1,33 @@
+<div class="container">
+  <h2 class="pane-header">Number of Songs</h2>
+  <mat-tab-group [(selectedIndex)]="tabType" dynamicHeight>
+    <mat-tab label="Equal">
+      <mat-form-field [ngClass]="{equal: true}" appearance="standard">
+        <mat-label>Songs per artist</mat-label>
+        <input [(ngModel)]="songsPerArtistEqual" matInput>
+      </mat-form-field>
+    </mat-tab>
+    <mat-tab label="Per artist">
+      <table #table [dataSource]="artists" mat-table>
+        <ng-container matColumnDef="name">
+          <th *matHeaderCellDef mat-header-cell>Name</th>
+          <td *matCellDef="let data" mat-cell>
+            {{data.name}}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="songs">
+          <th *matHeaderCellDef mat-header-cell>Nr of songs</th>
+          <td *matCellDef="let data" mat-cell>
+            <mat-form-field [ngClass]="{songs: true}" appearance="standard">
+              <input [(ngModel)]="data.number" matInput>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="['name', 'songs']" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: ['name', 'songs'];" mat-row></tr>
+      </table>
+    </mat-tab>
+  </mat-tab-group>
+  <h2 class="total">Total number of songs: {{calculateTotal()}}</h2>
+</div>

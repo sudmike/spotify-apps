@@ -29,6 +29,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavbarComponent } from './navbar/navbar.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { SongNumberPaneComponent } from './reusable/edit/song-number-pane/song-number-pane.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -43,6 +46,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     EditComponent,
     ConfigPaneComponent,
     NavbarComponent,
+    SongNumberPaneComponent,
   ],
   imports: [
     BrowserModule,
@@ -62,6 +66,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatTabsModule,
     MatToolbarModule,
     MatSnackBarModule,
+    MatCheckboxModule,
+    MatTooltipModule,
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent],
