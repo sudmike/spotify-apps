@@ -34,12 +34,25 @@ export class SpotifyService extends ISpotifyService {
       const entry = res.items.at(0);
       const more: null | number = res.next ? 1 : null;
 
+      // artist has to fulfill the following requirements
+      // 0. artist needs to not be null
+      // 1. artist needs images
+      // 2. artist needs to be popular enough
+      // 3. artist need to have enough followers
+      if (
+        !entry ||
+        entry.images.length !== 3 ||
+        entry.popularity < 35 ||
+        entry.followers.total < 5000
+      ) {
+        return { query: artist, next: more, artist: null };
+      }
+
       // check for 'This is XYZ' playlist
-      const playlist = await this.getThisIsPlaylistId(entry?.name); //abuse
+      const playlist = await this.getThisIsPlaylistId(entry.name);
       if (!entry || !playlist)
         return { query: artist, next: more, artist: null };
-
-      entry.href = playlist;
+      else entry.href = playlist;
 
       return {
         query: artist,
@@ -197,6 +210,29 @@ export class SpotifyService extends ISpotifyService {
   }
 
   /**
+   * Returns true if user follows playlist and false if not.
+   * @param id The ID of the playlist.
+   * @param user The ID of the user.
+   */
+  async getPlaylistFollowingStatus(id: string, user: string) {
+    try {
+      const res = (
+        await this.getSpotifyApi().areFollowingPlaylist(user, id, [user])
+      ).body;
+
+      if (res.length !== 1)
+        throw new InternalServerErrorException(
+          undefined,
+          'There was an unexpected reply when asking for the following status.',
+        );
+      else return res.at(0);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
    * Returns a list of song IDs that are extracted from the playlists which are passed.
    * @param entries These contain the IDs of playlists and the number of songs that should be extracted.
    * @private
@@ -281,13 +317,19 @@ export class SpotifyService extends ISpotifyService {
     if (!artist) return undefined;
 
     try {
-      const res = (
-        await super
-          .getSpotifyApi()
-          .searchPlaylists('This is ' + artist, { limit: 1 })
-      ).body.playlists.items?.at(0);
+      const res = await super
+        .getSpotifyApi()
+        .searchPlaylists('This is ' + artist, { limit: 1 });
+      const playlist = res.body.playlists.items?.at(0);
 
-      if (res?.owner.id === 'spotify') return res.id || undefined;
+      // only return playlist if it's the right playlist
+      if (
+        playlist &&
+        playlist.owner.id === 'spotify' &&
+        this.similarity(artist, playlist.name.substring(8)) > 0.75
+      )
+        return playlist.id;
+      else return undefined;
     } catch (e) {
       console.log(e);
       throw e;
@@ -295,25 +337,47 @@ export class SpotifyService extends ISpotifyService {
   }
 
   /**
-   * Returns true if user follows playlist and false if not.
-   * @param id The ID of the playlist.
-   * @param user The ID of the user.
+   * Compares two strings on their similarity.
+   * Returns a number between 0 and 1; the higher the number, the more similarity there is.
+   * @param s1 First string.
+   * @param s2 Second string.
+   * @private
    */
-  async getPlaylistFollowingStatus(id: string, user: string) {
-    try {
-      const res = (
-        await this.getSpotifyApi().areFollowingPlaylist(user, id, [user])
-      ).body;
-
-      if (res.length !== 1)
-        throw new InternalServerErrorException(
-          undefined,
-          'There was an unexpected reply when asking for the following status.',
-        );
-      else return res.at(0);
-    } catch (e) {
-      console.log(e);
-      throw e;
+  private similarity(s1: string, s2: string) {
+    let longer = s1;
+    let shorter = s2;
+    if (s1.length < s2.length) {
+      longer = s2;
+      shorter = s1;
     }
+    const longerLength = longer.length;
+    if (longerLength == 0) {
+      return 1.0;
+    }
+    return (longerLength - this.editDistance(longer, shorter)) / longerLength;
+  }
+
+  private editDistance(s1: string, s2: string) {
+    s1 = s1.toLowerCase();
+    s2 = s2.toLowerCase();
+
+    const costs = [];
+    for (let i = 0; i <= s1.length; i++) {
+      let lastValue = i;
+      for (let j = 0; j <= s2.length; j++) {
+        if (i == 0) costs[j] = j;
+        else {
+          if (j > 0) {
+            let newValue = costs[j - 1];
+            if (s1.charAt(i - 1) != s2.charAt(j - 1))
+              newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+            costs[j - 1] = lastValue;
+            lastValue = newValue;
+          }
+        }
+      }
+      if (i > 0) costs[s2.length] = lastValue;
+    }
+    return costs[s2.length];
   }
 }
