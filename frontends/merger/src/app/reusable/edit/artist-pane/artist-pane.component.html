@@ -6,6 +6,7 @@
               mat-icon-button>
         <mat-icon>arrow_upward</mat-icon>
       </button>
+      <br>
       <button (click)="onMoveArtist(i, i + 1)" aria-label="move down"
               mat-icon-button>
         <mat-icon>arrow_downward</mat-icon>
@@ -14,7 +15,8 @@
 
   <ng-container matColumnDef="image">
     <th *matHeaderCellDef mat-header-cell>Picture</th>
-    <td *matCellDef="let artist" mat-cell><img *ngIf="artist.images[2]" alt="{{artist.name}} picture"
+    <td *matCellDef="let artist" mat-cell><img *ngIf="artist.images[2]"
+                                               alt="{{artist.name}} picture"
                                                src="{{artist.images[2]}}"></td>
   </ng-container>
   <ng-container matColumnDef="name">

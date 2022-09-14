@@ -1,12 +1,13 @@
 <div *ngIf="id && playlist">
   <h1>{{playlist.name}}</h1>
-  <app-edit [artists]="artists"></app-edit>
+  <app-edit [active]="metadata.active" [artists]="artists"
+            [frequency]="metadata.frequency"></app-edit>
   <button
-    class="starry"
-    [disabled]="saveLoading"
-    [class.spinner]="saveLoading"
-    mat-raised-button
     (click)="onSave()"
+    [class.spinner]="saveLoading"
+    [disabled]="saveLoading"
+    class="starry"
+    mat-raised-button
   >
     Save
   </button>

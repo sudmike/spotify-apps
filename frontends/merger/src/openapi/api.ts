@@ -115,12 +115,6 @@ export interface GetPlaylistResponseSchema {
      */
     'id': string;
     /**
-     * Defines if the playlist is set to active or not
-     * @type {boolean}
-     * @memberof GetPlaylistResponseSchema
-     */
-    'active': boolean;
-    /**
      * 
      * @type {PlaylistsResponse}
      * @memberof GetPlaylistResponseSchema
@@ -132,6 +126,43 @@ export interface GetPlaylistResponseSchema {
      * @memberof GetPlaylistResponseSchema
      */
     'artists': Array<ArtistResponseFull>;
+    /**
+     * 
+     * @type {MetadataResponse}
+     * @memberof GetPlaylistResponseSchema
+     */
+    'metadata': MetadataResponse;
+}
+/**
+ * 
+ * @export
+ * @interface MetadataResponse
+ */
+export interface MetadataResponse {
+    /**
+     * Timestamp of last update
+     * @type {number}
+     * @memberof MetadataResponse
+     */
+    'updated': number;
+    /**
+     * Timestamp of creation
+     * @type {number}
+     * @memberof MetadataResponse
+     */
+    'created': number;
+    /**
+     * Defines if playlist refreshing is set to active or not
+     * @type {boolean}
+     * @memberof MetadataResponse
+     */
+    'active': boolean;
+    /**
+     * Refresh playlist every X days
+     * @type {number}
+     * @memberof MetadataResponse
+     */
+    'frequency': number;
 }
 /**
  * 
@@ -232,6 +263,18 @@ export interface SubmitPlaylistSchema {
      * @memberof SubmitPlaylistSchema
      */
     'parts': Array<ArtistFull>;
+    /**
+     * Defines if playlist refreshing is set to active or not
+     * @type {boolean}
+     * @memberof SubmitPlaylistSchema
+     */
+    'active': boolean;
+    /**
+     * Refresh playlist every X days
+     * @type {number}
+     * @memberof SubmitPlaylistSchema
+     */
+    'frequency': number;
 }
 
 /**

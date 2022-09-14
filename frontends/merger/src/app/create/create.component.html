@@ -1,12 +1,12 @@
 <div>
   <h1>Create a new playlist</h1>
-  <app-edit [artists]="[]"></app-edit>
+  <app-edit [active]="true" [artists]="[]" [frequency]="7"></app-edit>
   <button
-    class="starry"
-    [disabled]="submitLoading"
-    [class.spinner]="submitLoading"
-    mat-raised-button
     (click)="onSubmit()"
+    [class.spinner]="submitLoading"
+    [disabled]="submitLoading"
+    class="starry"
+    mat-raised-button
   >
     Create
   </button>

@@ -1,6 +1,6 @@
 <div fxLayout.gt-md="row" fxLayout.xs="column" fxLayoutAlign.gt-md="space-between"
      fxLayoutGap="1em grid" ngClass.lt-lg="mobile">
-  <mat-card fxFlex.gt-md="60%" fxFlex.lt-lg="100%" ngClass.lt-lg="mobile">
+  <mat-card class="artist-table-card" fxFlex.gt-md="60%" fxFlex.lt-lg="100%">
     <mat-form-field>
       <mat-placeholder>Add artist</mat-placeholder>
       <input (keyup.enter)="onSearchArtist()" [(ngModel)]="searchArtist" matInput>
@@ -19,11 +19,15 @@
 
     <app-artist-pane (artistChange)="onArtistChange($event)" [artists]="artists"
                      class="scrollable-content"></app-artist-pane>
-
   </mat-card>
 
-  <mat-card fxFlex.gt-md="40%" fxFlex.lt-lg="100%" ngClass.lt-lg="mobile">
-    <app-config-pane [artists]="artists"></app-config-pane>
-  </mat-card>
+  <div fxFlex.gt-md="40%" fxFlex.lt-lg="100%" ngClass.lt-lg="mobile">
+    <mat-card>
+      <app-config-pane [active]="active" [refreshFrequency]="frequency"></app-config-pane>
+    </mat-card>
+    <mat-card>
+      <app-song-number-pane [artists]="artists"></app-song-number-pane>
+    </mat-card>
+  </div>
 
 </div>

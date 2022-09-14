@@ -4,6 +4,7 @@ import { ArtistPaneComponent } from './artist-pane/artist-pane.component';
 import { ConfigPaneComponent } from './config-pane/config-pane.component';
 import { ApiService } from '../../services/api.service';
 import { NotificationService } from '../../services/notification.service';
+import { SongNumberPaneComponent } from './song-number-pane/song-number-pane.component';
 
 @Component({
   selector: 'app-edit',
@@ -12,8 +13,11 @@ import { NotificationService } from '../../services/notification.service';
 })
 export class EditComponent {
   @Input() artists: ArtistResponseFull[] = []; // only at beginning
+  @Input() active!: boolean;
+  @Input() frequency!: number;
   @ViewChild(ArtistPaneComponent) table!: ArtistPaneComponent;
   @ViewChild(ConfigPaneComponent) config!: ConfigPaneComponent;
+  @ViewChild(SongNumberPaneComponent) songNumber!: SongNumberPaneComponent;
 
   searchArtist = '';
   searchLoading = false;
@@ -28,14 +32,14 @@ export class EditComponent {
    * @param artists The new list of artists.
    */
   onArtistChange(artists: ArtistResponseFull[]) {
-    this.config.setArtists(artists);
+    this.songNumber.setArtists(artists);
   }
 
   /**
    * Returns artists from artist table.
    */
-  async getArtistData(): Promise<ArtistResponseFull[]> {
-    let artists = this.config.getArtists();
+  getArtistData(): ArtistResponseFull[] {
+    let artists = this.songNumber.getArtists();
 
     // sanitize artists
     artists = artists.filter((artist) => artist.number > 0);
@@ -50,7 +54,21 @@ export class EditComponent {
       return [];
     }
 
-    return this.config.getArtists();
+    return this.songNumber.getArtists();
+  }
+
+  /**
+   * Returns if playlist refreshing is set to active in config pane.
+   */
+  getActive(): boolean {
+    return this.config.getActive();
+  }
+
+  /**
+   * Returns playlist refreshing frequency from config pane.
+   */
+  getFrequency(): number {
+    return this.config.getFrequency();
   }
 
   /**
