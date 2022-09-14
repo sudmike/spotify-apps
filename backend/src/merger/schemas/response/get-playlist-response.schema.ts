@@ -1,5 +1,6 @@
 import { PlaylistsResponse } from '../entities/playlist-response.entity';
 import { ArtistResponseFull } from '../entities/artist-response-full.entity';
+import { MetadataResponse } from '../entities/metadata-response.entity';
 
 export class GetPlaylistResponseSchema {
   /**
@@ -8,13 +9,9 @@ export class GetPlaylistResponseSchema {
    */
   id: string;
 
-  /**
-   * Defines if the playlist is set to active or not
-   * @example true
-   */
-  active: boolean;
-
   playlist: PlaylistsResponse;
 
   artists: ArtistResponseFull[];
+
+  metadata: MetadataResponse;
 }

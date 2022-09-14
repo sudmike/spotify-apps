@@ -129,6 +129,8 @@ export class MergerController {
         playlist: entry.playlist,
         number: entry.number,
       })),
+      body.active,
+      body.frequency,
     );
 
     return { id };
@@ -153,6 +155,8 @@ export class MergerController {
         playlist: entry.playlist,
         number: entry.number,
       })),
+      body.active,
+      body.frequency,
     );
 
     return { id };
@@ -209,7 +213,6 @@ export class MergerController {
 
       return {
         id: data.id,
-        active: data.active,
         playlist: singlePlaylist.details,
         artists: artists.map((artist) => ({
           id: artist.id,
@@ -218,6 +221,12 @@ export class MergerController {
           playlist: data.artists.find((a) => a.id === artist.id)?.playlist,
           number: data.artists.find((a) => a.id === artist.id)?.number,
         })),
+        metadata: {
+          updated: data.updated,
+          created: data.created,
+          active: data.active,
+          frequency: data.frequency,
+        },
       };
     }
   }
@@ -246,9 +255,14 @@ export class MergerController {
       );
       return {
         id: entry.id,
-        active: entry.active,
         playlist: playlist.details,
         artists: [],
+        metadata: {
+          updated: entry.updated,
+          created: entry.created,
+          active: entry.active,
+          frequency: entry.frequency,
+        },
       };
     });
   }
