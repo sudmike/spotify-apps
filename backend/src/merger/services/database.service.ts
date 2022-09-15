@@ -275,6 +275,71 @@ export class DatabaseService extends IFirebaseService {
   }
 
   /**
+   * Get all active playlists.
+   */
+  async getAllActivePlaylists(): Promise<
+    { playlist: PlaylistDataComplete; user: string }[]
+  > {
+    // get ALL user data to access related playlists
+    const res = await super.getEntry('users', '');
+
+    if (res) {
+      let entries: { playlist: PlaylistDataComplete; user: string }[] = [];
+
+      // bring data from database into form
+      for (const userId of Object.keys(res)) {
+        const entry = res[userId];
+
+        for (const playlistId of Object.keys(entry['playlists'])) {
+          const playlist = entry.playlists[playlistId];
+          entries.push({
+            user: userId,
+            playlist: {
+              id: playlistId,
+              ...playlist,
+              artists: [],
+            },
+          });
+        }
+      }
+
+      // filter out playlists that should not be updated or miss crucial data
+      entries = entries.filter(
+        (entry) =>
+          entry.playlist.active &&
+          entry.playlist.updated &&
+          entry.playlist.frequency,
+      );
+
+      // filter out playlists that are not old
+      entries = entries.filter((entry) => {
+        const currentTime = new Date().getTime();
+        const expirationTime =
+          entry.playlist.updated +
+          entry.playlist.frequency * 24 * 60 * 60 * 1000 -
+          60 * 60 * 1000; // include one hour of lenience
+        return currentTime > expirationTime;
+      });
+
+      // enhance with data about related artists
+      for (const entry of entries) {
+        try {
+          entry.playlist.artists = await this.getPlaylistArtists(
+            entry.playlist.id,
+            entry.user,
+          );
+        } catch (e) {
+          console.log(e);
+          // remove playlist
+          entries = entries.filter((e) => e.playlist.id !== entry.playlist.id);
+        }
+      }
+
+      return entries;
+    }
+  }
+
+  /**
    * Returns the contents of a playlist from the database.
    * @param userId A UUID that identifies the user.
    * @param playlistId The ID of the playlist.
