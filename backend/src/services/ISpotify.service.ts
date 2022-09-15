@@ -16,14 +16,6 @@ export abstract class ISpotifyService {
   }
 
   /**
-   * Returns Spotify API instance to extending classes.
-   * @protected
-   */
-  protected getSpotifyApi(): SpotifyWebApi {
-    return this.spotifyApi;
-  }
-
-  /**
    * Starts off the OAuth flow by creating and returning URL for OAuth redirection.
    * @param scopes The scopes that are requested from Spotify.
    */
@@ -57,7 +49,7 @@ export abstract class ISpotifyService {
         this.spotifyApi.setAccessToken(res.access_token);
         return {
           ...res,
-          username: await ISpotifyService.getUsername(this.spotifyApi),
+          username: await this.getUsername(),
         };
       } catch (e) {
         throw new UnauthorizedException(
@@ -72,14 +64,6 @@ export abstract class ISpotifyService {
         'Spotify callback not allowed, due to invalid state or because too much time has passed.',
       );
     }
-  }
-
-  /**
-   * Sets the access token of the spotify API instance.
-   * @param accessToken The current refresh token.
-   */
-  setAccessToken(accessToken: string): void {
-    this.spotifyApi.setAccessToken(accessToken);
   }
 
   /**
@@ -103,6 +87,36 @@ export abstract class ISpotifyService {
     }
   }
 
+  /**
+   * Returns Spotify API instance to extending classes.
+   * @protected
+   */
+  protected getSpotifyApi(): SpotifyWebApi {
+    return this.spotifyApi;
+  }
+
+  /**
+   * Sets the access token of the spotify API instance.
+   * @param accessToken The current refresh token.
+   * @protected
+   */
+  protected setAccessToken(accessToken: string): void {
+    this.spotifyApi.setAccessToken(accessToken);
+  }
+
+  /**
+   * Returns the username of the user that the tokens belong to.
+   * @protected
+   */
+  protected async getUsername(): Promise<string> {
+    try {
+      return (await this.spotifyApi.getMe()).body.id;
+    } catch (e) {
+      console.log(e);
+      throw new Error(e.body);
+    }
+  }
+
   private removeState(state: string) {
     const index = this.states.findIndex((tuple) => tuple.state === state);
     if (index > -1) this.removeStateAtIndex(index);
@@ -113,17 +127,6 @@ export abstract class ISpotifyService {
     if (tuple) {
       clearTimeout(tuple.timeoutHandler);
       this.states.splice(index);
-    }
-  }
-
-  protected static async getUsername(
-    spotifyApi: SpotifyWebApi,
-  ): Promise<string> {
-    try {
-      return (await spotifyApi.getMe()).body.id;
-    } catch (e) {
-      console.log(e);
-      throw new Error(e.body);
     }
   }
 }
