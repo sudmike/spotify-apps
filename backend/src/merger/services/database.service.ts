@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -22,12 +21,12 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Add a user to the merger database.
-   * @param id A UUID that identifies the user.
+   * @param userId A UUID that identifies the user.
    */
-  async addUser(id: string): Promise<string> {
+  async addUser(userId: string): Promise<string> {
     try {
-      await super.updateEntry('users', id, {});
-      return id;
+      await super.updateEntry('users', userId, {});
+      return userId;
     } catch (e) {
       throw e;
     }
@@ -35,16 +34,16 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Update refresh token for Spotify.
-   * @param id A UUID that identifies the user.
+   * @param userId A UUID that identifies the user.
    * @param spotifyRefresh The refresh token.
    */
   async updateSpotifyToken(
-    id: string,
+    userId: string,
     spotifyRefresh: string,
   ): Promise<string> {
     try {
-      await super.updateEntry('users', id, { spotifyRefresh });
-      return id;
+      await super.updateEntry('users', userId, { spotifyRefresh });
+      return userId;
     } catch (e) {
       throw e;
     }
@@ -52,12 +51,12 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Gets the entry for a user.
-   * @param id A UUID that identifies the user.
+   * @param userId A UUID that identifies the user.
    */
-  async getUserData(id: string): Promise<UserData> {
+  async getUserData(userId: string): Promise<UserData> {
     try {
-      const data = await super.getEntry('users', id);
-      return { refreshToken: data.spotifyRefresh, id };
+      const data = await super.getEntry('users', userId);
+      return { refreshToken: data.spotifyRefresh, id: userId };
     } catch (e) {
       throw e;
     }
@@ -65,37 +64,33 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Adds information about a generated playlist.
-   * @param id The playlists ID.
-   * @param user A UUID that identifies the user.
+   * @param playlistId The playlists ID.
+   * @param userId A UUID that identifies the user.
    * @param artists The IDs of artists that are part of the playlist.
    * @param active Refresh playlist every X days.
    * @param frequency Refresh playlist every X days.
    */
   async addUserPlaylist(
-    id: string,
-    user: string,
+    playlistId: string,
+    userId: string,
     artists: PlaylistArtistsData,
     active: boolean,
     frequency: number,
   ): Promise<void> {
     try {
       // create playlist entry
-      await super.addEntry('playlists', id, {
-        user,
+      await super.addEntry('playlists', playlistId, {
+        user: userId,
         artists,
       });
 
       // modify user entry
-      await super.addEntryField(
-        'users',
-        user,
-        [active ? 'active-playlists' : 'inactive-playlists', id],
-        {
-          updated: new Date().getTime(),
-          created: new Date().getTime(),
-          frequency,
-        },
-      );
+      await super.addEntryField('users', userId, ['playlists', playlistId], {
+        updated: new Date().getTime(),
+        created: new Date().getTime(),
+        active,
+        frequency,
+      });
     } catch (e) {
       console.log(e);
       throw e;
@@ -104,47 +99,35 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Adds information about a generated playlist.
-   * @param id The playlists ID.
-   * @param user A UUID that identifies the user.
+   * @param playlistId The playlists ID.
+   * @param userId A UUID that identifies the user.
    * @param artists The IDs of artists that are part of the playlist.
    * @param active Refresh playlist every X days.
    * @param frequency Refresh playlist every X days.
    */
   async updateUserPlaylist(
-    id: string,
-    user: string,
+    playlistId: string,
+    userId: string,
     artists: PlaylistArtistsData,
     active: boolean,
     frequency: number,
   ): Promise<void> {
     try {
       // create playlist entry
-      await super.updateEntry('playlists', id, {
-        user,
+      await super.updateEntry('playlists', playlistId, {
+        user: userId,
         artists,
       });
 
-      const res = await this.getAIPlaylist(user, id);
-
-      // clean up the old entry if active status changed
-      if (active != res.active) {
-        await super.removeEntryField('users', user, [
-          res.active ? 'active-playlists' : 'inactive-playlists',
-          id,
-        ]);
-      }
+      const res = await this.getPlaylist(userId, playlistId);
 
       // modify user entry
-      await super.updateEntryField(
-        'users',
-        user,
-        [active ? 'active-playlists' : 'inactive-playlists', id],
-        {
-          updated: new Date().getTime(),
-          created: res.created ? res.created : null,
-          frequency,
-        },
-      );
+      await super.updateEntryField('users', userId, ['playlists', playlistId], {
+        updated: new Date().getTime(),
+        created: res.created ? res.created : null,
+        active,
+        frequency,
+      });
     } catch (e) {
       console.log(e);
       throw e;
@@ -153,14 +136,13 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Removes information about a playlist.
-   * @param id The playlists ID.
-   * @param user A UUID that identifies the user.
+   * @param playlistId The playlists ID.
+   * @param userId A UUID that identifies the user.
    */
-  async removeUserPlaylist(id: string, user: string) {
+  async removeUserPlaylist(playlistId: string, userId: string) {
     try {
-      await super.removeEntry('playlists', id);
-      await super.removeEntryField('users', user, ['inactive-playlists', id]);
-      await super.removeEntryField('users', user, ['active-playlists', id]);
+      await super.removeEntry('playlists', playlistId);
+      await super.removeEntryField('users', userId, ['playlists', playlistId]);
     } catch (e) {
       console.log(e);
       throw e;
@@ -169,19 +151,22 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Gets a specific playlist ID of a user and the IDs of the related artists.
-   * @param id A UUID that identifies the user.
-   * @param playlist The ID of the playlist.
+   * @param userId A UUID that identifies the user.
+   * @param playlistId The ID of the playlist.
    */
-  async getUserPlaylist(id: string, playlist: string): Promise<PlaylistData> {
+  async getUserPlaylist(
+    userId: string,
+    playlistId: string,
+  ): Promise<PlaylistDataComplete> {
     try {
-      const res = await this.getAIPlaylist(id, playlist);
+      const res = await this.getPlaylist(userId, playlistId);
       return {
-        id: playlist,
+        id: playlistId,
         updated: res.updated,
         created: res.created,
         active: res.active,
         frequency: res.frequency,
-        artists: await this.getPlaylistArtists(playlist, id),
+        artists: await this.getPlaylistArtists(playlistId, userId),
       };
     } catch (e) {
       console.log(e);
@@ -191,38 +176,21 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Gets the playlist IDs of a user and the IDs of the related artists.
-   * @param id A UUID that identifies the user.
+   * @param userId A UUID that identifies the user.
    */
-  async getUserPlaylists(id: string): Promise<PlaylistData[]> {
+  async getUserPlaylists(userId: string): Promise<PlaylistDataComplete[]> {
     try {
-      const resA = await super.getEntryField('users', id, ['active-playlists']);
-      const resI = await super.getEntryField('users', id, [
-        'inactive-playlists',
-      ]);
+      const res = await super.getEntryField('users', userId, ['playlists']);
 
       // map responses to arrays of playlist ids
-      const activeIds = resA ? Object.keys(resA) : [];
-      const inactiveIds = resI ? Object.keys(resI) : [];
+      const ids = res ? Object.keys(res) : [];
 
-      const playlists: PlaylistData[] = [];
-      for await (const playlistId of activeIds)
+      const playlists: PlaylistDataComplete[] = [];
+      for await (const playlistId of ids)
         playlists.push({
           id: playlistId,
-          artists: await this.getPlaylistArtists(playlistId, id),
-          updated: resA[playlistId].updated,
-          created: resA[playlistId].created,
-          active: true,
-          frequency: resA[playlistId].frequency,
-        });
-
-      for await (const playlistId of inactiveIds)
-        playlists.push({
-          id: playlistId,
-          artists: await this.getPlaylistArtists(playlistId, id),
-          updated: resI[playlistId].updated,
-          created: resI[playlistId].created,
-          active: false,
-          frequency: resI[playlistId].frequency,
+          artists: await this.getPlaylistArtists(playlistId, userId),
+          ...res[playlistId],
         });
 
       // sort playlists by creation date
@@ -243,20 +211,28 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Changes a playlist to active or inactive.
-   * @param id A UUID that identifies the user.
-   * @param playlist The ID of the playlist.
+   * @param userId A UUID that identifies the user.
+   * @param playlistId The ID of the playlist.
    * @param active Defines if playlist refreshing should be set to active or to inactive.
    */
-  async setPlaylistActiveness(id: string, playlist: string, active: boolean) {
+  async setPlaylistActiveness(
+    userId: string,
+    playlistId: string,
+    active: boolean,
+  ) {
     try {
-      const res = await this.getAIPlaylist(id, playlist);
+      const res = await this.getPlaylist(userId, playlistId);
       if (res.active === active) return;
       else {
         // change status according to 'active' parameter
-        const add = active ? 'active-playlists' : 'inactive-playlists';
-        const remove = active ? 'inactive-playlists' : 'active-playlists';
-        await super.addEntryField('users', id, [add, playlist], res.data);
-        await super.removeEntryField('users', id, [remove, playlist]);
+        await super.updateEntryField(
+          'users',
+          userId,
+          ['playlists', playlistId],
+          {
+            active,
+          },
+        );
       }
     } catch (e) {
       console.log(e);
@@ -266,34 +242,29 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Sets last updated time of a playlist to now.
-   * @param id A UUID that identifies the user.
-   * @param playlist The ID of the playlist.
+   * @param userId A UUID that identifies the user.
+   * @param playlistId The ID of the playlist.
    */
-  async setPlaylistUpdated(id: string, playlist: string) {
-    const data = await this.getAIPlaylist(id, playlist);
-
-    await super.updateEntryField(
-      'users',
-      id,
-      [data.active ? 'active-playlists' : 'inactive-playlists', playlist],
-      { updated: new Date().getTime() },
-    );
+  async setPlaylistUpdated(userId: string, playlistId: string) {
+    await super.updateEntryField('users', userId, ['playlists', playlistId], {
+      updated: new Date().getTime(),
+    });
   }
 
   /**
    * Return an array of artist IDs and related information.
-   * @param id The ID of the playlist.
-   * @param user A UUID that identifies the user.
+   * @param playlistId The ID of the playlist.
+   * @param userId A UUID that identifies the user.
    */
   async getPlaylistArtists(
-    id: string,
-    user: string,
+    playlistId: string,
+    userId: string,
   ): Promise<PlaylistArtistsData> {
-    const res = await super.getEntry('playlists', id);
+    const res = await super.getEntry('playlists', playlistId);
 
     if (!res) throw new NotFoundException(undefined, 'Not found in database');
 
-    if (res.user === user) {
+    if (res.user === userId) {
       return res.artists;
     } else {
       throw new UnauthorizedException(
@@ -304,55 +275,27 @@ export class DatabaseService extends IFirebaseService {
   }
 
   /**
-   * Checks for a playlist in the active and inactive section of the database and returns the contents and if it is active or inactive.
-   * @param id A UUID that identifies the user.
-   * @param playlist The ID of the playlist.
+   * Returns the contents of a playlist from the database.
+   * @param userId A UUID that identifies the user.
+   * @param playlistId The ID of the playlist.
    */
-  private async getAIPlaylist(
-    id: string,
-    playlist: string,
-  ): Promise<{
-    data: any;
-    updated: number;
-    created: number;
-    active: boolean;
-    frequency: number;
-  }> {
-    const fieldActive = 'active-playlists';
-    const fieldInactive = 'inactive-playlists';
-    const active = await super.getEntryField('users', id, [
-      fieldActive,
-      playlist,
-    ]);
-    const inactive = await super.getEntryField('users', id, [
-      fieldInactive,
-      playlist,
+  private async getPlaylist(
+    userId: string,
+    playlistId: string,
+  ): Promise<PlaylistMetadata> {
+    const playlist = await super.getEntryField('users', userId, [
+      'playlists',
+      playlistId,
     ]);
 
     // throw error if playlist cannot be found
-    if (!active && !inactive) {
+    if (!playlist) {
       throw new NotFoundException(undefined, `Playlist could not be found`);
-    } else if (active && inactive) {
-      throw new ConflictException(
-        undefined,
-        'There is an inconsistency in the database because a playlist is set as both active and inactive',
-      );
     } else {
-      return active
-        ? {
-            data: active,
-            active: true,
-            updated: active.updated,
-            created: active.created,
-            frequency: active.frequency,
-          }
-        : {
-            data: inactive,
-            active: false,
-            updated: inactive.updated,
-            created: inactive.created,
-            frequency: inactive.frequency,
-          };
+      console.log(playlist);
+      return {
+        ...playlist,
+      };
     }
   }
 }
@@ -367,10 +310,11 @@ export type PlaylistArtistsData = {
   playlist: string;
   number: number;
 }[];
-type PlaylistDataRes = { id: string; artists: PlaylistArtistsData };
-export type PlaylistData = PlaylistDataRes & {
+type PlaylistData = { id: string; artists: PlaylistArtistsData };
+type PlaylistMetadata = {
   updated: number;
   created: number;
   active: boolean;
   frequency: number;
 };
+export type PlaylistDataComplete = PlaylistData & PlaylistMetadata;
