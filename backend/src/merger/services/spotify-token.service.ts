@@ -1,0 +1,114 @@
+import { Injectable } from '@nestjs/common';
+import { DatabaseService } from './database.service';
+import { ISpotifyService } from '../../services/ISpotify.service';
+
+@Injectable()
+export class SpotifyTokenService extends ISpotifyService {
+  private tokenCache: {
+    id: string;
+    refreshToken: string;
+    accessToken: string;
+    expiration: Date;
+    timeoutHandler: NodeJS.Timeout;
+  }[] = [];
+
+  constructor(private readonly databaseService: DatabaseService) {
+    const spotifyCredentials = {
+      clientId: process.env.SPOTIFY_CLIENT_ID_MERGER,
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET_MERGER,
+      redirectUri: process.env.SPOTIFY_REDIRECT_URI_MERGER,
+    };
+
+    super(spotifyCredentials);
+  }
+
+  async setAccessTokenByUserId(id: string) {
+    const accessToken = await this.getAccessToken(id);
+    super.setAccessToken(accessToken);
+  }
+
+  private async getAccessToken(id: string) {
+    const index = this.tokenCache.findIndex((tuple) => tuple.id === id);
+
+    // get from database if there is no cache entry
+    if (index < 0) {
+      try {
+        const user = await this.databaseService.getUserData(id);
+        const refreshToken = user.refreshToken;
+
+        const tokens = await this.getTokens(refreshToken);
+        const accessToken = tokens.access_token;
+        const expiration = new Date(Date.now() + 1000 * tokens.expires_in);
+        const timeoutHandler = setTimeout(
+          () => this.removeUser(user.id),
+          1000 * tokens.expires_in + 1000 * 3600,
+        );
+
+        // add entry to user cache
+        this.tokenCache.push({
+          id,
+          refreshToken,
+          accessToken,
+          expiration,
+          timeoutHandler,
+        });
+
+        return accessToken;
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
+    }
+    // use cache to get access token
+    else {
+      const tuple = this.tokenCache.at(index);
+
+      // use cached access token if it is still valid
+      if (tuple.expiration > new Date(Date.now())) {
+        return tuple.accessToken;
+      }
+      // refresh access token if it is expired
+      else {
+        const tokens = await this.getTokens(tuple.refreshToken);
+        this.updateUserAccessToken(
+          tuple.id,
+          tokens.access_token,
+          tokens.expires_in,
+        );
+
+        return tokens.access_token;
+      }
+    }
+  }
+
+  private removeUser(id: string) {
+    const index = this.tokenCache.findIndex((tuple) => tuple.id === id);
+    if (index > -1) this.removeUserAtIndex(index);
+  }
+
+  private removeUserAtIndex(index: number) {
+    const tuple = this.tokenCache.at(index);
+    if (tuple) {
+      clearTimeout(tuple.timeoutHandler);
+      this.tokenCache.splice(index);
+    }
+  }
+
+  private updateUserAccessToken(
+    id: string,
+    accessToken: string,
+    expiresInMs: number,
+  ) {
+    const index = this.tokenCache.findIndex((tuple) => tuple.id === id);
+    if (index > -1) {
+      const tuple = this.tokenCache.at(index);
+      tuple.accessToken = accessToken;
+      tuple.expiration = new Date(Date.now() + 1000 * expiresInMs);
+      clearTimeout(tuple.timeoutHandler);
+      tuple.timeoutHandler = setTimeout(
+        () => this.removeUser(id),
+        1000 * expiresInMs + 1000 * 3600,
+      );
+    }
+  }
+}

@@ -1,5 +1,4 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ISpotifyService } from '../../services/ISpotify.service';
 import {
   generatePlaylistDescription,
   generatePlaylistTitle,
@@ -9,19 +8,10 @@ import {
 import { SearchArtistResponseSchema } from '../schemas/response/search-artist-response.schema';
 import GenerationInformationEntity from '../schemas/entities/generation-information.entity';
 import { ArtistFull } from '../schemas/entities/artist-full.entity';
+import { SpotifyTokenService } from './spotify-token.service';
 
 @Injectable()
-export class SpotifyService extends ISpotifyService {
-  constructor() {
-    const spotifyCredentials = {
-      clientId: process.env.SPOTIFY_CLIENT_ID_MERGER,
-      clientSecret: process.env.SPOTIFY_CLIENT_SECRET_MERGER,
-      redirectUri: process.env.SPOTIFY_REDIRECT_URI_MERGER,
-    };
-
-    super(spotifyCredentials);
-  }
-
+export class SpotifyService extends SpotifyTokenService {
   /**
    * Returns the artist that matches the requested artist name.
    * @param artist The name of the artist to return results for.
@@ -77,7 +67,7 @@ export class SpotifyService extends ISpotifyService {
    * @param onDeleted Handler for when a playlist has been deleted.
    */
   async getPlaylistDetails(ids: string[], onDeleted?: (playlist) => void) {
-    const username = await ISpotifyService.getUsername(this.getSpotifyApi());
+    const username = await super.getUsername();
     const playlists: {
       id: string;
       details: { name: string; description: string; images: string[] };
