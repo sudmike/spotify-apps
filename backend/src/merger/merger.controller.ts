@@ -31,6 +31,7 @@ import { SearchArtistResponseSchema } from './schemas/response/search-artist-res
 import { GeneratePlaylistResponseSchema } from './schemas/response/generate-playlist-response.schema';
 import { GetPlaylistResponseSchema } from './schemas/response/get-playlist-response.schema';
 import * as crypto from 'crypto';
+import { BatchService } from './services/batch.service';
 
 @ApiTags('merger')
 @ApiBearerAuth()
@@ -46,6 +47,7 @@ export class MergerController {
   constructor(
     private readonly spotifyService: SpotifyService,
     private readonly databaseService: DatabaseService,
+    private readonly refreshService: BatchService,
   ) {}
 
   @Get('login')
@@ -89,10 +91,10 @@ export class MergerController {
     return { url: `${process.env.FRONTEND_REDIRECT_URI}?id=${uuid}` };
   }
 
-  @Get('frontend')
+  @Post('refresh')
   @ApiExcludeEndpoint()
-  getFrontend() {
-    return 'WOW look at this temporary frontend!';
+  async refreshPlaylists() {
+    await this.refreshService.refreshAllPlaylists();
   }
 
   @Post('auth')

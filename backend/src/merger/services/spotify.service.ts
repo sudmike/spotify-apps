@@ -200,6 +200,32 @@ export class SpotifyService extends SpotifyTokenService {
   }
 
   /**
+   * Regenerates the track list for multiple already created playlists.
+   * @param data The IDs of the playlists and the information that the generation is based on.
+   * @param OnUpdated Callback function that informs about playlists that were updated.
+   */
+  async regeneratePlaylists(
+    data: {
+      user: string;
+      playlist: string;
+      entries: GenerationInformationEntity[];
+    }[],
+    OnUpdated?: (playlist: string, user: string) => void,
+  ) {
+    for (const tuple of data) {
+      // set access token so that token of user is used to update
+      await super.setAccessTokenByUserId(tuple.user);
+
+      // generate track list and update playlist
+      const tracks = await this.generateTrackList(tuple.entries);
+      await this.setTracksOfPlaylist(tuple.playlist, tracks);
+
+      // inform caller that playlist was updated
+      OnUpdated(tuple.user, tuple.playlist);
+    }
+  }
+
+  /**
    * Returns true if user follows playlist and false if not.
    * @param id The ID of the playlist.
    * @param user The ID of the user.
