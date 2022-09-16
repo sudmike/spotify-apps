@@ -3,12 +3,16 @@ img {
   max-width: 8em;
 }
 
+table.mobile img {
+  max-width: 6em;
+}
+
 .img-icon {
   border-radius: 100%;
   max-width: 2.5em;
   max-height: 2.5em;
   vertical-align: middle;
-  margin-right: 0.65em
+  margin-right: 0.65em;
 }
 
 table {
@@ -23,9 +27,16 @@ table {
   padding: 1em;
 }
 
+table.mobile .mat-cell {
+  padding: 1em;
+}
+
 .mat-column-order {
   min-width: 10%;
-  padding-left: 0
+}
+
+table.mobile .mat-column-order {
+  padding-right: 0.5em !important;
 }
 
 .mat-column-image {
@@ -38,4 +49,8 @@ table {
 
 .mat-column-remove {
   width: 10%;
+}
+
+table.mobile .mat-column-remove {
+  padding-left: 0.5em;
 }
