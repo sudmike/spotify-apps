@@ -112,6 +112,8 @@ export class ApiService {
           parts: artists,
           active,
           frequency,
+          updateTitle: true,
+          updateDescription: true,
         },
         ApiService.getAuthorizationHeader(),
       );
@@ -128,6 +130,8 @@ export class ApiService {
     artists: ArtistResponseFull[],
     active: boolean,
     frequency: number,
+    updateTitle: boolean,
+    updateDescription: boolean,
   ) {
     try {
       await this.api.mergerControllerUpdatePlaylist(
@@ -136,6 +140,8 @@ export class ApiService {
           parts: artists,
           active,
           frequency,
+          updateTitle,
+          updateDescription,
         },
         ApiService.getAuthorizationHeader(),
       );

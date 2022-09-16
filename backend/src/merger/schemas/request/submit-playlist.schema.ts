@@ -2,6 +2,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsNotEmpty,
   IsNumber,
   IsUUID,
 } from 'class-validator';
@@ -25,6 +26,7 @@ export default class SubmitPlaylistSchema {
    * @example true
    */
   @IsBoolean()
+  @IsNotEmpty()
   active: boolean;
 
   /**
@@ -32,5 +34,22 @@ export default class SubmitPlaylistSchema {
    * @example 7
    */
   @IsNumber()
+  @IsNotEmpty()
   frequency: number;
+
+  /**
+   * Defines if the title of the playlist should be updated
+   * @example true
+   */
+  @IsBoolean()
+  @IsNotEmpty()
+  updateTitle: boolean;
+
+  /**
+   * Defines if the description of the playlist should be updated
+   * @example true
+   */
+  @IsBoolean()
+  @IsNotEmpty()
+  updateDescription: boolean;
 }

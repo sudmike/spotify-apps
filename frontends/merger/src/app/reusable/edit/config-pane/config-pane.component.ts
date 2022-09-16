@@ -39,7 +39,7 @@ export class ConfigPaneComponent implements OnInit, OnChanges {
   }
 
   getActive(): boolean {
-    return this.active;
+    return this.active ? this.active : false;
   }
 
   getFrequency(): number {

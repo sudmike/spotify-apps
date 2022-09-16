@@ -357,7 +357,6 @@ export class DatabaseService extends IFirebaseService {
     if (!playlist) {
       throw new NotFoundException(undefined, `Playlist could not be found`);
     } else {
-      console.log(playlist);
       return {
         ...playlist,
       };

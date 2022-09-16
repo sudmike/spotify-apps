@@ -38,7 +38,7 @@ export function generatePlaylistDescription(artists: string[]): string {
   artists = prepArtistsForDescription(artists);
 
   let playlistDescription =
-    'This Playlist was auto-generated! ' + 'Artists are ' + artists[0];
+    'This playlist was auto-generated! ' + 'Artists are ' + artists[0];
   for (let i = 1; i < artists.length - 1; i++) {
     playlistDescription += ', ' + artists[i];
   }

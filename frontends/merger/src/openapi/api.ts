@@ -275,6 +275,18 @@ export interface SubmitPlaylistSchema {
      * @memberof SubmitPlaylistSchema
      */
     'frequency': number;
+    /**
+     * Defines if the title of the playlist should be updated
+     * @type {boolean}
+     * @memberof SubmitPlaylistSchema
+     */
+    'updateTitle': boolean;
+    /**
+     * Defines if the description of the playlist should be updated
+     * @type {boolean}
+     * @memberof SubmitPlaylistSchema
+     */
+    'updateDescription': boolean;
 }
 
 /**

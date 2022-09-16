@@ -7,7 +7,7 @@ export class PlaylistsResponse {
 
   /**
    * The description of the playlist
-   * @example 'This Playlist was auto-generated! Artists are Diplo, Labrinth and Sia.'
+   * @example 'This playlist was auto-generated! Artists are Diplo, Labrinth and Sia.'
    */
   description: string;
 

@@ -164,18 +164,26 @@ export class SpotifyService extends SpotifyTokenService {
    * Updates a Spotify playlist.
    * @param playlist The ID of the playlist.
    * @param entries Information about playlists that the generation is based on etc.
+   * @param updateTitle Defines if the title of the playlist should be updated.
+   * @param updateDescription Defines if the description of the playlist should be updated.
    */
-  async updatePlaylist(playlist: string, entries: ArtistFull[]) {
+  async updatePlaylist(
+    playlist: string,
+    entries: ArtistFull[],
+    updateTitle: boolean,
+    updateDescription: boolean,
+  ) {
     try {
       const artists = entries.map((entry) => entry.name);
       const title = generatePlaylistTitle(artists);
       const description = generatePlaylistDescription(artists);
       const tracks = await this.generateTrackList(entries);
 
-      await this.getSpotifyApi().changePlaylistDetails(playlist, {
-        name: title,
-        description,
-      });
+      if (updateTitle || updateDescription)
+        await this.getSpotifyApi().changePlaylistDetails(playlist, {
+          name: updateTitle ? title : undefined,
+          description: updateDescription ? description : undefined,
+        });
 
       await this.setTracksOfPlaylist(playlist, tracks);
 
