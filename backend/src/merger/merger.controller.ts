@@ -146,7 +146,12 @@ export class MergerController {
     @Body() body: SubmitPlaylistSchema,
   ): Promise<GeneratePlaylistResponseSchema> {
     // generate Spotify playlist
-    const id = await this.spotifyService.updatePlaylist(playlist, body.parts);
+    const id = await this.spotifyService.updatePlaylist(
+      playlist,
+      body.parts,
+      body.updateTitle,
+      body.updateDescription,
+    );
 
     // save information in database
     await this.databaseService.updateUserPlaylist(

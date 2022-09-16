@@ -51,8 +51,17 @@ export class PlaylistComponent implements OnInit {
       const artists: ArtistResponseFull[] = this.edit.getArtistData();
       const active: boolean = this.edit.getActive();
       const frequency: number = this.edit.getFrequency();
+      const updateTitle: boolean = this.isDefaultTitle();
+      const updateDescription: boolean = this.isDefaultDescription();
       if (artists.length > 0) {
-        await this.api.updatePlaylist(this.id, artists, active, frequency);
+        await this.api.updatePlaylist(
+          this.id,
+          artists,
+          active,
+          frequency,
+          updateTitle,
+          updateDescription,
+        );
         this.notification.success('Saved changes to playlist');
       }
     } catch (e) {
@@ -84,5 +93,25 @@ export class PlaylistComponent implements OnInit {
         }
       }
     });
+  }
+
+  /**
+   * Checks if the playlists title is the default generated title.
+   * @private
+   */
+  private isDefaultTitle() {
+    if (!this.playlist) return true;
+    return this.playlist?.name.includes('These are ');
+  }
+
+  /**
+   * Checks if the playlists description is the default generated description.
+   * @private
+   */
+  private isDefaultDescription() {
+    if (!this.playlist) return true;
+    return this.playlist.description
+      .toLowerCase()
+      .includes('this playlist was auto-generated! artists are ');
   }
 }
