@@ -45,7 +45,13 @@ export class SongNumberPaneComponent implements OnInit {
     switch (this.tabType) {
       case SongSplitType.equal:
         this.artists = this.artists.map((artist) => {
-          artist.number = this.songsPerArtistEqual;
+          artist.number = +this.songsPerArtistEqual;
+          return artist;
+        });
+        break;
+      case SongSplitType.per_artist:
+        this.artists = this.artists.map((artist) => {
+          artist.number = +artist.number;
           return artist;
         });
         break;
