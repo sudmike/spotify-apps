@@ -7,15 +7,20 @@
   </span>
   <mat-checkbox [(ngModel)]="active" [color]="'primary'"></mat-checkbox>
   <div>
-    Every
-    <mat-form-field>
-      <input [(ngModel)]="refreshFrequency" [defaultValue]="1" matInput>
-    </mat-form-field>
-    <mat-form-field>
-      <select [(ngModel)]="refreshInterval" matNativeControl required>
-        <option value="day">{{+refreshFrequency === 1 ? 'Day' : 'Days'}}</option>
-        <option value="week">{{+refreshFrequency === 1 ? 'Week' : 'Weeks'}}</option>
-      </select>
-    </mat-form-field>
+    <form>
+      Every
+      <mat-form-field>
+        <input [(ngModel)]="refreshFrequency" [defaultValue]="1"
+               [ngModelOptions]="{standalone: true}"
+               matInput>
+      </mat-form-field>
+      <mat-form-field>
+        <select [(ngModel)]="refreshInterval" [ngModelOptions]="{standalone: true}" matNativeControl
+                required>
+          <option value="day">{{+refreshFrequency === 1 ? 'Day' : 'Days'}}</option>
+          <option value="week">{{+refreshFrequency === 1 ? 'Week' : 'Weeks'}}</option>
+        </select>
+      </mat-form-field>
+    </form>
   </div>
 </div>

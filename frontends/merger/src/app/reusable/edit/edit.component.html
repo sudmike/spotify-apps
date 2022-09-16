@@ -1,22 +1,19 @@
 <div fxLayout.gt-md="row" fxLayout.xs="column" fxLayoutAlign.gt-md="space-between"
      fxLayoutGap="1em grid" ngClass.lt-lg="mobile">
   <mat-card class="artist-table-card" fxFlex.gt-md="60%" fxFlex.lt-lg="100%">
-    <mat-form-field>
-      <mat-placeholder>Add artist</mat-placeholder>
-      <input (keyup.enter)="onSearchArtist()" [(ngModel)]="searchArtist" matInput>
-      <button
-        (click)="onSearchArtist()"
-        [class.spinner]="searchLoading"
-        [disabled]="searchLoading"
-        aria-label="add artist"
-        mat-button
-        mat-stroked-button
-        matSuffix
-      >
-        <mat-icon>add</mat-icon>
-      </button>
-    </mat-form-field>
-
+    <form>
+      <mat-form-field>
+        <mat-label>Add artist</mat-label>
+        <input (keyup.enter)="onSearchArtist()" [(ngModel)]="searchArtist"
+               [ngModelOptions]="{standalone: true}" autocomplete="off" matInput
+               type="text">
+        <button [class.spinner]="searchLoading" [disabled]="searchLoading" aria-label="Add"
+                mat-icon-button
+                matSuffix>
+          <mat-icon>add</mat-icon>
+        </button>
+      </mat-form-field>
+    </form>
     <app-artist-pane (artistChange)="onArtistChange($event)" [artists]="artists"
                      class="scrollable-content"></app-artist-pane>
   </mat-card>

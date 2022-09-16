@@ -1,4 +1,4 @@
-<table #table [dataSource]="artists" mat-table>
+<table #table [dataSource]="artists" [ngClass.xs]="{mobile: true}" mat-table>
   <ng-container matColumnDef="order">
     <th *matHeaderCellDef mat-header-cell>Order</th>
     <td *matCellDef="let i = index" mat-cell>
