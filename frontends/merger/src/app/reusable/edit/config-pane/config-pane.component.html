@@ -11,8 +11,8 @@
       Every
       <mat-form-field>
         <input [(ngModel)]="refreshFrequency" [defaultValue]="1"
-               [ngModelOptions]="{standalone: true}"
-               matInput>
+               [ngModelOptions]="{standalone: true}" inputmode="numeric" matInput
+               type="number">
       </mat-form-field>
       <mat-form-field>
         <select [(ngModel)]="refreshInterval" [ngModelOptions]="{standalone: true}" matNativeControl

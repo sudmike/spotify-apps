@@ -1,10 +1,11 @@
 import {
   Component,
+  HostListener,
   Input,
   OnChanges,
-  OnInit,
   SimpleChanges,
 } from '@angular/core';
+import { NotificationService } from '../../../services/notification.service';
 
 export enum SongSplitType {
   equal,
@@ -16,19 +17,17 @@ export enum SongSplitType {
   templateUrl: './config-pane.component.html',
   styleUrls: ['./config-pane.component.less'],
 })
-export class ConfigPaneComponent implements OnInit, OnChanges {
+export class ConfigPaneComponent implements OnChanges {
   @Input() active!: boolean;
   @Input() refreshFrequency!: number;
   refreshInterval: 'day' | 'week' = 'week';
 
-  ngOnInit() {
-    // ensure that refreshFrequency gets set
-    if (!this.refreshFrequency) this.refreshFrequency = 7;
-  }
+  constructor(private notification: NotificationService) {}
 
   ngOnChanges(changes: SimpleChanges) {
     // potentially reformat days to weeks
     if (changes['refreshFrequency']) {
+      if (!changes['refreshFrequency'].currentValue) this.refreshFrequency = 7;
       if (this.refreshFrequency % 7 === 0) {
         this.refreshInterval = 'week';
         this.refreshFrequency /= 7;
@@ -43,8 +42,26 @@ export class ConfigPaneComponent implements OnInit, OnChanges {
   }
 
   getFrequency(): number {
-    return this.refreshInterval === 'week'
-      ? 7 * +this.refreshFrequency
-      : +this.refreshFrequency;
+    if (isNaN(this.refreshFrequency) || this.refreshFrequency < 1) {
+      this.notification.warning('Refresh frequency is not valid');
+      return NaN;
+    } else
+      return this.refreshInterval === 'week'
+        ? 7 * +this.refreshFrequency
+        : +this.refreshFrequency;
+  }
+
+  /**
+   * Checks that number input fields are numeric.
+   * @param event The OnKeyDown event.
+   */
+  @HostListener('keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+    if (
+      (event.key.length === 1 && !/^\d$/.test(event.key)) ||
+      event.key === 'Process' ||
+      event.key === 'Dead'
+    ) {
+      event.preventDefault();
+    }
   }
 }
