@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ArtistResponseFull } from '../../../../openapi';
 import { SongSplitType } from '../config-pane/config-pane.component';
 
@@ -49,12 +49,6 @@ export class SongNumberPaneComponent implements OnInit {
           return artist;
         });
         break;
-      case SongSplitType.per_artist:
-        this.artists = this.artists.map((artist) => {
-          artist.number = +artist.number;
-          return artist;
-        });
-        break;
       default:
         break;
     }
@@ -70,42 +64,10 @@ export class SongNumberPaneComponent implements OnInit {
         return this.artists.length * this.songsPerArtistEqual;
       case SongSplitType.per_artist:
         return this.artists
-          .map((artist) => +artist.number)
+          .map((artist) => artist.number)
           .reduce((a, b) => a + b, 0);
       default:
         return 42;
-    }
-  }
-
-  /**
-   * Checks that number input fields are numeric.
-   * @param event The OnKeyDown event.
-   */
-  @HostListener('keydown', ['$event']) onKeyDown(event: Event) {
-    const e = <KeyboardEvent>event;
-    const keyCode = e.keyCode;
-    if (
-      [46, 8, 9, 27, 13, 110, 190].indexOf(keyCode) !== -1 ||
-      // Allow: Ctrl+A
-      (keyCode === 65 && (e.ctrlKey || e.metaKey)) ||
-      // Allow: Ctrl+C
-      (keyCode === 67 && (e.ctrlKey || e.metaKey)) ||
-      // Allow: Ctrl+V
-      (keyCode === 86 && (e.ctrlKey || e.metaKey)) ||
-      // Allow: Ctrl+X
-      (keyCode === 88 && (e.ctrlKey || e.metaKey)) ||
-      // Allow: home, end, left, right
-      (keyCode >= 35 && keyCode <= 39)
-    ) {
-      // let it happen, don't do anything
-      return;
-    }
-    // Ensure that it is a number and stop the keypress
-    if (
-      (e.shiftKey || keyCode < 48 || keyCode > 57) &&
-      (keyCode < 96 || keyCode > 105)
-    ) {
-      e.preventDefault();
     }
   }
 }

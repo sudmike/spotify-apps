@@ -33,7 +33,7 @@ export class CreateComponent {
       const artists: ArtistResponseFull[] = this.edit.getArtistData();
       const active: boolean = this.edit.getActive();
       const frequency: number = this.edit.getFrequency();
-      if (artists.length > 0) {
+      if (artists.length > 0 && !isNaN(frequency)) {
         await this.api.submitPlaylist(artists, active, frequency);
         this.notification.success('Successfully created playlist');
         await this.router.navigate(['dashboard']);

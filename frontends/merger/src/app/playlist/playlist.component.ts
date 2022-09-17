@@ -53,7 +53,7 @@ export class PlaylistComponent implements OnInit {
       const frequency: number = this.edit.getFrequency();
       const updateTitle: boolean = this.isDefaultTitle();
       const updateDescription: boolean = this.isDefaultDescription();
-      if (artists.length > 0) {
+      if (artists.length > 0 && !isNaN(frequency)) {
         await this.api.updatePlaylist(
           this.id,
           artists,

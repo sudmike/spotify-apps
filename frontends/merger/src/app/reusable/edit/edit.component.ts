@@ -39,22 +39,19 @@ export class EditComponent {
    * Returns artists from artist table.
    */
   getArtistData(): ArtistResponseFull[] {
-    let artists = this.songNumber.getArtists();
+    const artists = this.songNumber.getArtists();
 
-    // sanitize artists
-    artists = artists.filter((artist) => artist.number > 0);
-    artists = artists.map((artist) => ({
-      ...artist,
-      number: (artist.number = artist.number <= 100 ? artist.number : 100),
-    }));
-
-    // check if all requirements are fulfilled
+    // check that enough artists are selected
     if (artists.length < 2) {
       this.notification.warning('At least two artists need to be included');
       return [];
     }
-
-    return this.songNumber.getArtists();
+    // check that song numbers are all more than 0
+    else if (!artists.every((artist) => artist.number)) {
+      this.notification.warning("Songs per artist can't be 0");
+      return [];
+    }
+    return artists;
   }
 
   /**
