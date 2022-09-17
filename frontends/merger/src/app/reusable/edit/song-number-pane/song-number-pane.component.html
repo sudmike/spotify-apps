@@ -2,13 +2,20 @@
   <h2 class="pane-header">Number of Songs</h2>
   <mat-tab-group [(selectedIndex)]="tabType" dynamicHeight>
     <mat-tab label="Equal">
-      <mat-form-field [ngClass]="{equal: true}" appearance="standard">
+      <div [ngClass]="{equal: true}">
         <mat-label>Songs per artist</mat-label>
-        <input [(ngModel)]="songsPerArtistEqual" matInput>
-      </mat-form-field>
+        <mat-slider
+          [(ngModel)]="songsPerArtistEqual"
+          aria-label="units"
+          color="primary"
+          step="5"
+          thumbLabel
+          tickInterval="4">
+        </mat-slider>
+      </div>
     </mat-tab>
     <mat-tab label="Per artist">
-      <table #table [dataSource]="artists" mat-table>
+      <table *ngIf="artists.length > 0" [dataSource]="artists" mat-table>
         <ng-container matColumnDef="name">
           <th *matHeaderCellDef mat-header-cell>Name</th>
           <td *matCellDef="let data" mat-cell>
@@ -18,15 +25,20 @@
         <ng-container matColumnDef="songs">
           <th *matHeaderCellDef mat-header-cell>Nr of songs</th>
           <td *matCellDef="let data" mat-cell>
-            <mat-form-field [ngClass]="{songs: true}" appearance="standard">
-              <input [(ngModel)]="data.number" matInput>
-            </mat-form-field>
+            <mat-slider
+              [(ngModel)]="data.number"
+              aria-label="units"
+              color="primary"
+              step="5"
+              thumbLabel
+              tickInterval="4">
+            </mat-slider>
           </td>
         </ng-container>
-
         <tr *matHeaderRowDef="['name', 'songs']" mat-header-row></tr>
         <tr *matRowDef="let row; columns: ['name', 'songs'];" mat-row></tr>
       </table>
+      <p *ngIf="artists.length === 0" class="no-artist">Add some artists :)</p>
     </mat-tab>
   </mat-tab-group>
   <h2 class="total">Total number of songs: {{calculateTotal()}}</h2>

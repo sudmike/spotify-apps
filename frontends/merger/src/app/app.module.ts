@@ -32,6 +32,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SongNumberPaneComponent } from './reusable/edit/song-number-pane/song-number-pane.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSliderModule } from '@angular/material/slider';
 
 @NgModule({
   declarations: [
@@ -68,6 +69,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatSnackBarModule,
     MatCheckboxModule,
     MatTooltipModule,
+    MatSliderModule,
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent],
