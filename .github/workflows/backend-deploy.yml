@@ -47,7 +47,7 @@ jobs:
           echo '${{ secrets.ENV_FILE_TEXT }}' >> ./.env.prod
           cat ./.env.prod
 
-          cd ./src/merger
+          cd ./src/mashup
           touch ./firebase-creds-prod.json
           echo '${{ secrets.FIREBASE_CREDS_FILE_TEXT }}' >> ./firebase-creds-prod.json
           cat ./firebase-creds-prod.json

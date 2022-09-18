@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   ArtistResponseFull,
   GetPlaylistResponseSchema,
-  MergerApiFactory,
+  MashupApiFactory,
 } from '../../openapi';
 import { env } from '../../../env.dev';
 import { NotificationService } from './notification.service';
@@ -11,7 +11,7 @@ import { NotificationService } from './notification.service';
   providedIn: 'root',
 })
 export class ApiService {
-  api = MergerApiFactory(undefined, env.production ? env.backendUrl : '/api');
+  api = MashupApiFactory(undefined, env.production ? env.backendUrl : '/api');
 
   constructor(private notification: NotificationService) {}
 
@@ -31,7 +31,7 @@ export class ApiService {
 
   async checkAuth(): Promise<boolean> {
     try {
-      await this.api.mergerControllerCheckAuth(
+      await this.api.mashupControllerCheckAuth(
         ApiService.getAuthorizationHeader(),
       );
       return true;
@@ -43,7 +43,7 @@ export class ApiService {
   async getPlaylists(): Promise<GetPlaylistResponseSchema[]> {
     try {
       return (
-        await this.api.mergerControllerGetPlaylists(
+        await this.api.mashupControllerGetPlaylists(
           ApiService.getAuthorizationHeader(),
         )
       ).data;
@@ -58,7 +58,7 @@ export class ApiService {
   async getPlaylist(id: string): Promise<GetPlaylistResponseSchema> {
     try {
       return (
-        await this.api.mergerControllerGetPlaylist(
+        await this.api.mashupControllerGetPlaylist(
           id,
           ApiService.getAuthorizationHeader(),
         )
@@ -73,7 +73,7 @@ export class ApiService {
 
   async regeneratePlaylist(id: string): Promise<void> {
     try {
-      await this.api.mergerControllerRefreshPlaylist(
+      await this.api.mashupControllerRefreshPlaylist(
         id,
         ApiService.getAuthorizationHeader(),
       );
@@ -88,7 +88,7 @@ export class ApiService {
   async searchArtist(name: string) {
     try {
       return (
-        await this.api.mergerControllerSearchArtist(
+        await this.api.mashupControllerSearchArtist(
           name,
           ApiService.getAuthorizationHeader(),
         )
@@ -107,7 +107,7 @@ export class ApiService {
     frequency: number,
   ) {
     try {
-      await this.api.mergerControllerGeneratePlaylist(
+      await this.api.mashupControllerGeneratePlaylist(
         {
           parts: artists,
           active,
@@ -134,7 +134,7 @@ export class ApiService {
     updateDescription: boolean,
   ) {
     try {
-      await this.api.mergerControllerUpdatePlaylist(
+      await this.api.mashupControllerUpdatePlaylist(
         id,
         {
           parts: artists,

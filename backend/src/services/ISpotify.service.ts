@@ -8,6 +8,7 @@ export abstract class ISpotifyService {
   // contains state codes connected to requests that were sent out to Spotify
   private states: {
     state: string;
+    frontendHost: string;
     timeoutHandler: NodeJS.Timeout;
   }[] = [];
 
@@ -18,14 +19,15 @@ export abstract class ISpotifyService {
   /**
    * Starts off the OAuth flow by creating and returning URL for OAuth redirection.
    * @param scopes The scopes that are requested from Spotify.
+   * @param frontendHost The host that called the login endpoint. This will be used for the redirect on callback.
    */
-  loginRedirect(scopes: string[]): string {
+  loginRedirect(scopes: string[], frontendHost: string): string {
     const state = generateRandomString(32);
     const timeoutHandler = setTimeout(
       () => this.removeState(state),
       5 * 60 * 1000,
     );
-    this.states.push({ state, timeoutHandler });
+    this.states.push({ state, frontendHost, timeoutHandler });
 
     return this.spotifyApi.createAuthorizeURL(scopes, state);
   }
@@ -38,6 +40,9 @@ export abstract class ISpotifyService {
   async callback(state: string, code: string) {
     // check state to prevent CSRF
     const index = this.states.findIndex((tuple) => tuple.state === state);
+    const frontendHost = this.states[index]
+      ? this.states[index].frontendHost
+      : process.env.FRONTEND_REDIRECT_HOST;
 
     if (index > -1) {
       // remove entry from states
@@ -49,6 +54,7 @@ export abstract class ISpotifyService {
         this.spotifyApi.setAccessToken(res.access_token);
         return {
           ...res,
+          frontendHost,
           username: await this.getUsername(),
         };
       } catch (e) {

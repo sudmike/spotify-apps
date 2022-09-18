@@ -1,5 +1,5 @@
 export const env = {
   production: true,
-  name: 'Merger',
+  name: 'Mashup',
   backendUrl: '',
 };

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MergerModule } from './merger/merger.module';
+import { MashupModule } from './mashup/mashup.module';
 import { ConfigModule } from '@nestjs/config';
 
 const ENV = process.env.NODE_ENV;
@@ -12,7 +12,7 @@ const ENV = process.env.NODE_ENV;
       envFilePath: !ENV ? '.env' : `.env.${ENV}`,
       isGlobal: true,
     }),
-    MergerModule,
+    MashupModule,
   ],
   controllers: [AppController],
   providers: [AppService],

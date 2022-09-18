@@ -1,4 +1,4 @@
-name: Merger CI build
+name: Mashup CI build
 
 on:
   push:
@@ -7,10 +7,10 @@ on:
     branches: [ main ]
 
 jobs:
-  merger-build:
+  mashup-build:
     defaults:
       run:
-        working-directory: frontends/merger
+        working-directory: frontends/mashup
 
     runs-on: ubuntu-latest
     steps:

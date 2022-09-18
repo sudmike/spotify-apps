@@ -12,7 +12,7 @@ export class DatabaseService extends IFirebaseService {
     super();
     const credentialsFromFile = JSON.parse(
       fs.readFileSync(
-        `./src/merger/${process.env.FIREBASE_CREDENTIALS_MERGER}.json`,
+        `./src/mashup/${process.env.FIREBASE_CREDENTIALS_MASHUP}.json`,
         'utf-8',
       ),
     );
@@ -20,7 +20,7 @@ export class DatabaseService extends IFirebaseService {
   }
 
   /**
-   * Add a user to the merger database.
+   * Add a user to the mashup database.
    * @param userId A UUID that identifies the user.
    */
   async addUser(userId: string): Promise<string> {
