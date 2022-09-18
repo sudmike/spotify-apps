@@ -1,17 +1,17 @@
-# Frontend Merger README
+# Frontend Mashup README
 
-This document gives background on the frontend of the Merger app and explains how to set it up.
+This document gives background on the frontend of the Mashup app and explains how to set it up.
 
 This frontend was made with Angular.
 
 ## Setup
 
-####Install npm packages
+#### Install npm packages
 ```bash
 $ npm install
 ```
 
-####Copy .env files and fill them
+#### Copy .env files and fill them
 ```bash
 $ cp ./env.dev.example.ts ./env.dev.ts
 $ cp ./env.prod.example.ts ./env.prod.ts

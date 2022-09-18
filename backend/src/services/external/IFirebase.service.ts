@@ -10,7 +10,7 @@ export abstract class IFirebaseService implements IDatabaseService {
   initialize(credentials: ServiceAccount) {
     admin.initializeApp({
       credential: admin.credential.cert(credentials),
-      databaseURL: process.env.FIREBASE_URL_MERGER,
+      databaseURL: process.env.FIREBASE_URL_MASHUP,
     });
 
     this.database = admin.database();

@@ -33,11 +33,11 @@ import { GetPlaylistResponseSchema } from './schemas/response/get-playlist-respo
 import * as crypto from 'crypto';
 import { BatchService } from './services/batch.service';
 
-@ApiTags('merger')
+@ApiTags('mashup')
 @ApiBearerAuth()
 @ApiForbiddenResponse()
-@Controller('merger')
-export class MergerController {
+@Controller('mashup')
+export class MashupController {
   private spotifyScope = [
     'playlist-read-private',
     'playlist-modify-private',
@@ -77,7 +77,7 @@ export class MergerController {
     // generate a uuid based on the username
     const hash = crypto
       .createHash('sha1')
-      .update(spotifyData.username + process.env.UUID_SALT_MERGER)
+      .update(spotifyData.username + process.env.UUID_SALT_MASHUP)
       .digest('hex');
     const uuid = UUID(hash, UUID.URL);
 

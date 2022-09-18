@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
     const id = localStorage.getItem('id');
 
     if (!id) {
-      window.location.href = env.production ? `${env.backendUrl}/merger/login` : '/api/merger/login';
+      window.location.href = env.production ? `${env.backendUrl}/mashup/login` : '/api/mashup/login';
       localStorage.setItem('returnUrl', state.url);
       return false;
     } else {

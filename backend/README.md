@@ -7,16 +7,18 @@ The NestJS backend has separate controllers for each of the frontends.
 ## Setup
 
 #### Install npm packages
+
 ```bash
 $ npm install
 ```
 
 #### Copy .env files and fill them
+
 ```bash
 $ cp ./.env.dev.example ./.env.dev
 $ cp ./.env.prod.example ./.env.prod
-$ cp ./src/merger/firebase-creds-dev.example.json ./src/merger/firebase-creds-dev.json
-$ cp ./src/merger/firebase-creds-prod.example.json ./src/merger/firebase-creds-prod.json
+$ cp ./src/mashup/firebase-creds-dev.example.json ./src/mashup/firebase-creds-dev.json
+$ cp ./src/mashup/firebase-creds-prod.example.json ./src/mashup/firebase-creds-prod.json
 ```
 
 #### Run the app

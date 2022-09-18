@@ -4,12 +4,12 @@ threadsafe: yes
 
 handlers:
   - url: /(.*\.(gif|png|jpg|css|js)(|\.map))$
-    static_files: dist/merger/\1
-    upload: dist/merger/(.*)(|\.map)
+    static_files: dist/mashup/\1
+    upload: dist/mashup/(.*)(|\.map)
 
   - url: /(.*)
-    static_files: dist/merger/index.html
-    upload: dist/merger/index.html
+    static_files: dist/mashup/index.html
+    upload: dist/mashup/index.html
 
 skip_files:
   - e2e/

@@ -14,9 +14,9 @@ export class SpotifyTokenService extends ISpotifyService {
 
   constructor(private readonly databaseService: DatabaseService) {
     const spotifyCredentials = {
-      clientId: process.env.SPOTIFY_CLIENT_ID_MERGER,
-      clientSecret: process.env.SPOTIFY_CLIENT_SECRET_MERGER,
-      redirectUri: process.env.SPOTIFY_REDIRECT_URI_MERGER,
+      clientId: process.env.SPOTIFY_CLIENT_ID_MASHUP,
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET_MASHUP,
+      redirectUri: process.env.SPOTIFY_REDIRECT_URI_MASHUP,
     };
 
     super(spotifyCredentials);

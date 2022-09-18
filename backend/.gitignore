@@ -26,8 +26,8 @@ lerna-debug.log*
 .env.prod
 
 # Secrets
-src/merger/firebase-creds-dev.json
-src/merger/firebase-creds-prod.json
+src/mashup/firebase-creds-dev.json
+src/mashup/firebase-creds-prod.json
 
 # IDEs and editors
 /.idea
