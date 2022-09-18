@@ -33,6 +33,7 @@ import { GeneratePlaylistResponseSchema } from './schemas/response/generate-play
 import { GetPlaylistResponseSchema } from './schemas/response/get-playlist-response.schema';
 import * as crypto from 'crypto';
 import { BatchService } from './services/batch.service';
+import { BatchGuard } from '../guards/batch.guard';
 
 @ApiTags('mashup')
 @ApiBearerAuth()
@@ -97,6 +98,7 @@ export class MashupController {
   }
 
   @Post('refresh')
+  @UseGuards(BatchGuard)
   @ApiExcludeEndpoint()
   async refreshPlaylists() {
     await this.refreshService.refreshAllPlaylists();
