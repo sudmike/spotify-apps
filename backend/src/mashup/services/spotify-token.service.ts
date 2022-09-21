@@ -4,13 +4,16 @@ import { ISpotifyService } from '../../services/ISpotify.service';
 
 @Injectable()
 export class SpotifyTokenService extends ISpotifyService {
-  private tokenCache: {
-    id: string;
-    refreshToken: string;
-    accessToken: string;
-    expiration: Date;
-    timeoutHandler: NodeJS.Timeout;
-  }[] = [];
+  private tokenCache = new Map<
+    string,
+    {
+      refreshToken: string;
+      accessToken: string;
+      username: string;
+      expiration: Date;
+      timeoutHandler: NodeJS.Timeout;
+    }
+  >();
 
   constructor(private readonly databaseService: DatabaseService) {
     const spotifyCredentials = {
@@ -27,11 +30,30 @@ export class SpotifyTokenService extends ISpotifyService {
     super.setAccessToken(accessToken);
   }
 
-  private async getAccessToken(id: string) {
-    const index = this.tokenCache.findIndex((tuple) => tuple.id === id);
+  /**
+   * Returns the username of the user that the tokens belong to.
+   * @protected
+   */
+  protected async getUsername(): Promise<string> {
+    try {
+      const refreshToken = super.getSpotifyApi().getCredentials().refreshToken;
 
+      // check cache for username by matching the refresh token
+      for (const value of this.tokenCache.values()) {
+        if (value.refreshToken === refreshToken) return value.username;
+      }
+
+      // send a Spotify request in case the username can't be found in cache
+      return super.getUsername();
+    } catch (e) {
+      console.log(e);
+      throw new Error(e.body);
+    }
+  }
+
+  private async getAccessToken(id: string) {
     // get from database if there is no cache entry
-    if (index < 0) {
+    if (!this.tokenCache.has(id)) {
       try {
         const user = await this.databaseService.getUserData(id);
         const refreshToken = user.refreshToken;
@@ -44,11 +66,15 @@ export class SpotifyTokenService extends ISpotifyService {
           1000 * tokens.expires_in + 1000 * 3600,
         );
 
+        // getting the username is only relevant for quick retrieval later
+        super.setAccessToken(accessToken);
+        const username = await super.getUsername();
+
         // add entry to user cache
-        this.tokenCache.push({
-          id,
+        this.tokenCache.set(id, {
           refreshToken,
           accessToken,
+          username,
           expiration,
           timeoutHandler,
         });
@@ -61,20 +87,16 @@ export class SpotifyTokenService extends ISpotifyService {
     }
     // use cache to get access token
     else {
-      const tuple = this.tokenCache.at(index);
+      const entry = this.tokenCache.get(id);
 
       // use cached access token if it is still valid
-      if (tuple.expiration > new Date(Date.now())) {
-        return tuple.accessToken;
+      if (entry.expiration > new Date(Date.now())) {
+        return entry.accessToken;
       }
       // refresh access token if it is expired
       else {
-        const tokens = await this.getTokens(tuple.refreshToken);
-        this.updateUserAccessToken(
-          tuple.id,
-          tokens.access_token,
-          tokens.expires_in,
-        );
+        const tokens = await this.getTokens(entry.refreshToken);
+        this.updateUserAccessToken(id, tokens.access_token, tokens.expires_in);
 
         return tokens.access_token;
       }
@@ -82,15 +104,10 @@ export class SpotifyTokenService extends ISpotifyService {
   }
 
   private removeUser(id: string) {
-    const index = this.tokenCache.findIndex((tuple) => tuple.id === id);
-    if (index > -1) this.removeUserAtIndex(index);
-  }
-
-  private removeUserAtIndex(index: number) {
-    const tuple = this.tokenCache.at(index);
-    if (tuple) {
-      clearTimeout(tuple.timeoutHandler);
-      this.tokenCache.splice(index);
+    const entry = this.tokenCache.get(id);
+    if (entry) {
+      clearTimeout(entry.timeoutHandler);
+      this.tokenCache.delete(id);
     }
   }
 
@@ -99,13 +116,12 @@ export class SpotifyTokenService extends ISpotifyService {
     accessToken: string,
     expiresInMs: number,
   ) {
-    const index = this.tokenCache.findIndex((tuple) => tuple.id === id);
-    if (index > -1) {
-      const tuple = this.tokenCache.at(index);
-      tuple.accessToken = accessToken;
-      tuple.expiration = new Date(Date.now() + 1000 * expiresInMs);
-      clearTimeout(tuple.timeoutHandler);
-      tuple.timeoutHandler = setTimeout(
+    const entry = this.tokenCache.get(id);
+    if (entry) {
+      entry.accessToken = accessToken;
+      entry.expiration = new Date(Date.now() + 1000 * expiresInMs);
+      clearTimeout(entry.timeoutHandler);
+      entry.timeoutHandler = setTimeout(
         () => this.removeUser(id),
         1000 * expiresInMs + 1000 * 3600,
       );
