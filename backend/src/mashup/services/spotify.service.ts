@@ -67,33 +67,43 @@ export class SpotifyService extends SpotifyTokenService {
    * @param onDeleted Handler for when a playlist has been deleted.
    */
   async getPlaylistDetails(ids: string[], onDeleted?: (playlist) => void) {
+    // code structure is bad because awaits cannot be used for parallelization!
+
     const username = await super.getUsername();
-    const playlists: {
-      id: string;
-      details: { name: string; description: string; images: string[] };
-    }[] = [];
 
     try {
-      // fetch playlists one by one
-      for await (const id of ids) {
-        const playlist = (
-          await this.getSpotifyApi().getPlaylist(id, {
-            fields: 'id,name,description,images,owner(id)',
-          })
-        ).body;
-
-        (await this.getPlaylistFollowingStatus(id, username))
-          ? playlists.push({
-              id,
-              details: {
-                name: playlist.name,
-                description: playlist.description,
-                images: playlist.images.map((image) => image.url),
-              },
-            })
-          : onDeleted(id);
-      }
-      return playlists;
+      // for each id return the playlist as long as the playlist is still being followed
+      return (
+        await Promise.all(
+          ids.map((id) =>
+            this.getSpotifyApi()
+              .getPlaylist(id, {
+                fields: 'id,name,description,images',
+              })
+              .then((playlistResponse) =>
+                this.getPlaylistFollowingStatus(
+                  playlistResponse.body.id,
+                  username,
+                ).then((isFollowing) => {
+                  const playlist = playlistResponse.body;
+                  if (isFollowing) {
+                    return {
+                      id: playlist.id,
+                      details: {
+                        name: playlist.name,
+                        description: playlist.description,
+                        images: playlist.images.map((image) => image.url),
+                      },
+                    };
+                  } else {
+                    onDeleted(playlist.id);
+                    return null;
+                  }
+                }),
+              ),
+          ),
+        )
+      ).filter((playlist) => playlist);
     } catch (e) {
       console.log(e);
       throw e;
