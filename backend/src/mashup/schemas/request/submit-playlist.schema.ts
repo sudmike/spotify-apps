@@ -36,20 +36,4 @@ export default class SubmitPlaylistSchema {
   @IsNumber()
   @IsNotEmpty()
   frequency: number;
-
-  /**
-   * Defines if the title of the playlist should be updated
-   * @example true
-   */
-  @IsBoolean()
-  @IsNotEmpty()
-  updateTitle: boolean;
-
-  /**
-   * Defines if the description of the playlist should be updated
-   * @example true
-   */
-  @IsBoolean()
-  @IsNotEmpty()
-  updateDescription: boolean;
 }

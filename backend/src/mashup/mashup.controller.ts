@@ -34,6 +34,7 @@ import { GetPlaylistResponseSchema } from './schemas/response/get-playlist-respo
 import * as crypto from 'crypto';
 import { BatchService } from './services/batch.service';
 import { BatchGuard } from '../guards/batch.guard';
+import UpdatePlaylistSchema from './schemas/request/update-playlist.schema';
 
 @ApiTags('mashup')
 @ApiBearerAuth()
@@ -150,14 +151,24 @@ export class MashupController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async updatePlaylist(
     @Param('playlist') playlist: string,
-    @Body() body: SubmitPlaylistSchema,
+    @Body() body: UpdatePlaylistSchema,
   ): Promise<GeneratePlaylistResponseSchema> {
+    // don't do anything in case nothing needs to be updated
+    if (
+      !body.updateTitle &&
+      !body.updateDescription &&
+      !body.updateSongs &&
+      !body.updateMetadata
+    )
+      return { id: playlist };
+
     // generate Spotify playlist
     const id = await this.spotifyService.updatePlaylist(
       playlist,
       body.parts,
       body.updateTitle,
       body.updateDescription,
+      body.updateSongs,
     );
 
     // save information in database

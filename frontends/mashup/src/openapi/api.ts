@@ -275,18 +275,55 @@ export interface SubmitPlaylistSchema {
      * @memberof SubmitPlaylistSchema
      */
     'frequency': number;
+}
+/**
+ * 
+ * @export
+ * @interface UpdatePlaylistSchema
+ */
+export interface UpdatePlaylistSchema {
+    /**
+     * Contains IDs of \'This is XYZ\' playlists and their artists IDs and names
+     * @type {Array<ArtistFull>}
+     * @memberof UpdatePlaylistSchema
+     */
+    'parts': Array<ArtistFull>;
+    /**
+     * Defines if playlist refreshing is set to active or not
+     * @type {boolean}
+     * @memberof UpdatePlaylistSchema
+     */
+    'active': boolean;
+    /**
+     * Refresh playlist every X days
+     * @type {number}
+     * @memberof UpdatePlaylistSchema
+     */
+    'frequency': number;
     /**
      * Defines if the title of the playlist should be updated
      * @type {boolean}
-     * @memberof SubmitPlaylistSchema
+     * @memberof UpdatePlaylistSchema
      */
     'updateTitle': boolean;
     /**
      * Defines if the description of the playlist should be updated
      * @type {boolean}
-     * @memberof SubmitPlaylistSchema
+     * @memberof UpdatePlaylistSchema
      */
     'updateDescription': boolean;
+    /**
+     * Defines if the songs of the playlist should be updated
+     * @type {boolean}
+     * @memberof UpdatePlaylistSchema
+     */
+    'updateSongs': boolean;
+    /**
+     * Defines if the metadata of the playlist should be updated
+     * @type {boolean}
+     * @memberof UpdatePlaylistSchema
+     */
+    'updateMetadata': boolean;
 }
 
 /**
@@ -591,15 +628,15 @@ export const MashupApiAxiosParamCreator = function (configuration?: Configuratio
         /**
          * 
          * @param {string} playlist 
-         * @param {SubmitPlaylistSchema} submitPlaylistSchema 
+         * @param {UpdatePlaylistSchema} updatePlaylistSchema 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        mashupControllerUpdatePlaylist: async (playlist: string, submitPlaylistSchema: SubmitPlaylistSchema, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        mashupControllerUpdatePlaylist: async (playlist: string, updatePlaylistSchema: UpdatePlaylistSchema, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'playlist' is not null or undefined
             assertParamExists('mashupControllerUpdatePlaylist', 'playlist', playlist)
-            // verify required parameter 'submitPlaylistSchema' is not null or undefined
-            assertParamExists('mashupControllerUpdatePlaylist', 'submitPlaylistSchema', submitPlaylistSchema)
+            // verify required parameter 'updatePlaylistSchema' is not null or undefined
+            assertParamExists('mashupControllerUpdatePlaylist', 'updatePlaylistSchema', updatePlaylistSchema)
             const localVarPath = `/mashup/playlists/{playlist}`
                 .replace(`{${"playlist"}}`, encodeURIComponent(String(playlist)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -624,7 +661,7 @@ export const MashupApiAxiosParamCreator = function (configuration?: Configuratio
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(submitPlaylistSchema, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePlaylistSchema, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -722,12 +759,12 @@ export const MashupApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {string} playlist 
-         * @param {SubmitPlaylistSchema} submitPlaylistSchema 
+         * @param {UpdatePlaylistSchema} updatePlaylistSchema 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async mashupControllerUpdatePlaylist(playlist: string, submitPlaylistSchema: SubmitPlaylistSchema, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GeneratePlaylistResponseSchema>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.mashupControllerUpdatePlaylist(playlist, submitPlaylistSchema, options);
+        async mashupControllerUpdatePlaylist(playlist: string, updatePlaylistSchema: UpdatePlaylistSchema, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GeneratePlaylistResponseSchema>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.mashupControllerUpdatePlaylist(playlist, updatePlaylistSchema, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
     }
@@ -813,12 +850,12 @@ export const MashupApiFactory = function (configuration?: Configuration, basePat
         /**
          * 
          * @param {string} playlist 
-         * @param {SubmitPlaylistSchema} submitPlaylistSchema 
+         * @param {UpdatePlaylistSchema} updatePlaylistSchema 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        mashupControllerUpdatePlaylist(playlist: string, submitPlaylistSchema: SubmitPlaylistSchema, options?: any): AxiosPromise<GeneratePlaylistResponseSchema> {
-            return localVarFp.mashupControllerUpdatePlaylist(playlist, submitPlaylistSchema, options).then((request) => request(axios, basePath));
+        mashupControllerUpdatePlaylist(playlist: string, updatePlaylistSchema: UpdatePlaylistSchema, options?: any): AxiosPromise<GeneratePlaylistResponseSchema> {
+            return localVarFp.mashupControllerUpdatePlaylist(playlist, updatePlaylistSchema, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -919,13 +956,13 @@ export class MashupApi extends BaseAPI {
     /**
      * 
      * @param {string} playlist 
-     * @param {SubmitPlaylistSchema} submitPlaylistSchema 
+     * @param {UpdatePlaylistSchema} updatePlaylistSchema 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MashupApi
      */
-    public mashupControllerUpdatePlaylist(playlist: string, submitPlaylistSchema: SubmitPlaylistSchema, options?: AxiosRequestConfig) {
-        return MashupApiFp(this.configuration).mashupControllerUpdatePlaylist(playlist, submitPlaylistSchema, options).then((request) => request(this.axios, this.basePath));
+    public mashupControllerUpdatePlaylist(playlist: string, updatePlaylistSchema: UpdatePlaylistSchema, options?: AxiosRequestConfig) {
+        return MashupApiFp(this.configuration).mashupControllerUpdatePlaylist(playlist, updatePlaylistSchema, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
