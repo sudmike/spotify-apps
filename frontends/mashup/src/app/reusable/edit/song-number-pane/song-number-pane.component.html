@@ -5,6 +5,7 @@
       <div [ngClass]="{equal: true}">
         <mat-label>Songs per artist</mat-label>
         <mat-slider
+          (change)="onEqualSliderChange()"
           [(ngModel)]="songsPerArtistEqual"
           aria-label="units"
           color="primary"

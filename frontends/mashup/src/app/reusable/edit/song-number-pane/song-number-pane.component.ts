@@ -70,4 +70,21 @@ export class SongNumberPaneComponent implements OnInit {
         return 42;
     }
   }
+
+  /**
+   * Change the number of songs for each artist when the equals slider changes and the number of songs per artist are already the same.
+   * Gets called when value of slider in equal tab changes.
+   */
+  onEqualSliderChange() {
+    if (this.artists.length > 0) {
+      const comparisonNumber = this.artists[0].number;
+
+      if (this.artists.every((artist) => artist.number === comparisonNumber)) {
+        this.artists = this.artists.map((artist) => ({
+          ...artist,
+          number: this.songsPerArtistEqual,
+        }));
+      }
+    }
+  }
 }
