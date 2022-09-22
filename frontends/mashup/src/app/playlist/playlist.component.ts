@@ -19,6 +19,7 @@ export class PlaylistComponent implements OnInit {
   id: string | undefined;
   playlist: PlaylistsResponse | undefined;
   artists: ArtistResponseFull[] = [];
+  initialArtists: ArtistResponseFull[] = [];
   metadata: MetadataResponse = {
     updated: 0,
     created: 0,
@@ -48,29 +49,37 @@ export class PlaylistComponent implements OnInit {
     if (!this.id) return;
     this.saveLoading = true;
     try {
-      const artists: ArtistResponseFull[] = this.edit.getArtistData();
+      this.artists = this.edit.getArtistData();
       const active: boolean = this.edit.getActive();
       const frequency: number = this.edit.getFrequency();
-      const updateTitle: boolean = this.isDefaultTitle();
-      const updateDescription: boolean = this.isDefaultDescription();
-      if (artists.length > 0 && !isNaN(frequency)) {
+      const updateTitle = this.shouldTitleChange();
+      const updateDescription = this.shouldDescriptionChange();
+      const updateSongs = this.shouldSongsChange();
+      const updateMetadata = this.hasMetadataChanged(active, frequency);
+
+      if (
+        this.artists.length > 0 &&
+        !isNaN(frequency) &&
+        (updateTitle || updateDescription || updateSongs || updateMetadata)
+      ) {
         await this.api.updatePlaylist(
           this.id,
-          artists,
+          this.artists,
           active,
           frequency,
           updateTitle,
           updateDescription,
+          updateSongs,
+          updateMetadata,
         );
         this.notification.success('Saved changes to playlist');
+        await this.getPlaylistData();
       }
     } catch (e) {
       this.notification.warning('Failed to save changes');
     }
 
     this.saveLoading = false;
-
-    await this.getPlaylistData();
   }
 
   /**
@@ -86,6 +95,7 @@ export class PlaylistComponent implements OnInit {
           this.id = res.id;
           this.playlist = res.playlist;
           this.artists = res.artists;
+          this.setInitialArtists(res.artists);
           this.metadata = res.metadata;
           this.title.setTitle(res.playlist.name);
         } catch (e) {
@@ -96,22 +106,82 @@ export class PlaylistComponent implements OnInit {
   }
 
   /**
-   * Checks if the playlists title is the default generated title.
+   * Checks if the playlists title needs to be changed.
    * @private
    */
-  private isDefaultTitle() {
-    if (!this.playlist) return true;
-    return this.playlist?.name.includes('These are ');
+  private shouldTitleChange() {
+    const artistOrderChanged = this.hasArtistOrderChanged();
+    const isDefaultTitle = this.playlist?.name.includes('These are ');
+    return artistOrderChanged && Boolean(isDefaultTitle);
   }
 
   /**
-   * Checks if the playlists description is the default generated description.
+   * Checks if the playlists description needs to be changed.
    * @private
    */
-  private isDefaultDescription() {
-    if (!this.playlist) return true;
-    return this.playlist.description
+  private shouldDescriptionChange() {
+    const artistOrderChanged = this.hasArtistOrderChanged();
+    const isDefaultDescription = this.playlist?.description
       .toLowerCase()
       .includes('this playlist was auto-generated! artists are ');
+    return artistOrderChanged && Boolean(isDefaultDescription);
+  }
+
+  /**
+   * Sets initial artists by copying instead of referencing.
+   * @param artists The value that should be set to variable initial artists.
+   * @private
+   */
+  private setInitialArtists(artists: ArtistResponseFull[]) {
+    this.initialArtists = JSON.parse(JSON.stringify(artists));
+  }
+
+  /**
+   * Checks if the playlists songs need to be changed.
+   * @private
+   */
+  private shouldSongsChange() {
+    return this.hasArtistSongNumberChanged();
+  }
+
+  /**
+   * Checks if the playlists metadata has changed.
+   * @param active Value of active that should be compared to original metadata.
+   * @param frequency Value of frequency that should be compared to original metadata.
+   * @private
+   */
+  private hasMetadataChanged(active: boolean, frequency: number) {
+    return (
+      active !== this.metadata.active || frequency !== this.metadata.frequency
+    );
+  }
+
+  /**
+   * Checks if the order of artists have changed compared to the initial artists.
+   * @private
+   */
+  private hasArtistOrderChanged() {
+    return (
+      this.artists.length !== this.initialArtists.length ||
+      !this.artists.every(
+        (artist, index) => artist.id === this.initialArtists[index]?.id,
+      )
+    );
+  }
+
+  /**
+   * Checks if the number of songs per artist have changed compared to the initial artists, disregarding their order.
+   * @private
+   */
+  private hasArtistSongNumberChanged() {
+    return (
+      this.artists.length !== this.initialArtists.length ||
+      !this.artists.every((artist) => {
+        const initialArtist = this.initialArtists.find(
+          (initialArtist) => initialArtist.name === artist.name,
+        );
+        return initialArtist ? artist.number === initialArtist.number : false;
+      })
+    );
   }
 }

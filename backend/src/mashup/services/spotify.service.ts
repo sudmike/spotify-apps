@@ -176,18 +176,19 @@ export class SpotifyService extends SpotifyTokenService {
    * @param entries Information about playlists that the generation is based on etc.
    * @param updateTitle Defines if the title of the playlist should be updated.
    * @param updateDescription Defines if the description of the playlist should be updated.
+   * @param updateSongs Defines if the songs of the playlist should be updated.
    */
   async updatePlaylist(
     playlist: string,
     entries: ArtistFull[],
     updateTitle: boolean,
     updateDescription: boolean,
+    updateSongs: boolean,
   ) {
     try {
       const artists = entries.map((entry) => entry.name);
       const title = generatePlaylistTitle(artists);
       const description = generatePlaylistDescription(artists);
-      const tracks = await this.generateTrackList(entries);
 
       if (updateTitle || updateDescription)
         await this.getSpotifyApi().changePlaylistDetails(playlist, {
@@ -195,7 +196,10 @@ export class SpotifyService extends SpotifyTokenService {
           description: updateDescription ? description : undefined,
         });
 
-      await this.setTracksOfPlaylist(playlist, tracks);
+      if (updateSongs) {
+        const tracks = await this.generateTrackList(entries);
+        await this.setTracksOfPlaylist(playlist, tracks);
+      }
 
       return playlist;
     } catch (e) {

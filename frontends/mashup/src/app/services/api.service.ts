@@ -112,8 +112,6 @@ export class ApiService {
           parts: artists,
           active,
           frequency,
-          updateTitle: true,
-          updateDescription: true,
         },
         ApiService.getAuthorizationHeader(),
       );
@@ -132,6 +130,8 @@ export class ApiService {
     frequency: number,
     updateTitle: boolean,
     updateDescription: boolean,
+    updateSongs: boolean,
+    updateMetadata: boolean,
   ) {
     try {
       await this.api.mashupControllerUpdatePlaylist(
@@ -142,6 +142,8 @@ export class ApiService {
           frequency,
           updateTitle,
           updateDescription,
+          updateSongs,
+          updateMetadata,
         },
         ApiService.getAuthorizationHeader(),
       );
