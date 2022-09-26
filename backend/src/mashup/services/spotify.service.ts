@@ -63,13 +63,16 @@ export class SpotifyService extends SpotifyTokenService {
 
   /**
    * Returns details about the requested playlists.
+   * @param username The user's Spotify username.
    * @param ids The IDs of the playlists.
    * @param onDeleted Handler for when a playlist has been deleted.
    */
-  async getPlaylistDetails(ids: string[], onDeleted?: (playlist) => void) {
+  async getPlaylistDetails(
+    username: string,
+    ids: string[],
+    onDeleted?: (playlist) => void,
+  ) {
     // code structure is bad because awaits cannot be used for parallelization!
-
-    const username = await super.getUsername();
 
     try {
       // for each id return the playlist as long as the playlist is still being followed
