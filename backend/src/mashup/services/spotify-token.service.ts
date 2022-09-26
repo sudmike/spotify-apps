@@ -32,19 +32,13 @@ export class SpotifyTokenService extends ISpotifyService {
 
   /**
    * Returns the username of the user that the tokens belong to.
+   * @param id The user's ID.
    * @protected
    */
-  protected async getUsername(): Promise<string> {
+  async getUsernameByUserId(id: string): Promise<string> {
     try {
-      const refreshToken = super.getSpotifyApi().getCredentials().refreshToken;
-
-      // check cache for username by matching the refresh token
-      for (const value of this.tokenCache.values()) {
-        if (value.refreshToken === refreshToken) return value.username;
-      }
-
-      // send a Spotify request in case the username can't be found in cache
-      return super.getUsername();
+      const entry = this.tokenCache.get(id);
+      return entry ? entry.username : await super.getUsername();
     } catch (e) {
       console.log(e);
       throw new Error(e.body);

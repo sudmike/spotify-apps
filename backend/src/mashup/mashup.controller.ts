@@ -223,6 +223,7 @@ export class MashupController {
     );
 
     const playlists = await this.spotifyService.getPlaylistDetails(
+      await this.spotifyService.getUsernameByUserId(query.uuid),
       [playlist],
       (id) => {
         this.databaseService.removeUserPlaylist(id, query.uuid);
@@ -266,6 +267,7 @@ export class MashupController {
 
     const playlistIds: string[] = data.map((d) => d.id);
     const playlists = await this.spotifyService.getPlaylistDetails(
+      await this.spotifyService.getUsernameByUserId(query.uuid),
       playlistIds,
       (id) => {
         this.databaseService.removeUserPlaylist(id, query.uuid);
