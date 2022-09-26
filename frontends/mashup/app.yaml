@@ -6,10 +6,12 @@ handlers:
   - url: /(.*\.(gif|png|jpg|css|js)(|\.map))$
     static_files: dist/mashup/\1
     upload: dist/mashup/(.*)(|\.map)
+    secure: always
 
   - url: /(.*)
     static_files: dist/mashup/index.html
     upload: dist/mashup/index.html
+    secure: always
 
 skip_files:
   - e2e/
