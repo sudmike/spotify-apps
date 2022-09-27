@@ -290,7 +290,11 @@ export class DatabaseService extends IFirebaseService {
       for (const userId of Object.keys(res)) {
         const entry = res[userId];
 
-        for (const playlistId of Object.keys(entry['playlists'])) {
+        // skip user if they have no playlists
+        if (!entry.playlists) continue;
+
+        // add users playlists to array with all playlists
+        for (const playlistId of Object.keys(entry.playlists)) {
           const playlist = entry.playlists[playlistId];
           entries.push({
             user: userId,
