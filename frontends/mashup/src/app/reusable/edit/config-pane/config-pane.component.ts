@@ -6,6 +6,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { NotificationService } from '../../../services/notification.service';
+import { MatTooltip } from '@angular/material/tooltip';
 
 export enum SongSplitType {
   equal,
@@ -23,6 +24,11 @@ export class ConfigPaneComponent implements OnChanges {
   refreshInterval: 'day' | 'week' = 'week';
 
   constructor(private notification: NotificationService) {}
+
+  triggerTooltip(tooltip: MatTooltip) {
+    tooltip.show();
+    setTimeout(() => tooltip.hide(), 2000);
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     // potentially reformat days to weeks
