@@ -49,7 +49,7 @@ export class PlaylistComponent implements OnInit {
     if (!this.id) return;
     this.saveLoading = true;
     try {
-      this.artists = this.edit.getArtistData();
+      const artists: ArtistResponseFull[] = this.edit.getArtistData();
       const active: boolean = this.edit.getActive();
       const frequency: number = this.edit.getFrequency();
       const updateTitle = this.shouldTitleChange();
@@ -58,13 +58,13 @@ export class PlaylistComponent implements OnInit {
       const updateMetadata = this.hasMetadataChanged(active, frequency);
 
       if (
-        this.artists.length > 0 &&
+        artists.length > 0 &&
         !isNaN(frequency) &&
         (updateTitle || updateDescription || updateSongs || updateMetadata)
       ) {
         await this.api.updatePlaylist(
           this.id,
-          this.artists,
+          artists,
           active,
           frequency,
           updateTitle,
