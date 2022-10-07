@@ -52,9 +52,9 @@ export class PlaylistComponent implements OnInit {
       const artists: ArtistResponseFull[] = this.edit.getArtistData();
       const active: boolean = this.edit.getActive();
       const frequency: number = this.edit.getFrequency();
-      const updateTitle = this.shouldTitleChange();
-      const updateDescription = this.shouldDescriptionChange();
-      const updateSongs = this.shouldSongsChange();
+      const updateTitle = this.shouldTitleChange(artists);
+      const updateDescription = this.shouldDescriptionChange(artists);
+      const updateSongs = this.shouldSongsChange(artists);
       const updateMetadata = this.hasMetadataChanged(active, frequency);
 
       if (
@@ -107,23 +107,25 @@ export class PlaylistComponent implements OnInit {
 
   /**
    * Checks if the playlists title needs to be changed.
+   * @param artists The selected artists to check against.
    * @private
    */
-  private shouldTitleChange() {
-    const artistOrderChanged = this.hasArtistOrderChanged();
+  private shouldTitleChange(artists: ArtistResponseFull[]) {
+    const artistOrderChanged = this.hasArtistOrderChanged(artists);
     const isDefaultTitle = this.playlist?.name.includes('These are ');
     return artistOrderChanged && Boolean(isDefaultTitle);
   }
 
   /**
    * Checks if the playlists description needs to be changed.
+   * @param artists The selected artists to check against.
    * @private
    */
-  private shouldDescriptionChange() {
-    const artistOrderChanged = this.hasArtistOrderChanged();
+  private shouldDescriptionChange(artists: ArtistResponseFull[]) {
+    const artistOrderChanged = this.hasArtistOrderChanged(artists);
     const isDefaultDescription = this.playlist?.description
       .toLowerCase()
-      .includes('this playlist was auto-generated! artists are ');
+      .includes('this playlist was auto-generated! artists are');
     return artistOrderChanged && Boolean(isDefaultDescription);
   }
 
@@ -138,10 +140,11 @@ export class PlaylistComponent implements OnInit {
 
   /**
    * Checks if the playlists songs need to be changed.
+   * @param artists The selected artists to check against.
    * @private
    */
-  private shouldSongsChange() {
-    return this.hasArtistSongNumberChanged();
+  private shouldSongsChange(artists: ArtistResponseFull[]) {
+    return this.hasArtistSongNumberChanged(artists);
   }
 
   /**
@@ -158,12 +161,13 @@ export class PlaylistComponent implements OnInit {
 
   /**
    * Checks if the order of artists have changed compared to the initial artists.
+   * @param artists The selected artists to check against.
    * @private
    */
-  private hasArtistOrderChanged() {
+  private hasArtistOrderChanged(artists: ArtistResponseFull[]) {
     return (
-      this.artists.length !== this.initialArtists.length ||
-      !this.artists.every(
+      artists.length !== this.initialArtists.length ||
+      !artists.every(
         (artist, index) => artist.id === this.initialArtists[index]?.id,
       )
     );
@@ -171,12 +175,13 @@ export class PlaylistComponent implements OnInit {
 
   /**
    * Checks if the number of songs per artist have changed compared to the initial artists, disregarding their order.
+   * @param artists The selected artists to check against.
    * @private
    */
-  private hasArtistSongNumberChanged() {
+  private hasArtistSongNumberChanged(artists: ArtistResponseFull[]) {
     return (
-      this.artists.length !== this.initialArtists.length ||
-      !this.artists.every((artist) => {
+      artists.length !== this.initialArtists.length ||
+      !artists.every((artist) => {
         const initialArtist = this.initialArtists.find(
           (initialArtist) => initialArtist.name === artist.name,
         );
