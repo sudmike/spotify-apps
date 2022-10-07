@@ -2,8 +2,13 @@
   <span class="pane-header">
     <h2>Refresh</h2>
     <mat-icon
+      #tooltip="matTooltip"
+      (click)="triggerTooltip(tooltip)"
       matTooltip="Decide if this playlist should be automatically updated on a regular basis"
-      matTooltipPosition="above">info</mat-icon>
+      matTooltipPosition="above"
+    >
+      info
+    </mat-icon>
   </span>
   <mat-checkbox [(ngModel)]="active" [color]="'primary'"></mat-checkbox>
   <div>
