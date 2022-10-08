@@ -280,6 +280,7 @@ export class SpotifyService extends SpotifyTokenService {
    */
   private async generateTrackList(entries: GenerationInformationEntity[]) {
     let tracks = [];
+    const firstTracks = [];
 
     try {
       // go through each playlist and get tracks
@@ -287,11 +288,16 @@ export class SpotifyService extends SpotifyTokenService {
         // get tracks from playlist
         const tracksSubset = await this.getTracksFromPlaylist(entry.playlist);
 
-        // filter tracks and add them to array
-        tracks = tracks.concat(trimTrackSelection(tracksSubset, entry.number));
+        // filter tracks and add them to arrays
+        const tracksSubsetTrimmed = trimTrackSelection(
+          tracksSubset,
+          entry.number,
+        );
+        firstTracks.push(tracksSubsetTrimmed.at(0));
+        tracks = tracks.concat(tracksSubsetTrimmed.slice(1));
       }
 
-      return shuffleArray(tracks);
+      return firstTracks.concat(shuffleArray(tracks));
     } catch (e) {
       console.log(e);
       throw e;
