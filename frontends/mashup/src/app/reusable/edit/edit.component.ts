@@ -80,7 +80,8 @@ export class EditComponent {
       const res = await this.api.searchArtist(this.searchArtist);
 
       if (!res.artist) {
-        this.notification.warning('Could not find valid artist');
+        if (res.errorReason) this.notification.warning(res.errorReason);
+        else this.notification.warning('Could not find valid artist');
       } else if (this.table.checkForArtist(res.artist)) {
         this.notification.warning('Artist is already selected');
       } else {

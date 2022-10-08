@@ -202,11 +202,11 @@ export interface SearchArtistResponseSchema {
      */
     'query': string;
     /**
-     * Offset to the next artist batch
-     * @type {number}
+     * The reason in case a search fails
+     * @type {string}
      * @memberof SearchArtistResponseSchema
      */
-    'next': number | null;
+    'errorReason': string | null;
     /**
      * 
      * @type {SearchArtistResponseSchemaArtist}
