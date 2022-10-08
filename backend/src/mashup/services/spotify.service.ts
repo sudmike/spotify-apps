@@ -23,39 +23,48 @@ export class SpotifyService extends SpotifyTokenService {
         await super.getSpotifyApi().searchArtists(artist, { limit: 1 })
       ).body.artists;
       const entry = res.items.at(0);
-      const more: null | number = res.next ? 1 : null;
 
-      // artist has to fulfill the following requirements
-      // 0. artist needs to not be null
-      // 1. artist needs images
-      // 2. artist needs to be popular enough
-      // 3. artist need to have enough followers
-      if (
-        !entry ||
-        entry.images.length !== 3 ||
-        entry.popularity < 35 ||
-        entry.followers.total < 5000
-      ) {
-        return { query: artist, next: more, artist: null };
+      // check that artist comes into question
+      if (this.isArtistRelevant(entry)) {
+        // check if there are artists with similar names
+        const alternatives = (
+          await super.getSpotifyApi().searchArtists(entry.name, { limit: 3 })
+        ).body.artists.items;
+
+        const doAlternativesExist =
+          alternatives &&
+          alternatives.filter((alternative) => {
+            // alternative comes into question if it is not the original, is relevant and is similar in name to the original
+            return (
+              alternative.id !== entry.id &&
+              this.isArtistRelevant(alternative) &&
+              this.similarity(entry.name, alternative.name) > 0.7
+            );
+          }).length > 0;
+
+        // check for 'This is XYZ' playlist
+        const playlist = await this.getThisIsPlaylistId(
+          entry.name,
+          entry.uri,
+          doAlternativesExist,
+        );
+
+        if (!entry || !playlist) return { query: artist, artist: null };
+        else entry.href = playlist;
+
+        return {
+          query: artist,
+          artist: {
+            id: entry.id,
+            name: entry.name,
+            images: entry.images.map((image) => image.url),
+            playlist: entry.href,
+            number: null,
+          },
+        };
+      } else {
+        return { query: artist, artist: null };
       }
-
-      // check for 'This is XYZ' playlist
-      const playlist = await this.getThisIsPlaylistId(entry.name);
-      if (!entry || !playlist)
-        return { query: artist, next: more, artist: null };
-      else entry.href = playlist;
-
-      return {
-        query: artist,
-        next: more,
-        artist: {
-          id: entry.id,
-          name: entry.name,
-          images: entry.images.map((image) => image.url),
-          playlist: entry.href,
-          number: null,
-        },
-      };
     } catch (e) {
       console.log(e);
       throw e;
@@ -275,6 +284,26 @@ export class SpotifyService extends SpotifyTokenService {
   }
 
   /**
+   * Return true if the artist is relevant and false if not.
+   * Check comments in implementation to see metrics.
+   * @param artist The artist object.
+   * @private
+   */
+  private isArtistRelevant(artist: SpotifyApi.ArtistObjectFull): boolean {
+    // artist has to fulfill the following requirements to be relevant
+    // 0. artist needs to not be null
+    // 1. artist needs images
+    // 2. artist needs to be popular enough
+    // 3. artist need to have enough followers
+    return (
+      artist &&
+      artist.images.length >= 3 &&
+      artist.popularity >= 35 &&
+      artist.followers.total >= 5000
+    );
+  }
+
+  /**
    * Returns a list of song IDs that are extracted from the playlists which are passed.
    * @param entries These contain the IDs of playlists and the number of songs that should be extracted.
    * @private
@@ -359,9 +388,15 @@ export class SpotifyService extends SpotifyTokenService {
   /**
    * Returns the id of an artists 'This is XYZ' playlist or undefined if there is none.
    * @param artist The name of the artist.
+   * @param artistUri The URI of the artist.
+   * @param deepCheck Flag that decides if the artist's playlist needs extra checks.
    * @private
    */
-  private async getThisIsPlaylistId(artist: string) {
+  private async getThisIsPlaylistId(
+    artist: string,
+    artistUri: string,
+    deepCheck: boolean,
+  ) {
     if (!artist) return undefined;
 
     try {
@@ -370,14 +405,32 @@ export class SpotifyService extends SpotifyTokenService {
         .searchPlaylists('This is ' + artist, { limit: 1 });
       const playlist = res.body.playlists.items?.at(0);
 
-      // only return playlist if it's the right playlist
+      // do a static check of the playlist
       if (
         playlist &&
         playlist.owner.id === 'spotify' &&
-        this.similarity(artist, playlist.name.substring(8)) > 0.75
-      )
-        return playlist.id;
-      else return undefined;
+        this.similarity(artist, playlist.name.substring(8)) >= 0.75
+      ) {
+        if (!deepCheck) return playlist.id;
+        else {
+          // ensure that tracks in playlist are from artist
+          const artistUrisPerTrack = (
+            await super.getSpotifyApi().getPlaylistTracks(playlist.id, {
+              limit: 5,
+              fields: 'items(track(artists.uri))',
+            })
+          ).body.items.map((item) =>
+            item.track.artists.map((artist) => artist.uri),
+          );
+
+          const correctArtist: boolean = artistUrisPerTrack.every(
+            (artistUris) => artistUris.indexOf(artistUri) > -1,
+          );
+
+          return correctArtist ? playlist.id : undefined;
+        }
+      }
+      return playlist.id;
     } catch (e) {
       console.log(e);
       throw e;
