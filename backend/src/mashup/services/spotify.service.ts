@@ -49,7 +49,12 @@ export class SpotifyService extends SpotifyTokenService {
           doAlternativesExist,
         );
 
-        if (!entry || !playlist) return { query: artist, artist: null };
+        if (!entry || !playlist)
+          return {
+            query: artist,
+            artist: null,
+            errorReason: "Artist does not have a 'This Is' playlist",
+          };
         else entry.href = playlist;
 
         return {
@@ -61,9 +66,14 @@ export class SpotifyService extends SpotifyTokenService {
             playlist: entry.href,
             number: null,
           },
+          errorReason: null,
         };
       } else {
-        return { query: artist, artist: null };
+        return {
+          query: artist,
+          artist: null,
+          errorReason: 'Could not find artist',
+        };
       }
     } catch (e) {
       console.log(e);
@@ -304,6 +314,34 @@ export class SpotifyService extends SpotifyTokenService {
   }
 
   /**
+   * Returns the 'This Is' playlist that is most likely to belong to the artist.
+   * @param playlists The playlists that come into question.
+   * @param artist The name of the artist to match against.
+   * @private
+   */
+  private getCorrectThisIsPlaylist(
+    playlists: SpotifyApi.PlaylistObjectSimplified[],
+    artist: string,
+  ): SpotifyApi.PlaylistObjectSimplified | undefined {
+    if (!playlists) return undefined;
+
+    // remove all playlists that are unfit
+    const validPlaylists = playlists.filter(
+      (playlist) =>
+        playlist.owner.id === 'spotify' &&
+        this.similarity(artist, playlist.name.substring(8)) >= 0.75,
+    );
+
+    const sortedPlaylists = validPlaylists.sort((p1, p2) =>
+      this.similarity(artist, p1.name) > this.similarity(artist, p2.name)
+        ? -1
+        : 1,
+    );
+
+    return sortedPlaylists ? sortedPlaylists.at(0) : undefined;
+  }
+
+  /**
    * Returns a list of song IDs that are extracted from the playlists which are passed.
    * @param entries These contain the IDs of playlists and the number of songs that should be extracted.
    * @private
@@ -402,15 +440,15 @@ export class SpotifyService extends SpotifyTokenService {
     try {
       const res = await super
         .getSpotifyApi()
-        .searchPlaylists('This is ' + artist, { limit: 1 });
-      const playlist = res.body.playlists.items?.at(0);
+        .searchPlaylists('This is ' + artist, { limit: 3 });
+
+      const playlist = this.getCorrectThisIsPlaylist(
+        res.body.playlists?.items,
+        artist,
+      );
 
       // do a static check of the playlist
-      if (
-        playlist &&
-        playlist.owner.id === 'spotify' &&
-        this.similarity(artist, playlist.name.substring(8)) >= 0.75
-      ) {
+      if (playlist) {
         if (!deepCheck) return playlist.id;
         else {
           // ensure that tracks in playlist are from artist
@@ -429,8 +467,7 @@ export class SpotifyService extends SpotifyTokenService {
 
           return correctArtist ? playlist.id : undefined;
         }
-      }
-      return playlist.id;
+      } else return undefined;
     } catch (e) {
       console.log(e);
       throw e;
