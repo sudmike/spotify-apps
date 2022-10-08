@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import {
+  cleanArray,
   generatePlaylistDescription,
   generatePlaylistTitle,
   shuffleArray,
@@ -297,7 +298,7 @@ export class SpotifyService extends SpotifyTokenService {
         tracks = tracks.concat(tracksSubsetTrimmed.slice(1));
       }
 
-      return firstTracks.concat(shuffleArray(tracks));
+      return cleanArray(firstTracks.concat(shuffleArray(tracks)));
     } catch (e) {
       console.log(e);
       throw e;
