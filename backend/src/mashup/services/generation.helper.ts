@@ -13,6 +13,14 @@ export function shuffleArray(array: any[]): any[] {
 }
 
 /**
+ * Cleans string array by removing all duplicate elements.
+ * @param array The array that should be cleaned.
+ */
+export function cleanArray(array: string[]): string[] {
+  return array.filter((value, index, self) => self.indexOf(value) === index);
+}
+
+/**
  * Returns text for a playlist title based on the artists that are passed in.
  * @param artists IDs of the artists.
  */
