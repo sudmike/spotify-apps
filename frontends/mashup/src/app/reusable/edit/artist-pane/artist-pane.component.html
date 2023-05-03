@@ -15,14 +15,20 @@
 
   <ng-container matColumnDef="image">
     <th *matHeaderCellDef mat-header-cell>Picture</th>
-    <td *matCellDef="let artist" mat-cell><img *ngIf="artist.images[2]"
-                                               alt="{{artist.name}} picture"
-                                               src="{{artist.images[2]}}"></td>
+    <td *matCellDef="let artist" mat-cell>
+      <a [href]="'https://open.spotify.com/artist/' + artist.id" target="_blank">
+        <img *ngIf="artist.images[2]"
+             alt="{{artist.name}} picture"
+             src="{{artist.images[2]}}">
+      </a>
+    </td>
   </ng-container>
   <ng-container matColumnDef="name">
     <th *matHeaderCellDef mat-header-cell>Name</th>
     <td *matCellDef="let artist" mat-cell>
-      {{artist.name}}
+      <a [href]="'https://open.spotify.com/artist/' + artist.id" target="_blank">
+        {{artist.name}}
+      </a>
     </td>
   </ng-container>
   <ng-container matColumnDef="remove">

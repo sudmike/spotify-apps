@@ -50,7 +50,7 @@ export function generatePlaylistDescription(artists: string[]): string {
     playlistDescription += ', ' + artists[i];
   playlistDescription += ` and ${
     artists[artists.length - 1]
-  }. Created with spotify-mashup.com`;
+  }. Created with mashup-music.com`;
 
   return playlistDescription;
 }

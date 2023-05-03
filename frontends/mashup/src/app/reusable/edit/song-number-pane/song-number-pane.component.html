@@ -20,7 +20,9 @@
         <ng-container matColumnDef="name">
           <th *matHeaderCellDef mat-header-cell>Name</th>
           <td *matCellDef="let data" mat-cell>
-            {{data.name}}
+            <a [href]="'https://open.spotify.com/artist/' + data.id" target="_blank">
+              {{data.name}}
+            </a>
           </td>
         </ng-container>
         <ng-container matColumnDef="songs">
