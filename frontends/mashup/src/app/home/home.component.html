@@ -1,11 +1,6 @@
 <div class="mat-typography app-frame mat-app-background">
-  <div fxLayout.gt-md="row wrap" fxLayout.lt-lg="column" fxLayoutAlign.gt-md="space-between"
-       fxLayoutGap="1em grid"
-       style="height: 100%"
-  >
-    <div [ngClass.gt-md]="{'hor-div-one': true}" [ngClass.lt-lg]="{'vert-div-one': true}"
-         [ngClass.xl]="{'hor-div-one': true, 'large': true}"
-         fxFlex.gt-md="60%">
+  <div fxLayoutAlign="center" style="height: 100%">
+    <div [ngClass]="{'vert-div-one': true}">
       <h1>Stop worrying about stale playlists!</h1>
       <br>
       <h2>Create Spotify playlists that stay up to date with your favorite artists now.</h2> <br>
@@ -17,9 +12,9 @@
         <img alt="Spotify Icon" class="icon" src="assets/spotify/Spotify_logo_without_text.png"/>
       </button>
     </div>
-    <div [ngClass.gt-md]="{'hor-div-two': true}" [ngClass.lt-lg]="{'vert-div-two': true}"
-         fxFlex.gt-md="40%">
-      <img *ngIf="imageSource" [alt]="imageSource" [src]="imageSource"/>
-    </div>
+<!--    <div [ngClass.gt-md]="{'hor-div-two': true}" [ngClass.lt-lg]="{'vert-div-two': true}"-->
+<!--         fxFlex.gt-md="40%">-->
+<!--      <img *ngIf="imageSource" [alt]="imageSource" [src]="imageSource"/>-->
+<!--    </div>-->
   </div>
 </div>

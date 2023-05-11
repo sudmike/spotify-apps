@@ -1,11 +1,11 @@
 <mat-card>
-  <a [routerLink]="'/playlist/' + data.id">
+  <a [href]="'https://open.spotify.com/playlist/' + data.id" target="_blank">
     <img *ngIf="data.playlist.images[0]"
          alt="{{data.playlist.name}}"
          mat-card-image
          src="{{data.playlist.images[0]}}">
   </a>
-  <a [routerLink]="'/playlist/' + data.id">
+  <a [href]="'https://open.spotify.com/playlist/' + data.id" target="_blank">
     <mat-card-title>{{data.playlist.name}}</mat-card-title>
   </a>
   <mat-card-actions>
@@ -16,5 +16,10 @@
             mat-fab>
       <mat-icon>refresh</mat-icon>
     </button>
+    <a [routerLink]="'/playlist/' + data.id">
+      <button class="starry" color="accent" mat-fab>
+        <mat-icon>edit</mat-icon>
+      </button>
+    </a>
   </mat-card-actions>
 </mat-card>
