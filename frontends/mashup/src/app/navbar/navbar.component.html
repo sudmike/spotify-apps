@@ -1,14 +1,25 @@
 <mat-toolbar *ngIf="show" ngClass.xs="mobile">
-  <span [routerLink]="['/dashboard']">
-    <img alt="mashup logo" src="../../assets/mashup-logo.png">
-  </span>
-  <span class="example-spacer"></span>
-  <a [routerLink]="['/dashboard']" mat-button>
-    <mat-icon class="gold-icon">dashboard</mat-icon>
-    Dashboard
-  </a>
-  <a [routerLink]="['/create']" mat-button>
-    <mat-icon class="gold-icon">add_box</mat-icon>
-    Create
-  </a>
+  <div>
+    <span [routerLink]="['/dashboard']">
+      <img alt="mashup logo" src="../../assets/mashup-logo.png">
+    </span>
+    <span class="example-spacer"></span>
+    <a [routerLink]="['/dashboard']" mat-button>
+      <mat-icon class="gold-icon">dashboard</mat-icon>
+      Dashboard
+    </a>
+    <a [routerLink]="['/create']" mat-button>
+      <mat-icon class="gold-icon">add_box</mat-icon>
+      Create
+    </a>
+  </div>
+  <div>
+    <button mat-fab color="secondary" [matMenuTriggerFor]="menu">
+      <mat-icon>person</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="logoutAccount()">Logout</button>
+      <button mat-menu-item [style]="'color: red'" (click)="deleteUser()">Delete Account</button>
+    </mat-menu>
+  </div>
 </mat-toolbar>

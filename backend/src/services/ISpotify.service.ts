@@ -20,8 +20,13 @@ export abstract class ISpotifyService {
    * Starts off the OAuth flow by creating and returning URL for OAuth redirection.
    * @param scopes The scopes that are requested from Spotify.
    * @param frontendHost The host that called the login endpoint. This will be used for the redirect on callback.
+   * @param showDialog Should the Spotify consent screen be shown.
    */
-  loginRedirect(scopes: string[], frontendHost: string): string {
+  loginRedirect(
+    scopes: string[],
+    frontendHost: string,
+    showDialog: boolean,
+  ): string {
     const state = generateRandomString(32);
     const timeoutHandler = setTimeout(
       () => this.removeState(state),
@@ -29,7 +34,7 @@ export abstract class ISpotifyService {
     );
     this.states.push({ state, frontendHost, timeoutHandler });
 
-    return this.spotifyApi.createAuthorizeURL(scopes, state);
+    return this.spotifyApi.createAuthorizeURL(scopes, state, showDialog);
   }
 
   /**

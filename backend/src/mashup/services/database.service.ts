@@ -241,6 +241,28 @@ export class DatabaseService extends IFirebaseService {
   }
 
   /**
+   * Deletes a user.
+   * @param userId A UUID that identifies the user.
+   */
+  async deleteUser(userId: string) {
+    try {
+      // get user playlist IDs
+      const res = await super.getEntryField('users', userId, ['playlists']);
+      const playlistIds = res ? Object.keys(res) : [];
+
+      // remove users playlists from database
+      for (const playlistId of playlistIds)
+        await super.removeEntry('playlists', playlistId);
+
+      // remove user from database
+      await super.removeEntry('users', userId);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
+  /**
    * Sets last updated time of a playlist to now.
    * @param userId A UUID that identifies the user.
    * @param playlistId The ID of the playlist.

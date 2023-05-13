@@ -33,6 +33,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SongNumberPaneComponent } from './reusable/edit/song-number-pane/song-number-pane.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatMenuModule } from '@angular/material/menu';
 
 @NgModule({
   declarations: [
@@ -70,6 +72,8 @@ import { MatSliderModule } from '@angular/material/slider';
     MatCheckboxModule,
     MatTooltipModule,
     MatSliderModule,
+    MatButtonToggleModule,
+    MatMenuModule,
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent],

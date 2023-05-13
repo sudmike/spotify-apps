@@ -61,6 +61,7 @@ export class MashupController {
     const url = this.spotifyService.loginRedirect(
       this.spotifyScope,
       frontendHost,
+      true,
     );
 
     return { url };
@@ -318,5 +319,13 @@ export class MashupController {
       playlist,
       false,
     );
+  }
+
+  @Post('deleteUser')
+  @HttpCode(204)
+  @UseGuards(AuthGuard)
+  @UseInterceptors(SpotifyTokenInterceptor)
+  async deleteUser(@Body() body: BaseSchema | any) {
+    await this.databaseService.deleteUser(body.uuid);
   }
 }

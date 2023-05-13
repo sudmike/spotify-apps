@@ -154,4 +154,17 @@ export class ApiService {
       throw new Error('Failed to update playlist');
     }
   }
+
+  async deleteUser() {
+    try {
+      await this.api.mashupControllerDeleteUser(
+        ApiService.getAuthorizationHeader(),
+      );
+    } catch (e) {
+      // send out error
+      ApiService.checkForUnauthorizedException(e);
+      this.notification.error('Failed to delete user');
+      throw new Error('Failed to delete user');
+    }
+  }
 }
