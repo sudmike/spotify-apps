@@ -16,6 +16,7 @@
             mat-fab>
       <mat-icon>refresh</mat-icon>
     </button>
+    <a [ngClass]="{'spotify-icon': true}" [href]="'https://open.spotify.com/playlist/' + data.id" target="_blank" mat-fab></a>
     <a [routerLink]="'/playlist/' + data.id">
       <button class="starry" color="accent" mat-fab>
         <mat-icon>edit</mat-icon>

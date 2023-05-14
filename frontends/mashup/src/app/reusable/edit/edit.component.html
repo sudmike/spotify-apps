@@ -2,25 +2,37 @@
   fxLayout.gt-md="row" fxLayout.xs="column" fxLayoutAlign.gt-md="space-between"
   fxLayoutGap="1em grid" ngClass.lt-lg="mobile">
   <mat-card class="artist-table-card" fxFlex.gt-md="60%" fxFlex.lt-lg="100%">
-    <form>
-      <mat-form-field>
-        <mat-label>Add artist</mat-label>
-        <input
-          (keyup.enter)="onSearchArtist()" [(ngModel)]="searchArtist"
-          [ngModelOptions]="{standalone: true}" autocomplete="off" matInput
-          type="text">
-        <button
-          (click)="onSearchArtist()"
-          [class.spinner]="searchLoading" [disabled]="searchLoading" aria-label="Add"
-          mat-icon-button
-          matSuffix>
-          <mat-icon>add</mat-icon>
-        </button>
-      </mat-form-field>
-    </form>
-    <app-artist-pane
-      (artistChange)="onArtistChange($event)" [artists]="artists"
-      class="scrollable-content"></app-artist-pane>
+    <mat-card-header>
+      <form>
+        <mat-form-field>
+          <mat-label>Add artist</mat-label>
+          <input
+            (keyup.enter)="onSearchArtist()" [(ngModel)]="searchArtist"
+            [ngModelOptions]="{standalone: true}" autocomplete="off" matInput
+            type="text">
+          <button
+            (click)="onSearchArtist()"
+            [class.spinner]="searchLoading" [disabled]="searchLoading" aria-label="Add"
+            mat-icon-button
+            matSuffix>
+            <mat-icon>add</mat-icon>
+          </button>
+        </mat-form-field>
+      </form>
+    </mat-card-header>
+    <mat-card-content>
+      <app-artist-pane (artistChange)="onArtistChange($event)" [artists]="artists" class="scrollable-content"></app-artist-pane>
+    </mat-card-content>
+    <mat-card-footer>
+      <div>
+        <p>
+          Metadata provided by
+          <a [href]="'https://spotify.com'" target="_blank">
+            <img alt="Spotify Logo" class="icon" src="assets/spotify/Spotify_logo_with_text.png"/>
+          </a>
+        </p>
+      </div>
+    </mat-card-footer>
   </mat-card>
 
   <div fxFlex.gt-md="40%" fxFlex.lt-lg="100%" ngClass.lt-lg="mobile">

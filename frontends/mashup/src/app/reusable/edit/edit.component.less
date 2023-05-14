@@ -35,3 +35,46 @@ app-artist-pane.scrollable-content {
   overflow: auto;
   display: flex;
 }
+
+mat-card mat-card-footer {
+  margin: 0;
+  padding: 0 1em;
+}
+
+mat-card mat-card-footer p {
+  margin: 0;
+}
+
+mat-card mat-card-footer img {
+  padding-left: 0.3em;
+  height: 2.5em;
+  vertical-align: middle;
+  min-width: 70px;
+}
+
+.mobile mat-card mat-card-footer {
+  margin: -0.5em 0 0;
+  padding-bottom: 0.5em;
+}
+
+mat-card.artist-table-card {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-card.artist-table-card mat-card-header {
+  flex-shrink: 0;
+}
+
+mat-card.artist-table-card mat-card-header form {
+  width: 100%;
+}
+
+::ng-deep .mat-card-header-text {
+  display: none;
+}
+
+mat-card.artist-table-card mat-card-content{
+  flex-grow: 1;
+  overflow: auto;
+}
