@@ -1,19 +1,19 @@
-<mat-toolbar *ngIf="show" ngClass.xs="mobile">
+<mat-toolbar *ngIf="this.show" ngClass.xs="mobile">
   <div>
-    <span [routerLink]="['/dashboard']">
+    <a [routerLink]="['/']">
       <img alt="mashup logo" src="../../assets/mashup-logo.png">
-    </span>
+    </a>
     <span class="example-spacer"></span>
-    <a [routerLink]="['/dashboard']" mat-button>
+    <a *ngIf="this.loggedIn" [routerLink]="['/dashboard']" mat-button>
       <mat-icon class="gold-icon">dashboard</mat-icon>
       Dashboard
     </a>
-    <a [routerLink]="['/create']" mat-button>
+    <a *ngIf="this.loggedIn" [routerLink]="['/create']" mat-button>
       <mat-icon class="gold-icon">add_box</mat-icon>
       Create
     </a>
   </div>
-  <div>
+  <div *ngIf="this.loggedIn">
     <button mat-fab color="secondary" [matMenuTriggerFor]="menu">
       <mat-icon>person</mat-icon>
     </button>
