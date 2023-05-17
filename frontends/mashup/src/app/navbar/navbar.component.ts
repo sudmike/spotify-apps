@@ -9,11 +9,14 @@ import { ApiService } from '../services/api.service';
 })
 export class NavbarComponent implements OnInit {
   show = false;
+  loggedIn = false;
 
   constructor(private router: Router, private api: ApiService) {
     this.router.events.subscribe((val) => {
-      if (val instanceof NavigationEnd)
-        this.show = window.location.pathname !== '/';
+      if (val instanceof NavigationEnd) {
+        this.setShow();
+        this.setLoggedIn();
+      }
     });
   }
 
@@ -40,6 +43,15 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.setShow();
+    this.setLoggedIn();
+  }
+
+  private setShow() {
     this.show = window.location.pathname !== '/';
+  }
+
+  private setLoggedIn() {
+    this.loggedIn = !!localStorage.getItem('id');
   }
 }
