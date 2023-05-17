@@ -35,6 +35,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatMenuModule } from '@angular/material/menu';
+import { LearnComponent } from './learn/learn.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { MatMenuModule } from '@angular/material/menu';
     ConfigPaneComponent,
     NavbarComponent,
     SongNumberPaneComponent,
+    LearnComponent,
   ],
   imports: [
     BrowserModule,
