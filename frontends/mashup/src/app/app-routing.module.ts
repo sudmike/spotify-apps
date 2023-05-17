@@ -6,6 +6,7 @@ import { AuthGuard } from './_guards/auth.guard';
 import { CreateComponent } from './create/create.component';
 import { PlaylistComponent } from './playlist/playlist.component';
 import { HomeComponent } from './home/home.component';
+import { LearnComponent } from './learn/learn.component';
 
 const routes: Routes = [
   { path: 'login/callback', component: CallbackComponent },
@@ -13,6 +14,10 @@ const routes: Routes = [
     path: 'dashboard',
     component: DashboardComponent,
     canActivate: [AuthGuard],
+  },
+  {
+    path: 'learn-more',
+    component: LearnComponent,
   },
   {
     path: 'create',

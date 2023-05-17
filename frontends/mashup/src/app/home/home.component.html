@@ -1,16 +1,20 @@
 <div class="mat-typography app-frame mat-app-background">
   <div fxLayoutAlign="center" style="height: 100%">
     <div [ngClass]="{'vert-div-one': true}">
-      <h1>Stop worrying about stale playlists!</h1>
-      <br>
-      <h2>Create Spotify playlists that stay up to date with your favorite artists now.</h2> <br>
-      <button (click)="redirectLoading = true" [class.spinner]="redirectLoading"
-              [disabled]="redirectLoading"
-              [routerLink]="'/dashboard'"
-              mat-raised-button
-      >Login with
-        <img alt="Spotify Logo" class="icon" src="assets/spotify/Spotify_logo_with_text.png"/>
-      </button>
+      <h1>Stop worrying about stale playlists!</h1><br>
+      <h2>Create Spotify playlists that stay up to date with your favorite artists now.</h2><br>
+      <div class="button-container" ngClass.xs="mobile">
+        <button (click)="redirectLoading = true" [class.spinner]="redirectLoading"
+                [disabled]="redirectLoading"
+                [routerLink]="'/dashboard'"
+                mat-raised-button
+        >Login with
+          <img alt="Spotify Logo" class="icon" src="assets/spotify/Spotify_logo_with_text.png"/>
+        </button>
+        <button [routerLink]="'/learn-more'" mat-raised-button>
+          Learn more
+        </button>
+      </div>
     </div>
   </div>
 </div>
