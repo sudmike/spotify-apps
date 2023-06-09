@@ -371,7 +371,7 @@ export const MashupApiAxiosParamCreator = function (configuration?: Configuratio
          * @throws {RequiredError}
          */
         mashupControllerDeleteUser: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/mashup/deleteUser`;
+            const localVarPath = `/mashup/user`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -379,7 +379,7 @@ export const MashupApiAxiosParamCreator = function (configuration?: Configuratio
                 baseOptions = configuration.baseOptions;
             }
 
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 

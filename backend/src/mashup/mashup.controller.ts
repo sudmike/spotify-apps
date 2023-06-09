@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   HttpCode,
@@ -321,7 +322,7 @@ export class MashupController {
     );
   }
 
-  @Post('deleteUser')
+  @Delete('user')
   @HttpCode(204)
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
