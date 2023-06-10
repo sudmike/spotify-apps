@@ -298,10 +298,13 @@ export class DatabaseService extends IFirebaseService {
 
   /**
    * Get all active playlists.
+   * @param activeFlag Return only playlists that are marked as active.
+   * @param refreshNeededFlag Return only playlists that are in need of a refresh.
    */
-  async getAllActivePlaylists(): Promise<
-    { playlist: PlaylistDataComplete; user: string }[]
-  > {
+  async getAllPlaylists(
+    activeFlag: boolean,
+    refreshNeededFlag: boolean,
+  ): Promise<{ playlist: PlaylistDataComplete; user: string }[]> {
     // get ALL user data to access related playlists
     const res = await super.getEntry('users', '');
 
@@ -330,22 +333,24 @@ export class DatabaseService extends IFirebaseService {
       }
 
       // filter out playlists that should not be updated or miss crucial data
-      entries = entries.filter(
-        (entry) =>
-          entry.playlist.active &&
-          entry.playlist.updated &&
-          entry.playlist.frequency,
-      );
+      if (activeFlag)
+        entries = entries.filter(
+          (entry) =>
+            entry.playlist.active &&
+            entry.playlist.updated &&
+            entry.playlist.frequency,
+        );
 
       // filter out playlists that are not old
-      entries = entries.filter((entry) => {
-        const currentTime = new Date().getTime();
-        const expirationTime =
-          entry.playlist.updated +
-          entry.playlist.frequency * 24 * 60 * 60 * 1000 -
-          60 * 60 * 1000; // include one hour of lenience
-        return currentTime > expirationTime;
-      });
+      if (refreshNeededFlag)
+        entries = entries.filter((entry) => {
+          const currentTime = new Date().getTime();
+          const expirationTime =
+            entry.playlist.updated +
+            entry.playlist.frequency * 24 * 60 * 60 * 1000 -
+            60 * 60 * 1000; // include one hour of lenience
+          return currentTime > expirationTime;
+        });
 
       // enhance with data about related artists
       for (const entry of entries) {
