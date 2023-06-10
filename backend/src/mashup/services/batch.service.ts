@@ -9,6 +9,9 @@ export class BatchService {
     private readonly databaseService: DatabaseService,
   ) {}
 
+  /**
+   * Refreshes all playlists that are scheduled to be updated.
+   */
   async refreshAllPlaylists(): Promise<void> {
     // fetch all playlists that should be refreshed
     const data = await this.databaseService.getAllPlaylists(true, true);
@@ -28,7 +31,11 @@ export class BatchService {
     );
   }
 
-  async checkAllPlaylists(): Promise<void> {
+  /**
+   * Checks all playlists for their existence and description/title.
+   * @param bold Update description and title even when default is found. This is useful for rare cases like an artist changing their name.
+   */
+  async checkAllPlaylists(bold: boolean): Promise<void> {
     // fetch all playlists that should be checked
     const data = await this.databaseService.getAllPlaylists(false, false);
     if (!data) return;
@@ -61,9 +68,18 @@ export class BatchService {
         },
       );
 
-      // update descriptions if they are empty
       for (const playlist of playlists) {
-        if (playlist.details.description == '') {
+        // check if description and title need to be updated
+        const updateEmptyDescription = playlist.details.description == '';
+        const updateOriginalDescription = playlist.details.description
+          .toLowerCase()
+          .includes('this playlist was auto-generated! artists are');
+        const updateDescription =
+          updateEmptyDescription || (updateOriginalDescription && bold);
+        const updateTitle =
+          playlist.details.name.toLowerCase().includes('these are ') && bold;
+
+        if (updateDescription || updateTitle) {
           // get artist names because they are necessary to generate the description
           const artistIDs = value
             .find((v) => v.id == playlist.id)
@@ -73,10 +89,11 @@ export class BatchService {
           );
           const artistNames = artistDetails.map((a) => a.details.name);
 
-          // update description of Spotify playlist
-          await this.spotifyService.regenerateDescription(
+          await this.spotifyService.regenerateDetails(
             playlist.id,
             artistNames,
+            updateTitle,
+            updateDescription,
           );
         }
       }

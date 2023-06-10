@@ -271,13 +271,27 @@ export class SpotifyService extends SpotifyTokenService {
   }
 
   /**
-   * Regenerates the description for an already created playlist.
+   * Regenerates the details for an already created playlist.
    * @param playlist The ID of the playlist.
    * @param artistNames The names of artists to base the description on.
+   * @param titleFlag Should the playlists title be updated.
+   * @param descriptionFlag Should the playlists description be updated.
    */
-  async regenerateDescription(playlist: string, artistNames: string[]) {
+  async regenerateDetails(
+    playlist: string,
+    artistNames: string[],
+    titleFlag: boolean,
+    descriptionFlag: boolean,
+  ) {
+    if (!titleFlag && !descriptionFlag) return;
+
+    const title = generatePlaylistTitle(artistNames);
     const description = generatePlaylistDescription(artistNames);
-    await this.getSpotifyApi().changePlaylistDetails(playlist, { description });
+
+    await this.getSpotifyApi().changePlaylistDetails(playlist, {
+      name: titleFlag ? title : undefined,
+      description: descriptionFlag ? description : undefined,
+    });
   }
 
   /**
