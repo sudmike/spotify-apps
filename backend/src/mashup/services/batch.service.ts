@@ -11,7 +11,7 @@ export class BatchService {
 
   async refreshAllPlaylists(): Promise<void> {
     // fetch all playlists that should be refreshed
-    const data = await this.databaseService.getAllActivePlaylists();
+    const data = await this.databaseService.getAllPlaylists(true, true);
     if (!data) return;
 
     // refresh all playlists
