@@ -107,6 +107,13 @@ export class MashupController {
     await this.batchService.refreshAllPlaylists();
   }
 
+  @Post('batch/check')
+  @UseGuards(BatchGuard)
+  @ApiExcludeEndpoint()
+  async checkPlaylists() {
+    await this.batchService.checkAllPlaylists();
+  }
+
   @Post('auth')
   @UseGuards(AuthGuard)
   @UseInterceptors(SpotifyTokenInterceptor)
