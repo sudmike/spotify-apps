@@ -271,6 +271,16 @@ export class SpotifyService extends SpotifyTokenService {
   }
 
   /**
+   * Regenerates the description for an already created playlist.
+   * @param playlist The ID of the playlist.
+   * @param artistNames The names of artists to base the description on.
+   */
+  async regenerateDescription(playlist: string, artistNames: string[]) {
+    const description = generatePlaylistDescription(artistNames);
+    await this.getSpotifyApi().changePlaylistDetails(playlist, { description });
+  }
+
+  /**
    * Returns true if user follows playlist and false if not.
    * @param id The ID of the playlist.
    * @param user The ID of the user.
