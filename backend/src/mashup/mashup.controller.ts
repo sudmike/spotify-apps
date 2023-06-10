@@ -51,7 +51,7 @@ export class MashupController {
   constructor(
     private readonly spotifyService: SpotifyService,
     private readonly databaseService: DatabaseService,
-    private readonly refreshService: BatchService,
+    private readonly batchService: BatchService,
   ) {}
 
   @Get('login')
@@ -100,11 +100,11 @@ export class MashupController {
     return { url: `${spotifyData.frontendHost}/login/callback?id=${uuid}` };
   }
 
-  @Post('refresh')
+  @Post('batch/refresh')
   @UseGuards(BatchGuard)
   @ApiExcludeEndpoint()
   async refreshPlaylists() {
-    await this.refreshService.refreshAllPlaylists();
+    await this.batchService.refreshAllPlaylists();
   }
 
   @Post('auth')
