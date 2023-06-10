@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -110,8 +111,19 @@ export class MashupController {
   @Post('batch/check')
   @UseGuards(BatchGuard)
   @ApiExcludeEndpoint()
-  async checkPlaylists() {
-    await this.batchService.checkAllPlaylists();
+  async checkPlaylists(@Query() query) {
+    // check query parameter first
+    const bold = query.bold;
+    if (!bold || bold == '')
+      return new BadRequestException(
+        `Query parameter 'bold' must be present!'`,
+      );
+    if (bold !== 'true' && bold !== 'false')
+      return new BadRequestException(
+        `Query parameter 'bold' must be either 'true' or 'false'! Value received: '${bold}'`,
+      );
+
+    await this.batchService.checkAllPlaylists(bold === 'true');
   }
 
   @Post('auth')
