@@ -6,12 +6,14 @@ import { Log, Logging } from '@google-cloud/logging';
 // ---------------------------------------------
 export enum LogKey {
   batchService,
+  spotifyService,
 }
 
 @Injectable()
 export class LoggingService {
   logging = new Logging();
   batchLog = this.logging.log('batch-service-log');
+  spotifyLog = this.logging.log('spotify-service-log');
 
   correlatedLogMetadata: Map<
     string,
@@ -113,7 +115,6 @@ export class LoggingService {
     // write to log
     const log = this.getLogByKey(metadata.logKey);
     log.write(log.entry({ severity: metadata.severity }, json));
-    console.log(json);
   }
 
   /**
@@ -141,6 +142,8 @@ export class LoggingService {
     switch (logKey) {
       case LogKey.batchService:
         return this.batchLog;
+      case LogKey.spotifyService:
+        return this.spotifyLog;
     }
   }
 }

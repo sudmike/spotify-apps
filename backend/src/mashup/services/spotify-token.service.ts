@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from './database.service';
 import { ISpotifyService } from '../../services/ISpotify.service';
+import { LoggingService } from './logging.service';
 
 @Injectable()
 export class SpotifyTokenService extends ISpotifyService {
@@ -15,7 +16,10 @@ export class SpotifyTokenService extends ISpotifyService {
     }
   >();
 
-  constructor(private readonly databaseService: DatabaseService) {
+  constructor(
+    private readonly databaseService: DatabaseService,
+    protected readonly loggingService: LoggingService,
+  ) {
     const spotifyCredentials = {
       clientId: process.env.SPOTIFY_CLIENT_ID_MASHUP,
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET_MASHUP,
