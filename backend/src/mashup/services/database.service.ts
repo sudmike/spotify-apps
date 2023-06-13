@@ -5,10 +5,11 @@ import {
 } from '@nestjs/common';
 import { IFirebaseService } from '../../services/external/IFirebase.service';
 import * as fs from 'fs';
+import { LoggingService, LogKey } from './logging.service';
 
 @Injectable()
 export class DatabaseService extends IFirebaseService {
-  constructor() {
+  constructor(private readonly loggingService: LoggingService) {
     super();
     const credentialsFromFile = JSON.parse(
       fs.readFileSync(
@@ -26,6 +27,7 @@ export class DatabaseService extends IFirebaseService {
   async addUser(userId: string): Promise<string> {
     try {
       await super.updateEntry('users', userId, {});
+      this.logData('add-user', `Added user ${userId}`, { userId });
       return userId;
     } catch (e) {
       throw e;
@@ -91,6 +93,12 @@ export class DatabaseService extends IFirebaseService {
         active,
         frequency,
       });
+
+      this.logData(
+        'add-user-playlist',
+        `Added playlist ${playlistId} from user ${userId}`,
+        { userId, playlistId },
+      );
     } catch (e) {
       console.log(e);
       throw e;
@@ -128,6 +136,12 @@ export class DatabaseService extends IFirebaseService {
         active,
         frequency,
       });
+
+      this.logData(
+        'update-user-playlist',
+        `Updated playlist ${playlistId} from user ${userId}`,
+        { userId, playlistId, artists, active, frequency },
+      );
     } catch (e) {
       console.log(e);
       throw e;
@@ -143,6 +157,12 @@ export class DatabaseService extends IFirebaseService {
     try {
       await super.removeEntry('playlists', playlistId);
       await super.removeEntryField('users', userId, ['playlists', playlistId]);
+
+      this.logData(
+        'remove-user-playlist',
+        `Removed playlist ${playlistId} from user ${userId}`,
+        { userId, playlistId },
+      );
     } catch (e) {
       console.log(e);
       throw e;
@@ -233,6 +253,12 @@ export class DatabaseService extends IFirebaseService {
             active,
           },
         );
+
+        this.logData(
+          'set-playlist-activeness',
+          `Changed active status of playlist ${playlistId} from user ${userId} to ${active}`,
+          { userId, playlistId },
+        );
       }
     } catch (e) {
       console.log(e);
@@ -256,6 +282,11 @@ export class DatabaseService extends IFirebaseService {
 
       // remove user from database
       await super.removeEntry('users', userId);
+
+      this.logData('delete-user', `Deleted user ${userId} and playlists`, {
+        userId,
+        playlistIds,
+      });
     } catch (e) {
       console.log(e);
       throw e;
@@ -271,6 +302,12 @@ export class DatabaseService extends IFirebaseService {
     await super.updateEntryField('users', userId, ['playlists', playlistId], {
       updated: new Date().getTime(),
     });
+
+    this.logData(
+      'playlist-updated',
+      `Updated last update time of playlist ${playlistId} from user ${userId}`,
+      { userId, playlistId },
+    );
   }
 
   /**
@@ -392,6 +429,15 @@ export class DatabaseService extends IFirebaseService {
         ...playlist,
       };
     }
+  }
+
+  private logData(operation: string, message: string, data: any) {
+    this.loggingService.logData(
+      LogKey.databaseService,
+      message,
+      data,
+      operation,
+    );
   }
 }
 
