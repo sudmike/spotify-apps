@@ -5,13 +5,13 @@ import { Log, Logging } from '@google-cloud/logging';
 // ! Promises are purposefully not awaited
 // ---------------------------------------------
 export enum LogKey {
-  batch,
+  batchService,
 }
 
 @Injectable()
 export class LoggingService {
   logging = new Logging();
-  batchLog = this.logging.log('batch-log');
+  batchLog = this.logging.log('batch-service-log');
 
   correlatedLogMetadata: Map<
     string,
@@ -139,7 +139,7 @@ export class LoggingService {
    */
   private getLogByKey(logKey: LogKey): Log {
     switch (logKey) {
-      case LogKey.batch:
+      case LogKey.batchService:
         return this.batchLog;
     }
   }
