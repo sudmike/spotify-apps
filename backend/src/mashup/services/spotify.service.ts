@@ -10,6 +10,7 @@ import { SearchArtistResponseSchema } from '../schemas/response/search-artist-re
 import GenerationInformationEntity from '../schemas/entities/generation-information.entity';
 import { ArtistFull } from '../schemas/entities/artist-full.entity';
 import { SpotifyTokenService } from './spotify-token.service';
+import { LogKey } from './logging.service';
 
 @Injectable()
 export class SpotifyService extends SpotifyTokenService {
@@ -186,6 +187,13 @@ export class SpotifyService extends SpotifyTokenService {
 
       await this.setTracksOfPlaylist(playlistId, tracks);
 
+      this.logData('generate-playlist', `Generated playlist ${playlistId}`, {
+        playlistId,
+        inputPlaylistIds: entries.map((e) => e.playlist),
+        title,
+        description,
+      });
+
       return playlistId;
     } catch (e) {
       console.log(e);
@@ -224,6 +232,16 @@ export class SpotifyService extends SpotifyTokenService {
         await this.setTracksOfPlaylist(playlist, tracks);
       }
 
+      this.logData('update-playlist', `Updated playlist ${playlist}`, {
+        playlist,
+        updateTitle,
+        updateDescription,
+        updateSongs,
+        inputPlaylistIds: entries.map((e) => e.playlist),
+        title,
+        description,
+      });
+
       return playlist;
     } catch (e) {
       console.log(e);
@@ -242,6 +260,11 @@ export class SpotifyService extends SpotifyTokenService {
   ) {
     const tracks = await this.generateTrackList(entries);
     await this.setTracksOfPlaylist(playlist, tracks);
+    this.logData(
+      'regenerate-playlist',
+      `Regenerated tracks for playlist ${playlist}`,
+      { playlist, inputPlaylistIds: entries.map((e) => e.playlist) },
+    );
   }
 
   /**
@@ -292,6 +315,19 @@ export class SpotifyService extends SpotifyTokenService {
       name: titleFlag ? title : undefined,
       description: descriptionFlag ? description : undefined,
     });
+
+    this.logData(
+      'regenerate-details',
+      `Regenerated details for playlist ${playlist}`,
+      {
+        playlist,
+        artistNames,
+        regenerateTitle: titleFlag,
+        regenerateDescription: descriptionFlag,
+        title,
+        description,
+      },
+    );
   }
 
   /**
@@ -541,5 +577,14 @@ export class SpotifyService extends SpotifyTokenService {
       if (i > 0) costs[s2.length] = lastValue;
     }
     return costs[s2.length];
+  }
+
+  private logData(operation: string, message: string, data: any) {
+    this.loggingService.logData(
+      LogKey.spotifyService,
+      message,
+      data,
+      operation,
+    );
   }
 }
