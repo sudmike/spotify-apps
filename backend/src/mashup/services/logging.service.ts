@@ -49,7 +49,9 @@ export class LoggingService {
 
     // write to log
     const log = this.getLogByKey(logKey);
-    log.write(log.entry({ severity }, json));
+    if (process.env.NODE_ENV == 'prod')
+      log.write(log.entry({ severity }, json));
+    else console.log(severity, json);
   }
 
   /**
@@ -114,7 +116,9 @@ export class LoggingService {
 
     // write to log
     const log = this.getLogByKey(metadata.logKey);
-    log.write(log.entry({ severity: metadata.severity }, json));
+    if (process.env.NODE_ENV == 'prod')
+      log.write(log.entry({ severity: metadata.severity }, json));
+    else console.log(metadata.severity, json);
   }
 
   /**
