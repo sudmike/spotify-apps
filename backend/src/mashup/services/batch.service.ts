@@ -140,7 +140,7 @@ export class BatchService {
   }
 
   private startLog(id: string, operation: string) {
-    this.loggingService.startCorrelatedLog(id, LogKey.batchService, operation);
+    this.loggingService.startCorrelatedLog(id, LogKey.BatchService, operation);
   }
 
   private endLog(id: string) {

@@ -433,7 +433,7 @@ export class DatabaseService extends IFirebaseService {
 
   private logData(operation: string, message: string, data: any) {
     this.loggingService.logData(
-      LogKey.databaseService,
+      LogKey.DatabaseService,
       message,
       data,
       operation,

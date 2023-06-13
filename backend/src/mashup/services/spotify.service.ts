@@ -581,7 +581,7 @@ export class SpotifyService extends SpotifyTokenService {
 
   private logData(operation: string, message: string, data: any) {
     this.loggingService.logData(
-      LogKey.spotifyService,
+      LogKey.SpotifyService,
       message,
       data,
       operation,

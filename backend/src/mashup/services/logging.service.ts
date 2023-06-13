@@ -5,9 +5,9 @@ import { Log, Logging } from '@google-cloud/logging';
 // ! Promises are purposefully not awaited
 // ---------------------------------------------
 export enum LogKey {
-  batchService,
-  spotifyService,
-  databaseService,
+  BatchService,
+  SpotifyService,
+  DatabaseService,
 }
 
 @Injectable()
@@ -45,7 +45,7 @@ export class LoggingService {
   ) {
     // put together log data
     const json: { [key: string]: any } = {};
-    json.message = message;
+    json.message = `${LogKey[logKey]}: ${message}`;
     if (data) json.data = data;
     if (operation) json.operation = operation;
 
@@ -53,7 +53,7 @@ export class LoggingService {
     const log = this.getLogByKey(logKey);
     if (process.env.NODE_ENV == 'prod')
       log.write(log.entry({ severity }, json));
-    else console.log(severity, LogKey[logKey], json);
+    else console.log(severity, json);
   }
 
   /**
@@ -113,14 +113,14 @@ export class LoggingService {
     const json: { [key: string]: any } = {};
     json.id = id;
     json.operation = metadata.operation;
-    json.message = message;
+    json.message = `${LogKey[metadata.logKey]}: ${message}`;
     if (data) json.data = data;
 
     // write to log
     const log = this.getLogByKey(metadata.logKey);
     if (process.env.NODE_ENV == 'prod')
       log.write(log.entry({ severity: metadata.severity }, json));
-    else console.log(metadata.severity, LogKey[metadata.logKey], json);
+    else console.log(metadata.severity, json);
   }
 
   /**
@@ -146,11 +146,11 @@ export class LoggingService {
    */
   private getLogByKey(logKey: LogKey): Log {
     switch (logKey) {
-      case LogKey.batchService:
+      case LogKey.BatchService:
         return this.batchLog;
-      case LogKey.spotifyService:
+      case LogKey.SpotifyService:
         return this.spotifyLog;
-      case LogKey.databaseService:
+      case LogKey.DatabaseService:
         return this.databaseLog;
     }
   }
