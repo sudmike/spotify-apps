@@ -1,21 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { SpotifyService } from './spotify.service';
 import { DatabaseService, PlaylistDataComplete } from './database.service';
+import { LoggingService, LogKey } from './logging.service';
 
 @Injectable()
 export class BatchService {
   constructor(
     private readonly spotifyService: SpotifyService,
     private readonly databaseService: DatabaseService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   /**
    * Refreshes all playlists that are scheduled to be updated.
    */
   async refreshAllPlaylists(): Promise<void> {
+    const logId = this.loggingService.generateLogCorrelationId();
+    this.startLog(logId, 'refresh');
+
     // fetch all playlists that should be refreshed
     const data = await this.databaseService.getAllPlaylists(true, true);
-    if (!data) return;
+    if (!data) {
+      this.logMessage(logId, 'Nothing to refresh');
+      this.endLog(logId);
+      return;
+    } else {
+      this.logData(
+        logId,
+        'Fetched playlists to refresh',
+        data.map((v) => ({ userId: v.user, playlistId: v.playlist.id })),
+      );
+    }
 
     // refresh all playlists
     await this.spotifyService.regeneratePlaylists(
@@ -29,6 +44,9 @@ export class BatchService {
         this.databaseService.setPlaylistUpdated(user, playlist);
       },
     );
+
+    this.logMessage(logId, 'Successfully refreshed all playlists');
+    this.endLog(logId);
   }
 
   /**
@@ -36,9 +54,22 @@ export class BatchService {
    * @param bold Update description and title even when default is found. This is useful for rare cases like an artist changing their name.
    */
   async checkAllPlaylists(bold: boolean): Promise<void> {
+    const logId = this.loggingService.generateLogCorrelationId();
+    this.startLog(logId, `check`);
+
     // fetch all playlists that should be checked
     const data = await this.databaseService.getAllPlaylists(false, false);
-    if (!data) return;
+    if (!data) {
+      this.logMessage(logId, 'Nothing to check');
+      this.endLog(logId);
+      return;
+    } else {
+      this.logData(
+        logId,
+        'Fetched playlists to check',
+        data.map((v) => ({ userId: v.user, playlistId: v.playlist.id })),
+      );
+    }
 
     // batch playlists by user through a map
     const dataByUser: Map<string, PlaylistDataComplete[]> = new Map<
@@ -68,8 +99,8 @@ export class BatchService {
         },
       );
 
-      for (const playlist of playlists) {
-        // check if description and title need to be updated
+      // for loop as a promise
+      for await (const playlist of playlists) {
         const updateEmptyDescription = playlist.details.description == '';
         const updateOriginalDescription = playlist.details.description
           .toLowerCase()
@@ -80,6 +111,11 @@ export class BatchService {
           playlist.details.name.toLowerCase().includes('these are ') && bold;
 
         if (updateDescription || updateTitle) {
+          this.logData(logId, 'Regenerate playlist description or title', {
+            playlistId: playlist.id,
+            updateDescription,
+            updateTitle,
+          });
           // get artist names because they are necessary to generate the description
           const artistIDs = value
             .find((v) => v.id == playlist.id)
@@ -97,6 +133,25 @@ export class BatchService {
           );
         }
       }
+
+      this.logMessage(logId, 'Successfully checked all playlists');
+      this.endLog(logId);
     }
+  }
+
+  private startLog(id: string, operation: string) {
+    this.loggingService.startCorrelatedLog(id, LogKey.batchService, operation);
+  }
+
+  private endLog(id: string) {
+    this.loggingService.endCorrelatedLog(id);
+  }
+
+  private logMessage(id: string, message: string) {
+    this.loggingService.logCorrelatedData(id, message);
+  }
+
+  private logData(id: string, message: string, data: any) {
+    this.loggingService.logCorrelatedData(id, message, data);
   }
 }
