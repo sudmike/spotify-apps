@@ -7,6 +7,7 @@ import { Log, Logging } from '@google-cloud/logging';
 export enum LogKey {
   batchService,
   spotifyService,
+  databaseService,
 }
 
 @Injectable()
@@ -14,6 +15,7 @@ export class LoggingService {
   logging = new Logging();
   batchLog = this.logging.log('batch-service-log');
   spotifyLog = this.logging.log('spotify-service-log');
+  databaseLog = this.logging.log('database-service-log');
 
   correlatedLogMetadata: Map<
     string,
@@ -51,7 +53,7 @@ export class LoggingService {
     const log = this.getLogByKey(logKey);
     if (process.env.NODE_ENV == 'prod')
       log.write(log.entry({ severity }, json));
-    else console.log(severity, json);
+    else console.log(severity, LogKey[logKey], json);
   }
 
   /**
@@ -118,7 +120,7 @@ export class LoggingService {
     const log = this.getLogByKey(metadata.logKey);
     if (process.env.NODE_ENV == 'prod')
       log.write(log.entry({ severity: metadata.severity }, json));
-    else console.log(metadata.severity, json);
+    else console.log(metadata.severity, LogKey[metadata.logKey], json);
   }
 
   /**
@@ -148,6 +150,8 @@ export class LoggingService {
         return this.batchLog;
       case LogKey.spotifyService:
         return this.spotifyLog;
+      case LogKey.databaseService:
+        return this.databaseLog;
     }
   }
 }
