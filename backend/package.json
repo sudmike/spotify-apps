@@ -22,6 +22,7 @@
     "generate": "npx @openapitools/openapi-generator-cli generate -i openapi/openapi.json -g typescript-axios -o ../frontends/mashup/src/openapi"
   },
   "dependencies": {
+    "@google-cloud/logging": "^10.5.0",
     "@nestjs/common": "^9.4.2",
     "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^9.4.2",
