@@ -374,9 +374,9 @@ export class SpotifyService extends SpotifyTokenService {
     let tracks = [];
     const firstTracks = [];
 
-    try {
-      // go through each playlist and get tracks
-      for await (const entry of entries) {
+    // go through each playlist and get tracks
+    for await (const entry of entries) {
+      try {
         // get tracks from playlist
         const tracksSubset = await this.getTracksFromPlaylist(entry.playlist);
 
@@ -387,13 +387,13 @@ export class SpotifyService extends SpotifyTokenService {
         );
         firstTracks.push(tracksSubsetTrimmed.at(0));
         tracks = tracks.concat(tracksSubsetTrimmed.slice(1));
+      } catch (e) {
+        // skip playlist that could not be found
+        // ... WARNING log
       }
-
-      return cleanArray(firstTracks.concat(shuffleArray(tracks)));
-    } catch (e) {
-      console.log(e);
-      throw e;
     }
+
+    return cleanArray(firstTracks.concat(shuffleArray(tracks)));
   }
 
   /**
