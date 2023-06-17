@@ -124,9 +124,7 @@ export class PlaylistComponent implements OnInit {
   private shouldDescriptionChange(artists: ArtistResponseFull[]) {
     const artistOrderChanged = this.hasArtistOrderChanged(artists);
     const isDefaultDescription =
-      this.playlist?.description
-        .toLowerCase()
-        .includes('this playlist was auto-generated! artists are') ||
+      this.playlist?.description.toLowerCase().includes('this playlist was ') ||
       this.playlist?.description == '';
     return artistOrderChanged && Boolean(isDefaultDescription);
   }
