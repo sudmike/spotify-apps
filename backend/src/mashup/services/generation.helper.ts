@@ -45,12 +45,10 @@ export function generatePlaylistTitle(artists: string[]): string {
 export function generatePlaylistDescription(artists: string[]): string {
   artists = prepArtistsForDescription(artists);
 
-  let playlistDescription = `This playlist was auto-generated! Artists are ${artists[0]}`;
+  let playlistDescription = `This playlist was created with mashup-music.com! Artists are ${artists[0]}`;
   for (let i = 1; i < artists.length - 1; i++)
     playlistDescription += ', ' + artists[i];
-  playlistDescription += ` and ${
-    artists[artists.length - 1]
-  }. Created with mashup-music.com`;
+  playlistDescription += ` and ${artists[artists.length - 1]}.`;
 
   return playlistDescription;
 }

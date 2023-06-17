@@ -104,7 +104,7 @@ export class BatchService {
         const updateEmptyDescription = playlist.details.description == '';
         const updateOriginalDescription = playlist.details.description
           .toLowerCase()
-          .includes('this playlist was auto-generated! artists are');
+          .includes('this playlist was ');
         const updateDescription =
           updateEmptyDescription || (updateOriginalDescription && bold);
         const updateTitle =
