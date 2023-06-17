@@ -447,11 +447,16 @@ export class SpotifyService extends SpotifyTokenService {
         const playlist = (
           await this.getSpotifyApi().getPlaylistTracks(id, {
             offset: tracks.length,
-            fields: 'total,limit,offset,items(track.uri)',
+            fields:
+              'total,limit,offset,items(track.uri,track.type,episode.type)',
           })
         ).body;
         remaining = playlist.total - playlist.offset - playlist.limit;
-        tracks = tracks.concat(playlist.items.map((item) => item.track.uri));
+        tracks = tracks.concat(
+          playlist.items
+            .filter((item) => item.track.type == 'track')
+            .map((item) => item.track.uri),
+        );
       } while (remaining > 0);
 
       return tracks;
