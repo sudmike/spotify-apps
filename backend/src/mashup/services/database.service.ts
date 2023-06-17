@@ -30,6 +30,10 @@ export class DatabaseService extends IFirebaseService {
       this.logData('add-user', `Added user ${userId}`, { userId });
       return userId;
     } catch (e) {
+      this.logError('add-user', `Failed to add user ${userId}`, {
+        userId,
+        error: e,
+      });
       throw e;
     }
   }
@@ -47,6 +51,15 @@ export class DatabaseService extends IFirebaseService {
       await super.updateEntry('users', userId, { spotifyRefresh });
       return userId;
     } catch (e) {
+      this.logError(
+        'update-spotify-token',
+        `Failed to update Spotify token for user ${userId}`,
+        {
+          userId,
+          spotifyRefresh: spotifyRefresh.substring(0, 6) + '...',
+          error: e,
+        },
+      );
       throw e;
     }
   }
@@ -60,6 +73,11 @@ export class DatabaseService extends IFirebaseService {
       const data = await super.getEntry('users', userId);
       return { refreshToken: data.spotifyRefresh, id: userId };
     } catch (e) {
+      this.logError(
+        'get-user-data',
+        `Failed to get user data for user ${userId}`,
+        { userId, error: e },
+      );
       throw e;
     }
   }
@@ -100,7 +118,11 @@ export class DatabaseService extends IFirebaseService {
         { userId, playlistId },
       );
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'add-user-playlist',
+        `Failed to add playlist ${playlistId} from user ${userId}`,
+        { userId, playlistId, error: e },
+      );
       throw e;
     }
   }
@@ -143,7 +165,11 @@ export class DatabaseService extends IFirebaseService {
         { userId, playlistId, artists, active, frequency },
       );
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'get-user-data',
+        `Failed to update playlist ${playlistId} for user ${userId}`,
+        { userId, playlistId, artists, active, frequency, error: e },
+      );
       throw e;
     }
   }
@@ -164,7 +190,11 @@ export class DatabaseService extends IFirebaseService {
         { userId, playlistId },
       );
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'remove-user-playlist',
+        `Failed to remove playlist ${playlistId} for user ${userId}`,
+        { userId, playlistId, error: e },
+      );
       throw e;
     }
   }
@@ -189,7 +219,11 @@ export class DatabaseService extends IFirebaseService {
         artists: await this.getPlaylistArtists(playlistId, userId),
       };
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'get-user-playlist',
+        `Failed to get playlist ${playlistId} for user ${userId}`,
+        { userId, playlistId, error: e },
+      );
       throw e;
     }
   }
@@ -224,7 +258,11 @@ export class DatabaseService extends IFirebaseService {
 
       return playlists;
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'get-user-playlists',
+        `Failed to get playlists for user ${userId}`,
+        { userId, error: e },
+      );
       throw e;
     }
   }
@@ -261,7 +299,11 @@ export class DatabaseService extends IFirebaseService {
         );
       }
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'set-playlist-activeness',
+        `Failed to set playlist activeness of playlist ${playlistId} from user ${userId} to ${active}`,
+        { userId, playlistId, active, error: e },
+      );
       throw e;
     }
   }
@@ -288,7 +330,10 @@ export class DatabaseService extends IFirebaseService {
         playlistIds,
       });
     } catch (e) {
-      console.log(e);
+      this.logError('delete-user', `Failed to delete user ${userId}`, {
+        userId,
+        error: e,
+      });
       throw e;
     }
   }
@@ -299,15 +344,24 @@ export class DatabaseService extends IFirebaseService {
    * @param playlistId The ID of the playlist.
    */
   async setPlaylistUpdated(userId: string, playlistId: string) {
-    await super.updateEntryField('users', userId, ['playlists', playlistId], {
-      updated: new Date().getTime(),
-    });
+    try {
+      await super.updateEntryField('users', userId, ['playlists', playlistId], {
+        updated: new Date().getTime(),
+      });
 
-    this.logData(
-      'playlist-updated',
-      `Updated last update time of playlist ${playlistId} from user ${userId}`,
-      { userId, playlistId },
-    );
+      this.logData(
+        'playlist-updated',
+        `Updated last update time of playlist ${playlistId} from user ${userId}`,
+        { userId, playlistId },
+      );
+    } catch (e) {
+      this.logError(
+        'set-playlist-updated',
+        `Failed to update last updated time of playlist ${playlistId} from user ${userId}`,
+        { userId, playlistId, error: e },
+      );
+      throw e;
+    }
   }
 
   /**
@@ -397,7 +451,11 @@ export class DatabaseService extends IFirebaseService {
             entry.user,
           );
         } catch (e) {
-          console.log(e);
+          this.logData(
+            'get-all-playlists',
+            `Failed to get playlist ${entry.playlist.id}`,
+            { entry, activeFlag, refreshNeededFlag, error: e },
+          );
           // remove playlist
           entries = entries.filter((e) => e.playlist.id !== entry.playlist.id);
         }
@@ -431,13 +489,23 @@ export class DatabaseService extends IFirebaseService {
     }
   }
 
-  private logData(operation: string, message: string, data: any) {
+  private logData(
+    operation: string,
+    message: string,
+    data: any,
+    severity: string | undefined = undefined,
+  ) {
     this.loggingService.logData(
       LogKey.DatabaseService,
       message,
       data,
       operation,
+      severity,
     );
+  }
+
+  private logError(operation: string, message: string, data: any) {
+    this.logData(operation, message, data, 'ERROR');
   }
 }
 
