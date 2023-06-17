@@ -207,10 +207,15 @@ export class SpotifyService extends SpotifyTokenService {
 
       return playlistId;
     } catch (e) {
-      this.logError('generate-playlist', `Failed to generate playlist`, {
-        entries,
-        error: e,
-      });
+      this.logError(
+        'generate-playlist',
+        `Failed to generate playlist`,
+        {
+          entries,
+          error: e,
+        },
+        true,
+      );
       throw e;
     }
   }
@@ -269,6 +274,7 @@ export class SpotifyService extends SpotifyTokenService {
           updateSongs,
           error: e,
         },
+        true,
       );
       throw e;
     }
@@ -525,6 +531,7 @@ export class SpotifyService extends SpotifyTokenService {
         'set-tracks-of-playlist',
         `Failed to set tracks of playlist ${id}`,
         { playlistId: id, tracks, error: e },
+        true,
       );
       throw e;
     }
@@ -645,7 +652,12 @@ export class SpotifyService extends SpotifyTokenService {
     );
   }
 
-  private logError(operation: string, message: string, data: any) {
-    this.logData(operation, message, data, 'ERROR');
+  private logError(
+    operation: string,
+    message: string,
+    data: any,
+    critical = false,
+  ) {
+    this.logData(operation, message, data, critical ? 'CRITICAL' : 'ERROR');
   }
 }

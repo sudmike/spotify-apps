@@ -30,10 +30,15 @@ export class DatabaseService extends IFirebaseService {
       this.logData('add-user', `Added user ${userId}`, { userId });
       return userId;
     } catch (e) {
-      this.logError('add-user', `Failed to add user ${userId}`, {
-        userId,
-        error: e,
-      });
+      this.logError(
+        'add-user',
+        `Failed to add user ${userId}`,
+        {
+          userId,
+          error: e,
+        },
+        true,
+      );
       throw e;
     }
   }
@@ -59,6 +64,7 @@ export class DatabaseService extends IFirebaseService {
           spotifyRefresh: spotifyRefresh.substring(0, 6) + '...',
           error: e,
         },
+        true,
       );
       throw e;
     }
@@ -122,6 +128,7 @@ export class DatabaseService extends IFirebaseService {
         'add-user-playlist',
         `Failed to add playlist ${playlistId} from user ${userId}`,
         { userId, playlistId, error: e },
+        true,
       );
       throw e;
     }
@@ -194,6 +201,7 @@ export class DatabaseService extends IFirebaseService {
         'remove-user-playlist',
         `Failed to remove playlist ${playlistId} for user ${userId}`,
         { userId, playlistId, error: e },
+        true,
       );
       throw e;
     }
@@ -303,6 +311,7 @@ export class DatabaseService extends IFirebaseService {
         'set-playlist-activeness',
         `Failed to set playlist activeness of playlist ${playlistId} from user ${userId} to ${active}`,
         { userId, playlistId, active, error: e },
+        true,
       );
       throw e;
     }
@@ -330,10 +339,15 @@ export class DatabaseService extends IFirebaseService {
         playlistIds,
       });
     } catch (e) {
-      this.logError('delete-user', `Failed to delete user ${userId}`, {
-        userId,
-        error: e,
-      });
+      this.logError(
+        'delete-user',
+        `Failed to delete user ${userId}`,
+        {
+          userId,
+          error: e,
+        },
+        true,
+      );
       throw e;
     }
   }
@@ -350,7 +364,7 @@ export class DatabaseService extends IFirebaseService {
       });
 
       this.logData(
-        'playlist-updated',
+        'set-playlist-updated',
         `Updated last update time of playlist ${playlistId} from user ${userId}`,
         { userId, playlistId },
       );
@@ -359,6 +373,7 @@ export class DatabaseService extends IFirebaseService {
         'set-playlist-updated',
         `Failed to update last updated time of playlist ${playlistId} from user ${userId}`,
         { userId, playlistId, error: e },
+        true,
       );
       throw e;
     }
@@ -504,8 +519,13 @@ export class DatabaseService extends IFirebaseService {
     );
   }
 
-  private logError(operation: string, message: string, data: any) {
-    this.logData(operation, message, data, 'ERROR');
+  private logError(
+    operation: string,
+    message: string,
+    data: any,
+    critical = false,
+  ) {
+    this.logData(operation, message, data, critical ? 'CRITICAL' : 'ERROR');
   }
 }
 
