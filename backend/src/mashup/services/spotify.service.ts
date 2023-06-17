@@ -77,7 +77,11 @@ export class SpotifyService extends SpotifyTokenService {
         };
       }
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'search-artist',
+        `Failed to complete search for artist ${artist}`,
+        e,
+      );
       throw e;
     }
   }
@@ -129,7 +133,11 @@ export class SpotifyService extends SpotifyTokenService {
         )
       ).filter((playlist) => playlist);
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'get-playlist-details',
+        `Failed to get details for playlists`,
+        { username, playlistIds: ids, error: e },
+      );
       throw e;
     }
   }
@@ -164,7 +172,10 @@ export class SpotifyService extends SpotifyTokenService {
 
       return artists;
     } catch (e) {
-      console.log(e);
+      this.logError('get-artist-details', `Failed to get details for artists`, {
+        ids,
+        error: e,
+      });
       throw e;
     }
   }
@@ -196,7 +207,10 @@ export class SpotifyService extends SpotifyTokenService {
 
       return playlistId;
     } catch (e) {
-      console.log(e);
+      this.logError('generate-playlist', `Failed to generate playlist`, {
+        entries,
+        error: e,
+      });
       throw e;
     }
   }
@@ -244,7 +258,18 @@ export class SpotifyService extends SpotifyTokenService {
 
       return playlist;
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'update-playlist',
+        `Failed to update playlist ${playlist}`,
+        {
+          playlist,
+          entries,
+          updateTitle,
+          updateDescription,
+          updateSongs,
+          error: e,
+        },
+      );
       throw e;
     }
   }
@@ -348,7 +373,11 @@ export class SpotifyService extends SpotifyTokenService {
         );
       else return res.at(0);
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'get-playlist-following-status',
+        `Failed to get following status from user ${user} for playlist ${id}`,
+        { userId: user, playlistId: id, error: e },
+      );
       throw e;
     }
   }
@@ -425,7 +454,12 @@ export class SpotifyService extends SpotifyTokenService {
         tracks = tracks.concat(tracksSubsetTrimmed.slice(1));
       } catch (e) {
         // skip playlist that could not be found
-        // ... WARNING log
+        this.logData(
+          'generate-track-list',
+          `Could not get tracks from playlist ${entry.playlist}`,
+          undefined,
+          'WARNING',
+        );
       }
     }
 
@@ -461,7 +495,11 @@ export class SpotifyService extends SpotifyTokenService {
 
       return tracks;
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'get-tracks-from-playlist',
+        `Failed to get tracks from playlist ${id}`,
+        e,
+      );
       throw e;
     }
   }
@@ -483,7 +521,11 @@ export class SpotifyService extends SpotifyTokenService {
         first = false;
       }
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'set-tracks-of-playlist',
+        `Failed to set tracks of playlist ${id}`,
+        { playlistId: id, tracks, error: e },
+      );
       throw e;
     }
   }
@@ -534,7 +576,11 @@ export class SpotifyService extends SpotifyTokenService {
         }
       } else return undefined;
     } catch (e) {
-      console.log(e);
+      this.logError(
+        'get-this-is-playlist-id',
+        `Failed to get This Is playlist for artist ${artist}`,
+        { artist, artistUri, deepCheck, error: e },
+      );
       throw e;
     }
   }
@@ -584,12 +630,22 @@ export class SpotifyService extends SpotifyTokenService {
     return costs[s2.length];
   }
 
-  private logData(operation: string, message: string, data: any) {
+  private logData(
+    operation: string,
+    message: string,
+    data: any,
+    severity: string | undefined = undefined,
+  ) {
     this.loggingService.logData(
       LogKey.SpotifyService,
       message,
       data,
       operation,
+      severity,
     );
+  }
+
+  private logError(operation: string, message: string, data: any) {
+    this.logData(operation, message, data, 'ERROR');
   }
 }
