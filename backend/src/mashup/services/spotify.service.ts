@@ -294,7 +294,11 @@ export class SpotifyService extends SpotifyTokenService {
     this.logData(
       'regenerate-playlist',
       `Regenerated tracks for playlist ${playlist}`,
-      { playlist, inputPlaylistIds: entries.map((e) => e.playlist) },
+      {
+        playlist,
+        inputPlaylistIds: entries.map((e) => e.playlist),
+        mode: 'single',
+      },
     );
   }
 
@@ -318,6 +322,15 @@ export class SpotifyService extends SpotifyTokenService {
       // generate track list and update playlist
       const tracks = await this.generateTrackList(tuple.entries);
       await this.setTracksOfPlaylist(tuple.playlist, tracks);
+      this.logData(
+        'regenerate-playlist',
+        `Regenerated tracks for playlist ${tuple.playlist}`,
+        {
+          playlist: tuple.playlist,
+          inputPlaylistIds: tuple.entries.map((e) => e.playlist),
+          mode: 'multi',
+        },
+      );
 
       // inform caller that playlist was updated
       OnUpdated(tuple.user, tuple.playlist);
