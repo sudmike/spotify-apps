@@ -83,19 +83,6 @@ export class LoggingService {
   }
 
   /**
-   * Ends the correlation between log entries.
-   * @param id Id that is used to correlate entries.
-   */
-  endCorrelatedLog(id: string) {
-    // log ending message
-    const metadata = this.correlatedLogMetadata.get(id);
-    this.logCorrelatedData(id, `Ending operation "${metadata.operation}"`);
-
-    // update log metadata
-    this.correlatedLogMetadata.delete(id);
-  }
-
-  /**
    * Logs an entry consisting of a message and optionally data and correlates it to other messages.
    * @param id Id that is used to correlate entries.
    * @param message Message that should be written to the log.

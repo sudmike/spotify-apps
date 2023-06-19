@@ -22,7 +22,6 @@ export class BatchService {
     const data = await this.databaseService.getAllPlaylists(true, true);
     if (!data) {
       this.logMessage(logId, 'Nothing to refresh');
-      this.endLog(logId);
       return;
     } else {
       this.logData(
@@ -46,7 +45,6 @@ export class BatchService {
     );
 
     this.logMessage(logId, 'Successfully refreshed all playlists');
-    this.endLog(logId);
   }
 
   /**
@@ -61,7 +59,6 @@ export class BatchService {
     const data = await this.databaseService.getAllPlaylists(false, false);
     if (!data) {
       this.logMessage(logId, 'Nothing to check');
-      this.endLog(logId);
       return;
     } else {
       this.logData(
@@ -135,16 +132,11 @@ export class BatchService {
       }
 
       this.logMessage(logId, 'Successfully checked all playlists');
-      this.endLog(logId);
     }
   }
 
   private startLog(id: string, operation: string) {
     this.loggingService.startCorrelatedLog(id, LogKey.BatchService, operation);
-  }
-
-  private endLog(id: string) {
-    this.loggingService.endCorrelatedLog(id);
   }
 
   private logMessage(id: string, message: string) {
