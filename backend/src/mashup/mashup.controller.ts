@@ -113,17 +113,24 @@ export class MashupController {
   @ApiExcludeEndpoint()
   async checkPlaylists(@Query() query) {
     // check query parameter first
-    const bold = query.bold;
-    if (!bold || bold == '')
+    const forceFlag = this.getBooleanQueryParameter(query, 'force');
+    const detailsFlag = this.getBooleanQueryParameter(query, 'details');
+    const artistsFlag = this.getBooleanQueryParameter(query, 'artists');
+
+    if (
+      forceFlag == undefined ||
+      detailsFlag == undefined ||
+      artistsFlag == undefined
+    )
       return new BadRequestException(
-        `Query parameter 'bold' must be present!'`,
-      );
-    if (bold !== 'true' && bold !== 'false')
-      return new BadRequestException(
-        `Query parameter 'bold' must be either 'true' or 'false'! Value received: '${bold}'`,
+        `Query parameters 'force', 'details' and 'artists' must be present and either 'true' or 'false'!'`,
       );
 
-    await this.batchService.checkAllPlaylists(bold === 'true');
+    await this.batchService.checkAllPlaylists(
+      detailsFlag,
+      artistsFlag,
+      forceFlag,
+    );
   }
 
   @Post('auth')
@@ -347,5 +354,14 @@ export class MashupController {
   @UseInterceptors(SpotifyTokenInterceptor)
   async deleteUser(@Body() body: BaseSchema | any) {
     await this.databaseService.deleteUser(body.uuid);
+  }
+
+  private getBooleanQueryParameter(
+    query: any,
+    key: string,
+  ): boolean | undefined {
+    const value = query[key]?.toLowerCase();
+    if (!value || (value !== 'true' && value !== 'false')) return undefined;
+    else return value == 'true';
   }
 }

@@ -53,9 +53,15 @@ export class BatchService {
 
   /**
    * Checks all playlists for their existence and description/title.
-   * @param bold Update description and title even when default is found. This is useful for rare cases like an artist changing their name.
+   * @param detailsFlag Check playlist details like title and description.
+   * @param artistFlag Check artists' playlists to make sure they are consistent.
+   * @param forceFlag Update description and title even when default is found. This is useful for rare cases like an artist changing their name.
    */
-  async checkAllPlaylists(bold: boolean): Promise<void> {
+  async checkAllPlaylists(
+    detailsFlag: boolean,
+    artistFlag: boolean,
+    forceFlag: boolean,
+  ): Promise<void> {
     const logId = this.loggingService.generateLogCorrelationId();
     this.startLog(logId, `check`);
 
@@ -101,83 +107,87 @@ export class BatchService {
       );
 
       // update descriptions and titles
-      for await (const playlist of playlists) {
-        const updateEmptyDescription = playlist.details.description == '';
-        const updateOriginalDescription = playlist.details.description
-          .toLowerCase()
-          .includes('this playlist was ');
-        const updateDescription =
-          updateEmptyDescription || (updateOriginalDescription && bold);
-        const updateTitle =
-          playlist.details.name.toLowerCase().includes('these are ') && bold;
+      if (detailsFlag)
+        for await (const playlist of playlists) {
+          const updateEmptyDescription = playlist.details.description == '';
+          const updateOriginalDescription = playlist.details.description
+            .toLowerCase()
+            .includes('this playlist was ');
+          const updateDescription =
+            updateEmptyDescription || (updateOriginalDescription && forceFlag);
+          const updateTitle =
+            playlist.details.name.toLowerCase().includes('these are ') &&
+            forceFlag;
 
-        if (updateDescription || updateTitle) {
-          this.logData(logId, 'Regenerate playlist description or title', {
-            playlistId: playlist.id,
-            updateDescription,
-            updateTitle,
-          });
-          // get artist names because they are necessary to generate the description
-          const artistIDs = value
-            .find((v) => v.id == playlist.id)
-            .artists.map((a) => a.id);
-          const artistDetails = await this.spotifyService.getArtistDetails(
-            artistIDs,
-          );
-          const artistNames = artistDetails.map((a) => a.details.name);
+          if (updateDescription || updateTitle) {
+            this.logData(logId, 'Regenerate playlist description or title', {
+              playlistId: playlist.id,
+              updateDescription,
+              updateTitle,
+            });
+            // get artist names because they are necessary to generate the description
+            const artistIDs = value
+              .find((v) => v.id == playlist.id)
+              .artists.map((a) => a.id);
+            const artistDetails = await this.spotifyService.getArtistDetails(
+              artistIDs,
+            );
+            const artistNames = artistDetails.map((a) => a.details.name);
 
-          await this.spotifyService.regenerateDetails(
-            playlist.id,
-            artistNames,
-            updateTitle,
-            updateDescription,
-          );
-        }
-      }
-
-      // update artist playlists
-      for await (const playlist of value) {
-        let updateDatabase = false;
-        const artists: PlaylistArtistsData = [];
-        for await (const artistEntry of playlist.artists) {
-          // check if this is playlist still exists
-          const artistPlaylistExists =
-            await this.spotifyService.doesPlaylistExist(artistEntry.playlist);
-
-          // if this is playlist does not exist anymore update the entry, otherwise keep it
-          if (!artistPlaylistExists) {
-            updateDatabase = true;
-            try {
-              const artistName = (
-                await this.spotifyService.getArtistDetails([artistEntry.id])
-              )[0].details.name;
-              const artistPlaylistId = (
-                await this.spotifyService.searchArtist(artistName)
-              ).artist?.playlist;
-
-              this.logData(logId, `Update playlist id for artist`, {
-                artistId: artistEntry.id,
-                artistName,
-                oldPlaylistId: artistEntry.playlist,
-                newPlaylistId: artistPlaylistId,
-              });
-
-              // add modified artist entry
-              artists.push({
-                ...artistEntry,
-                playlist: artistPlaylistId,
-              });
-            } catch (e) {
-              // do not add artist entry
-            }
-          } else {
-            // add normal artist entry
-            artists.push(artistEntry);
+            await this.spotifyService.regenerateDetails(
+              playlist.id,
+              artistNames,
+              updateTitle,
+              updateDescription,
+            );
           }
         }
-        if (updateDatabase)
-          await this.databaseService.setPlaylistArtists(playlist.id, artists);
-      }
+
+      // update artist playlists
+      if (artistFlag)
+        for await (const playlist of value) {
+          let updateDatabase = false;
+          const artists: PlaylistArtistsData = [];
+          for await (const artistEntry of playlist.artists) {
+            // check if this is playlist still exists
+            const artistPlaylistExists =
+              await this.spotifyService.doesPlaylistExist(artistEntry.playlist);
+
+            // if this is playlist does not exist anymore update the entry, otherwise keep it
+            if (!artistPlaylistExists) {
+              updateDatabase = true;
+              try {
+                const artistName = (
+                  await this.spotifyService.getArtistDetails([artistEntry.id])
+                )[0].details.name;
+                const artistPlaylistId = (
+                  await this.spotifyService.searchArtist(artistName)
+                ).artist?.playlist;
+
+                this.logData(logId, `Update playlist id for artist`, {
+                  artistId: artistEntry.id,
+                  artistName,
+                  oldPlaylistId: artistEntry.playlist,
+                  newPlaylistId: artistPlaylistId,
+                });
+
+                // add modified artist entry
+                artists.push({
+                  ...artistEntry,
+                  playlist: artistPlaylistId,
+                });
+              } catch (e) {
+                // do not add artist entry
+              }
+            } else {
+              // add normal artist entry
+              artists.push(artistEntry);
+            }
+          }
+          if (updateDatabase)
+            await this.databaseService.setPlaylistArtists(playlist.id, artists);
+        }
+
       this.logMessage(logId, 'Successfully checked all playlists');
     }
   }
