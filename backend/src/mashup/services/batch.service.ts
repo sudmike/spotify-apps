@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { SpotifyService } from './spotify.service';
-import { DatabaseService, PlaylistDataComplete } from './database.service';
+import {
+  DatabaseService,
+  PlaylistArtistsData,
+  PlaylistDataComplete,
+} from './database.service';
 import { LoggingService, LogKey } from './logging.service';
 
 @Injectable()
@@ -96,7 +100,7 @@ export class BatchService {
         },
       );
 
-      // for loop as a promise
+      // update descriptions and titles
       for await (const playlist of playlists) {
         const updateEmptyDescription = playlist.details.description == '';
         const updateOriginalDescription = playlist.details.description
@@ -131,6 +135,49 @@ export class BatchService {
         }
       }
 
+      // update artist playlists
+      for await (const playlist of value) {
+        let updateDatabase = false;
+        const artists: PlaylistArtistsData = [];
+        for await (const artistEntry of playlist.artists) {
+          // check if this is playlist still exists
+          const artistPlaylistExists =
+            await this.spotifyService.doesPlaylistExist(artistEntry.playlist);
+
+          // if this is playlist does not exist anymore update the entry, otherwise keep it
+          if (!artistPlaylistExists) {
+            updateDatabase = true;
+            try {
+              const artistName = (
+                await this.spotifyService.getArtistDetails([artistEntry.id])
+              )[0].details.name;
+              const artistPlaylistId = (
+                await this.spotifyService.searchArtist(artistName)
+              ).artist?.playlist;
+
+              this.logData(logId, `Update playlist id for artist`, {
+                artistId: artistEntry.id,
+                artistName,
+                oldPlaylistId: artistEntry.playlist,
+                newPlaylistId: artistPlaylistId,
+              });
+
+              // add modified artist entry
+              artists.push({
+                ...artistEntry,
+                playlist: artistPlaylistId,
+              });
+            } catch (e) {
+              // do not add artist entry
+            }
+          } else {
+            // add normal artist entry
+            artists.push(artistEntry);
+          }
+        }
+        if (updateDatabase)
+          await this.databaseService.setPlaylistArtists(playlist.id, artists);
+      }
       this.logMessage(logId, 'Successfully checked all playlists');
     }
   }
