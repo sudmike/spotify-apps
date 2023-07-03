@@ -92,7 +92,7 @@ export class DatabaseService extends IFirebaseService {
    * Adds information about a generated playlist.
    * @param playlistId The playlists ID.
    * @param userId A UUID that identifies the user.
-   * @param artists The IDs of artists that are part of the playlist.
+   * @param artists The data for artists that are part of the playlist.
    * @param active Refresh playlist every X days.
    * @param frequency Refresh playlist every X days.
    */
@@ -138,7 +138,7 @@ export class DatabaseService extends IFirebaseService {
    * Adds information about a generated playlist.
    * @param playlistId The playlists ID.
    * @param userId A UUID that identifies the user.
-   * @param artists The IDs of artists that are part of the playlist.
+   * @param artists The data for artists that are part of the playlist.
    * @param active Refresh playlist every X days.
    * @param frequency Refresh playlist every X days.
    */
@@ -173,7 +173,7 @@ export class DatabaseService extends IFirebaseService {
       );
     } catch (e) {
       this.logError(
-        'get-user-data',
+        'update-user-playlist',
         `Failed to update playlist ${playlistId} for user ${userId}`,
         { userId, playlistId, artists, active, frequency, error: e },
       );
@@ -399,6 +399,39 @@ export class DatabaseService extends IFirebaseService {
         undefined,
         'Requested playlist does not belong to user',
       );
+    }
+  }
+
+  /**
+   * Sets artists for a playlist.
+   * @param playlistId The ID of the playlist.
+   * @param artists The data for artists that are part of the playlist.
+   */
+  async setPlaylistArtists(
+    playlistId: string,
+    artists: PlaylistArtistsData,
+  ): Promise<void> {
+    try {
+      await super.updateEntryField(
+        'playlists',
+        playlistId,
+        ['artists'],
+        artists,
+      );
+
+      this.logData(
+        'set-playlist-artists',
+        `Updated artists of playlist ${playlistId}`,
+        { playlistId, artists },
+      );
+    } catch (e) {
+      this.logError(
+        'set-playlist-artists',
+        `Failed to update artists of playlist ${playlistId}`,
+        { playlistId, artists, error: e },
+        true,
+      );
+      throw e;
     }
   }
 
