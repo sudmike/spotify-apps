@@ -402,6 +402,20 @@ export class SpotifyService extends SpotifyTokenService {
   }
 
   /**
+   * Checks if a playlist exists.
+   * Only returns false if it explicitly does not exist!
+   * @param id The ID of the playlist.
+   */
+  async doesPlaylistExist(id: string): Promise<boolean> {
+    try {
+      const res = await this.getSpotifyApi().getPlaylist(id);
+      return res.statusCode !== 404;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
    * Return true if the artist is relevant and false if not.
    * Check comments in implementation to see metrics.
    * @param artist The artist object.
